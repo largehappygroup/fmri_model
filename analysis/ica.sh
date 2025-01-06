@@ -2,7 +2,7 @@
 # after preprocessing 
 
 perform_ica(){
-      melodic -i "$1/filtered_func_data.nii.gz" -d 60 -o "$1/filtered_func_data.ica/" --Oorig --report --tr=0.8 -v 
+      melodic -i "$1/raw_mc_epi2mni.nii.gz" -d 60 -o "$1/raw_mc_epi2mni.ica/" --Oorig --report --tr=0.8 -v 
 }
 
 format_for_fix(){
@@ -11,13 +11,13 @@ format_for_fix(){
       mkdir "$1/reg"
       
       mv "$1/st_mc.nii.par" "$1/mc/prefiltered_func_data_mcf.par"
-      fslroi "$1/filtered_func_data.nii.gz" "$1/reg/example_func.nii.gz" 0 1
+      fslroi "$1/raw_mc_epi2mni.nii.gz" "$1/reg/example_func.nii.gz" 0 1
 
       # create mask for 4D functional data
       flirt -in "$1/BrainExtractionMask.nii.gz" -ref "$1/reg/example_func.nii.gz" -out "$1/mask.nii.gz" -applyxfm -usesqform
       
       # create temporal mean of 4d data
-      fslmaths "$1/filtered_func_data.nii.gz" -Tmean "$1/mean_func.nii.gz"
+      fslmaths "$1/raw_mc_epi2mni.nii.gz" -Tmean "$1/mean_func.nii.gz"
       
       # move example anatomical to reg/highres.nii.gz
       mv "$1/BrainExtractionBrain.nii.gz" "$1/reg/highres.nii.gz"
@@ -26,7 +26,7 @@ format_for_fix(){
 }
 
 perform_fix(){
-      ~/fix/fix -c "$1" ~/fmri/analysis/ICSE25.RData 20
+      ~/fix/fix -c "$1" ICSE25.RData 20
 }
 
 remove_components(){
@@ -34,15 +34,20 @@ remove_components(){
 }
 
 # for loop here for going through output directories  
-find "/home/zachkaras/fmri/three_studies_raw/" -maxdepth 1 -type d | while read -r folder; do
-      foldername="${folder:39}"
-      if [[ "$foldername" =~ "out" ]]; then
+find "/home/zachkaras/fmri/fmri_model_data/midprocess" -maxdepth 1 -type d | while read -r folder; do
+      foldername="${folder:48}"
+      #echo "$foldername"
+      if [[ "$foldername" =~ ^[0-9]{3}$ ]]; then
             echo "$foldername"
-            datadir="/home/zachkaras/fmri/three_studies_raw/$foldername"
-            perform_ica "$datadir"
-            #format_for_fix "$datadir"
-            #perform_fix "$datadir"
+            #perform_ica "$folder"
+            format_for_fix "$folder"
+            perform_fix "$folder"
             #remove_components "$datadir"
+            
+            ((counter++))
+            if [[ $counter -ge 3 ]]; then
+                  break
+            fi
       fi
 done
 
