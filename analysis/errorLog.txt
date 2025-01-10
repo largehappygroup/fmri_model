@@ -350,3 +350,11 @@ FSL call (/bin/sh -c '. /home/zachkaras/fsl/etc/fslconf/fsl.sh; fslinfo /home/za
 No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data
 
  
+Error Time: 01/09/2025 20:10:22
+Error using horzcat
+Dimensions of matrices being concatenated are not consistent.
+ 
+Error Time: 01/10/2025 09:30:34
+Error using horzcat
+Dimensions of matrices being concatenated are not consistent.
+ 

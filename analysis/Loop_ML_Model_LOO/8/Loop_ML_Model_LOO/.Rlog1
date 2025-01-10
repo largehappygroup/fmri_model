@@ -274,6 +274,15 @@ Type rfNews() to see new features/changes/bug fixes.
 > features.types <- features.types[init.keep.list]
 > # any features that we have to drop/exclude (for they have 0 variance)?
 > also.excl <- as.numeric(which(apply(hcp.data, 2, var)==0))
+> print(also.excl)
+ [1]   1  24  25  26  27  28  29  30  31  32  33  34  35  36  66  68 179 180 181
+[20] 183 184 185 186
+> nan.excl <- sapply(hcp.data, function(x) all(is.nan(x) | all(is.na(x))))
+> nan.excl <- as.numeric(which(nan.excl))
+> also.excl <- c(also.excl, nan.excl)
+> print(also.excl)
+ [1]   1  24  25  26  27  28  29  30  31  32  33  34  35  36  66  68 179 180 181
+[20] 183 184 185 186  37  38  45  46
 > if (length(also.excl)) {
 + 	hcp.data <- hcp.data[,-also.excl]
 + 	features.types <- features.types[-also.excl]
@@ -548,9 +557,9 @@ Type rfNews() to see new features/changes/bug fixes.
 [1] 1
 > print(df)
   thresh TPR       TNR
-1 thr=10   1 0.7914439
-2 thr=20   1 0.9358289
-3 thr=30   1 0.9946524
+1 thr=10   1 0.7807487
+2 thr=20   1 0.9411765
+3 thr=30   1 0.9893048
 4 thr=40   1 1.0000000
 5 thr=50   1 1.0000000
 > 
@@ -579,4 +588,4 @@ Type rfNews() to see new features/changes/bug fixes.
 > 
 > proc.time()
    user  system elapsed 
-  8.237   0.090   8.311 
+  8.252   0.085   8.321 
