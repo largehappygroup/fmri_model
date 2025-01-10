@@ -1,0 +1,62 @@
+/home/zachkaras/fmri/fmri_model_data/midprocess/101
+1, Unclassified noise, True
+2, Unclassified noise, True
+3, Unclassified noise, True
+4, Signal, False
+5, Signal, False
+6, Signal, False
+7, Signal, False
+8, Signal, False
+9, Signal, False
+10, Unclassified noise, True
+11, Signal, False
+12, Unclassified noise, True
+13, Signal, False
+14, Unclassified noise, True
+15, Signal, False
+16, Unclassified noise, True
+17, Signal, False
+18, Signal, False
+19, Signal, False
+20, Unclassified noise, True
+21, Unclassified noise, True
+22, Unclassified noise, True
+23, Signal, False
+24, Signal, False
+25, Unclassified noise, True
+26, Unclassified noise, True
+27, Signal, False
+28, Unclassified noise, True
+29, Signal, False
+30, Signal, False
+31, Signal, False
+32, Signal, False
+33, Unclassified noise, True
+34, Signal, False
+35, Unclassified noise, True
+36, Unclassified noise, True
+37, Unclassified noise, True
+38, Unclassified noise, True
+39, Unclassified noise, True
+40, Unclassified noise, True
+41, Unclassified noise, True
+42, Signal, False
+43, Signal, False
+44, Signal, False
+45, Unclassified noise, True
+46, Unclassified noise, True
+47, Unclassified noise, True
+48, Signal, False
+49, Unclassified noise, True
+50, Signal, False
+51, Signal, False
+52, Unclassified noise, True
+53, Signal, False
+54, Signal, False
+55, Unclassified noise, True
+56, Signal, False
+57, Unclassified noise, True
+58, Unclassified noise, True
+59, Signal, False
+60, Unclassified noise, True
+[1, 2, 3, 10, 12, 14, 16, 20, 21, 22, 25, 26, 28, 33, 35, 36, 37, 38, 39, 40, 41, 45, 46, 47, 49, 52, 55, 57, 58, 60]

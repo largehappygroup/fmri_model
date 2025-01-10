@@ -26,28 +26,29 @@ format_for_fix(){
 }
 
 perform_fix(){
-      ~/fix/fix -c "$1" ICSE25.RData 20
+      ~/fix/fix -c "$1" Loop_ML_Model.RData 20
 }
 
 remove_components(){
       ~/fix/fix -a "$1/fix4melview_ICSE25_thr20.txt"
 }
 
-# for loop here for going through output directories  
+# for loop for going through output directories  
 find "/home/zachkaras/fmri/fmri_model_data/midprocess" -maxdepth 1 -type d | while read -r folder; do
       foldername="${folder:48}"
       #echo "$foldername"
       if [[ "$foldername" =~ ^[0-9]{3}$ ]]; then
             echo "$foldername"
             #perform_ica "$folder"
-            format_for_fix "$folder"
+            #format_for_fix "$folder"
             perform_fix "$folder"
             #remove_components "$datadir"
             
-            ((counter++))
-            if [[ $counter -ge 3 ]]; then
-                  break
-            fi
+            #break
+            #((counter++))
+            #if [[ $counter -ge 3 ]]; then
+            #      break
+            #fi
       fi
 done
 

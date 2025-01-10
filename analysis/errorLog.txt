@@ -1,4 +1,352 @@
-Error Time: 01/06/2025 12:11:25
+Error Time: 01/08/2025 22:40:10
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/ica_sample/101.ica/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:19:07
 Error using load
 Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:19:16
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:19:25
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:19:34
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:19:43
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:19:51
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:20:00
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:24:09
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:24:33
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:24:41
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:24:50
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:24:59
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:25:08
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:25:17
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:29:25
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:33:48
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:33:57
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:34:06
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:34:14
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:34:23
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:34:32
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:38:40
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:43:02
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:43:11
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:43:19
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:43:27
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:43:35
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:43:44
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:47:52
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:52:13
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:52:22
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:52:31
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:52:39
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:52:48
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:52:57
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/08/2025 23:57:06
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:01:27
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:01:36
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:01:44
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:01:53
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:02:02
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:02:10
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:06:18
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:10:39
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:10:48
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:10:57
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:11:05
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:11:14
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:11:23
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:15:32
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:19:55
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:20:04
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:20:13
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:20:22
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:20:31
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:20:39
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:24:48
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:29:10
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:29:18
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:29:27
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:29:36
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:29:45
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:29:53
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 00:30:02
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 08:59:22
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 09:56:40
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:00:57
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:04:58
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:09:08
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:13:17
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:17:36
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:21:41
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:25:49
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:30:22
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:34:24
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:38:34
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:42:45
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/118/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:47:06
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/121/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:51:10
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/125/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:55:17
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/134/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 10:59:39
+Error using load
+Unable to read file '/home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.ica/melodic_mix'. No such file or directory.
+ 
+Error Time: 01/09/2025 11:09:15
+Error using call_fsl (line 36)
+FSL call (/bin/sh -c '. /home/zachkaras/fsl/etc/fslconf/fsl.sh; fslinfo /home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data.nii.gz > /home/zachkaras/fmri/fmri_model_data/midprocess/101/fix/dummyinfo.txt') failed, Image Exception : #63 :: No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data
+No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/101/filtered_func_data
+
+ 
+Error Time: 01/09/2025 11:13:33
+Error using call_fsl (line 36)
+FSL call (/bin/sh -c '. /home/zachkaras/fsl/etc/fslconf/fsl.sh; fslinfo /home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data.nii.gz > /home/zachkaras/fmri/fmri_model_data/midprocess/105/fix/dummyinfo.txt') failed, Image Exception : #63 :: No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data
+No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/105/filtered_func_data
+
+ 
+Error Time: 01/09/2025 11:17:35
+Error using call_fsl (line 36)
+FSL call (/bin/sh -c '. /home/zachkaras/fsl/etc/fslconf/fsl.sh; fslinfo /home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data.nii.gz > /home/zachkaras/fmri/fmri_model_data/midprocess/109/fix/dummyinfo.txt') failed, Image Exception : #63 :: No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data
+No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/109/filtered_func_data
+
+ 
+Error Time: 01/09/2025 11:21:44
+Error using call_fsl (line 36)
+FSL call (/bin/sh -c '. /home/zachkaras/fsl/etc/fslconf/fsl.sh; fslinfo /home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data.nii.gz > /home/zachkaras/fmri/fmri_model_data/midprocess/112/fix/dummyinfo.txt') failed, Image Exception : #63 :: No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data
+No image files match: /home/zachkaras/fmri/fmri_model_data/midprocess/112/filtered_func_data
+
  

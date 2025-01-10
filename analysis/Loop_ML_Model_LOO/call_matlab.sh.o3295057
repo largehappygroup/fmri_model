@@ -1,0 +1,101 @@
+------------------------------------------
+Setting up environment variables
+---
+LD_LIBRARY_PATH is .:/home/zachkaras/mcr/v93/runtime/glnxa64:/home/zachkaras/mcr/v93/bin/glnxa64:/home/zachkaras/mcr/v93/sys/os/glnxa64:/home/zachkaras/mcr/v93/sys/opengl/lib/glnxa64
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/101/fix4melview_Loop_ML_Model_LOO_thr1.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/105/fix4melview_Loop_ML_Model_LOO_thr1.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/109/fix4melview_Loop_ML_Model_LOO_thr1.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/112/fix4melview_Loop_ML_Model_LOO_thr1.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/118/fix4melview_Loop_ML_Model_LOO_thr1.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/121/fix4melview_Loop_ML_Model_LOO_thr1.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/125/fix4melview_Loop_ML_Model_LOO_thr1.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/134/fix4melview_Loop_ML_Model_LOO_thr1.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/101/fix4melview_Loop_ML_Model_LOO_thr2.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/105/fix4melview_Loop_ML_Model_LOO_thr2.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/109/fix4melview_Loop_ML_Model_LOO_thr2.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/112/fix4melview_Loop_ML_Model_LOO_thr2.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/118/fix4melview_Loop_ML_Model_LOO_thr2.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/121/fix4melview_Loop_ML_Model_LOO_thr2.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/125/fix4melview_Loop_ML_Model_LOO_thr2.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/134/fix4melview_Loop_ML_Model_LOO_thr2.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/101/fix4melview_Loop_ML_Model_LOO_thr5.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/105/fix4melview_Loop_ML_Model_LOO_thr5.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/109/fix4melview_Loop_ML_Model_LOO_thr5.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/112/fix4melview_Loop_ML_Model_LOO_thr5.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/118/fix4melview_Loop_ML_Model_LOO_thr5.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/121/fix4melview_Loop_ML_Model_LOO_thr5.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/125/fix4melview_Loop_ML_Model_LOO_thr5.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/134/fix4melview_Loop_ML_Model_LOO_thr5.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/101/fix4melview_Loop_ML_Model_LOO_thr10.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/105/fix4melview_Loop_ML_Model_LOO_thr10.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/109/fix4melview_Loop_ML_Model_LOO_thr10.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/112/fix4melview_Loop_ML_Model_LOO_thr10.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/118/fix4melview_Loop_ML_Model_LOO_thr10.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/121/fix4melview_Loop_ML_Model_LOO_thr10.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/125/fix4melview_Loop_ML_Model_LOO_thr10.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/134/fix4melview_Loop_ML_Model_LOO_thr10.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/101/fix4melview_Loop_ML_Model_LOO_thr20.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/105/fix4melview_Loop_ML_Model_LOO_thr20.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/109/fix4melview_Loop_ML_Model_LOO_thr20.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/112/fix4melview_Loop_ML_Model_LOO_thr20.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/118/fix4melview_Loop_ML_Model_LOO_thr20.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/121/fix4melview_Loop_ML_Model_LOO_thr20.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/125/fix4melview_Loop_ML_Model_LOO_thr20.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/134/fix4melview_Loop_ML_Model_LOO_thr20.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/101/fix4melview_Loop_ML_Model_LOO_thr30.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/105/fix4melview_Loop_ML_Model_LOO_thr30.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/109/fix4melview_Loop_ML_Model_LOO_thr30.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/112/fix4melview_Loop_ML_Model_LOO_thr30.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/118/fix4melview_Loop_ML_Model_LOO_thr30.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/121/fix4melview_Loop_ML_Model_LOO_thr30.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/125/fix4melview_Loop_ML_Model_LOO_thr30.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/134/fix4melview_Loop_ML_Model_LOO_thr30.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/101/fix4melview_Loop_ML_Model_LOO_thr40.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/105/fix4melview_Loop_ML_Model_LOO_thr40.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/109/fix4melview_Loop_ML_Model_LOO_thr40.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/112/fix4melview_Loop_ML_Model_LOO_thr40.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/118/fix4melview_Loop_ML_Model_LOO_thr40.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/121/fix4melview_Loop_ML_Model_LOO_thr40.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/125/fix4melview_Loop_ML_Model_LOO_thr40.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/134/fix4melview_Loop_ML_Model_LOO_thr40.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/101/fix4melview_Loop_ML_Model_LOO_thr50.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/105/fix4melview_Loop_ML_Model_LOO_thr50.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/109/fix4melview_Loop_ML_Model_LOO_thr50.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/112/fix4melview_Loop_ML_Model_LOO_thr50.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/118/fix4melview_Loop_ML_Model_LOO_thr50.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/121/fix4melview_Loop_ML_Model_LOO_thr50.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/125/fix4melview_Loop_ML_Model_LOO_thr50.txt' for reading: No such file or directory
+tail: cannot open '/home/zachkaras/fmri/fmri_model_data/midprocess/134/fix4melview_Loop_ML_Model_LOO_thr50.txt' for reading: No such file or directory
+set of thresholds is: 1   2   5  10  20  30  40  50
+[TPR,TNR] pairs of results (one row per dataset, one pair per threshold):
+  Columns 1 through 13
+
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+
+  Columns 14 through 16
+
+     0   100     0
+     0   100     0
+     0   100     0
+     0   100     0
+     0   100     0
+     0   100     0
+     0   100     0
+     0   100     0
+
+[TPR,TNR] pairs of results (averaged over datasets, one pair per threshold):
+  Columns 1 through 13
+
+   100     0   100     0   100     0   100     0   100     0   100     0   100
+
+  Columns 14 through 16
+
+     0   100     0
+
