@@ -1,0 +1,123 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+118,2,107344925.295294,Complete the assignment of the variable isFailing such that it is set to true if exam_score is less than 50, and false otherwise,int exam_score;
+cin >> exam_score;
+bool isFailing = if(exam_score < 50)/* YOUR CODE HERE */;
+if (isFailing) {
+	cout << "You failed!" << endl;
+} else {
+	cout << "You passed!" << endl;
+}
+,8,14181.346725191504,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+118,2,107381050.326261,You are given a 6x8 (6 rows, 8 columns) array of integers, x, already initialized and three integer variables: max, i and j. Write the necessary code so that max will have the largest value in the array x.,max = x[0][0];
+for(i = 0; i < 6; i++){
+	for(j = 0; j < 8; j++){
+		if(/* YOUR CODE HERE */x[i][j] > max){
+			max = x[i][j];
+		}
+	}
+}
+,14,6091.933874730572,30000
+118,2,107415584.616848,Write the definition of a function min that has two int parameters and returns the smaller.,int min (int num1, int num2) {
+	/* YOUR CODE HERE */
+	if ()num1 < num2{
+      return num1;
+    }	
+  	return num2;
+
+}
+,6,4510.2608199453525,30000
+118,2,107451792.121441,Complete the definition of the function absoluteValue such that it receives an integer parameter and returns the absolute value of the parameter's value.,int absoluteValue(int num1) {
+	/* YOUR CODE HERE */
+	int absoluteValue;
+	absoluteValue = abs(num1);
+	return absoluteValue;
+}
+,2,6180.188023404194,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+118,2,107486470.477739,Given an int variable k that has already been declared, use a  for loop to print a single line consisting of 97 asterisks. Use no variables other than k.,for (int k = 0; k < 97; k++;/* YOUR CODE HERE */){
+	cout << "*";
+}
+,7,4655.911466432162,30000
+118,2,107521274.746651,Complete the switch statement to output "Moo!" when the value of animal is "cow",switch(animal) {
+	case "pig":
+		cout << "Oink!" << endl;
+		break;
+	case "hen":
+	cout << "Cluck!" << endl;
+		break;
+  case "cow":
+    cout << "Moo!" << endl;
+    break;
+    /* YOUR CODE HERE */
+	
+
+}
+,15,4778.081189594851,30000
+118,2,107555683.548524,Complete the definition of a function max that has three int parameters and returns the largest.,int max(int x,int y,int z) {
+	if (x > z && x > y) {
+		return x;
+	} else if (y > z && y > x) {
+		return y;
+	} else {
+		return z;
+	}
+}
+,12,4370.053915203396,30000
+118,2,107592733.695294,Using two statements, complete the definition of the function swapints that is passed two int variables. The function returns nothing but exchanges the values of the two variables.,void swapints(int &a, int &b){
+	int temp = a;
+	/* YOUR CODE HERE */
+	temp = x;
+  x= z;
+  z = temp;
+}
+,0,7018.302761447269,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+118,2,107625855.526478,Write a function addOne that adds 1 to its integer reference parameter. The function returns nothing.,void addOne (int& x) {
+	/* YOUR CODE HERE */
+	z += 1;
+  return;
+}
+,1,3093.9480235769497,30000
+118,2,107659259.00324,Given two 3x5 2D arrays of integer, x1 and x2, write the code needed to copy every value from x1 to its corresponding element in x2.,for(int i = 0; i < 3; i++){
+	for(int j = 0; j < 5; j++){
+		/* YOUR CODE HERE */
+		x1[i][j] = x2[i][j];
+	}
+}
+,13,3373.158734814269,30000
+118,2,107692515.554348,Write a for loop that prints the integers 1 through 40, separated by spaces or new lines. You may use only one variable, count which has already been declared as an integer.,for (int x = 0; x <- 40; ++x/* YOUR CODE HERE */) {
+	cout << count << " ";
+}
+,5,3234.1678606791215,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+118,2,107729347.943846,Using one expression, complete the function notDivisibleByThree that returns false if x is divisible by three, and true otherwise,bool notDivisibleByThree(int x){
+	return /*YOUR CODE HERE*/!(x % 3
+}
+,9,6807.3022162372745,30000
+118,2,107765071.596748,Complete the if/else statement such that it assigns true to the variable fever if the variable temperature is greater than 98.6; otherwise it assigns false to fever.,if (temperature > 98.6) {
+	/* YOUR CODE HERE */
+	fever = true;
+} else {
+	fever = false;
+}
+,11,5695.496157894506,30000
+118,2,107798080.54277,Complete the definition of a function isSenior, that receives an integer parameter and returns true if the parameter's value is greater or equal to 65, and false otherwise.,bool isSenior(int age) {
+	/* YOUR CODE HERE */
+	if(age >=65){
+      return true;
+    }
+  retu
+}
+,4,2986.7967861001957,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+118,2,107834380.312315,Write the definition of a function firstEqualsLast that checks if the first character of one string is the same as the last character of a second string,bool firstEqualsLast(string a, string b) {
+	/* YOUR CODE HERE */
+	if(a[0] == b)
+}
+,16,6268.045908420472,30000
+118,2,107869496.284905,Given that an array of int named a has been declared with 12 elements and that the integer variable k holds a value between 0 and 6. Assign 9 to the element just after a[k].,a[/* YOUR CODE HERE */a[k+1]] = 9;,10,5097.613075341741,30000
+118,2,107906172.05369,Complete the for loop such that it prints the odd integers 11 through 121 inclusive, separated by spaces.,for (int i = 11; i <= 121; /* YOUR CODE HERE */i+=2;) {
+	cout << i << " ";
+}
+,3,6657.392460986181,30000

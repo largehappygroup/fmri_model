@@ -1,0 +1,23 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+201,0,172098063.187815,Fill in the blank below,In frigid regions a ____sEa____ of ice under the soil surface prevents water from sinking deep into the soil, and so the water floods the land, helping to create bog and swamp conditions.,3,16128.900913034451,30000
+201,0,172135078.942046,Fill in the blank below,Architects define a physical structure as a set of materials arranged in such a way that these materials can resist the downward ____pull____ of gravity.,2,6985.313471687366,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+201,0,172169959.411244,Fill in the blank below,The admiral rescinded her ____order____ to attack when she saw the white flag raised by the enemy sailors; she was relieved that she could bring an end to the hostilities.,1,4854.268201530481,30000
+201,0,172202671.554192,Fill in the blank below,Using detailed observations made by ancient astronomers in China, Korea, and Japan to complement data ____gathered____ by modern instruments, scientists can establish precisely when a particular star exploded.,11,2673.9153154829755,30000
+201,0,172238862.852079,Fill in the blank below,In addition to evaluating ____a plethora____ of resumes and references, some employers want to supplement the hiring process by employing graphologists to study applicants' handwriting for character analysis.,7,6169.537676949781,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+201,0,172274289.258309,Fill in the blank below,Since the foreign correspondent was accustomed to completing his ____duties____ under tumultuous conditions, the commotion of the subway at rush hour presented no impediment to his creativity.,6,5401.135351632722,30000
+201,0,172308219.554133,Fill in the blank below,Brian was so fond of his dog that their brief ____separation____ left him not just saddened, but in a state of sorrow.,5,3908.8069348612607,30000
+201,0,172344726.660432,Fill in the blank below,The lectures on quantum physics were invariably dull; the lecturer ____presented____ his ill-prepared material in a manner guaranteed to send even the most ardent student to sleep.,9,6462.915816710022,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+201,0,172379145.218953,Fill in the blank below,Because he had decided not to glorify himself through the sales of his new product, the inventor anonymously ____donated____ all profits to charity.,15,4389.233439114667,30000
+201,0,172412894.623814,Fill in the blank below,To reach Simonville, the traveller needs to drive with extreme caution along the windy curves of the ____treacherous____ road that climbs steeply to the summit.,0,3730.594899334794,30000
+201,0,172445515.619542,Fill in the blank below,Angered that the book arrived in the mail in such a shabby condition, Elliot insisted that the bookseller ____replace____ it with a new copy.,16,2602.830706858724,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+201,0,172479569.652437,Fill in the blank below,The progress of the disease is subtle; it ____incubates____ stealthily without any symptoms in the early stages.,10,4032.203791884752,30000
+201,0,172516731.937827,Fill in the blank below,Once his integrity had been challenged, the mayoral candidate was quick both to dismiss these attacks and to ____deliver____ counterattacks.,14,7139.301431706361,30000
+201,0,172552485.404698,Fill in the blank below,The library's ____collection____ is a trove of Asian American historical documents, including rare materials about race relations.,4,5719.422980691971,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+201,0,172586333.992302,Fill in the blank below,According to the ancient Greek philosopher Plato, only philosophy can provide genuine understanding because it scrutinizes assumptions that other areas of study merely ____take____ for granted.,12,3818.915297520627,30000
+201,0,172621154.444894,Fill in the blank below,Over the years the anthropologist's opinions had ossified: he refused to tolerate new ideas and nothing could ____change____ his mind.,13,4787.79252726997,30000
+201,0,172657375.909354,Fill in the blank below,New York fashion designer Anna Sui creates eclectic ____garments____ that represent an amalgam of playful, 1970's funky style fused with an edgy, urban sensibility.,8,6194.911243729069,30000

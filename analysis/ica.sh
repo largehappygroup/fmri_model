@@ -26,11 +26,11 @@ format_for_fix(){
 }
 
 perform_fix(){
-      ~/fix/fix -c "$1" Loop_ML_Model.RData 20
+      ~/fix/fix -c "$1" Loop_ML_Model.RData 30
 }
 
 remove_components(){
-      ~/fix/fix -a "$1/fix4melview_ICSE25_thr20.txt"
+      ~/fix/fix -a "$1/fix4melview_Loop_ML_Model_thr30.txt"
 }
 
 # for loop for going through output directories  
@@ -42,7 +42,7 @@ find "/home/zachkaras/fmri/fmri_model_data/midprocess" -maxdepth 1 -type d | whi
             #perform_ica "$folder"
             #format_for_fix "$folder"
             perform_fix "$folder"
-            #remove_components "$datadir"
+            remove_components "$folder"
             
             #break
             #((counter++))

@@ -1,0 +1,23 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+122,0,177463811.829211,Fill in the blank below,Once his integrity had been challenged, the mayoral candidate was quick both to dismiss these attacks and to launch____ counterattacks.,14,14444.528636928706,30000
+122,0,177498841.025362,Fill in the blank below,Since the foreign correspondent was accustomed to completing his ____work____ under tumultuous conditions, the commotion of the subway at rush hour presented no impediment to his creativity.,6,4987.149830766264,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+122,0,177535122.041192,Fill in the blank below,Brian was so fond of his dog that their brief ____farewell____ left him not just saddened, but in a state of sorrow.,5,6252.014799717386,30000
+122,0,177572329.244782,Fill in the blank below,The admiral rescinded her ____order____ to attack when she saw the white flag raised by the enemy sailors; she was relieved that she could bring an end to the hostilities.,1,7172.573855680841,30000
+122,0,177608160.457457,Fill in the blank below,Angered that the book arrived in the mail in such a shabby condition, Elliot insisted that the bookseller ____replace____ it with a new copy.,16,5809.693811392134,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+122,0,177644772.208102,Fill in the blank below,The library's ____archive____ is a trove of Asian American historical documents, including rare materials about race relations.,4,6593.113893086697,30000
+122,0,177680980.801577,Fill in the blank below,Using detailed observations made by ancient astronomers in China, Korea, and Japan to complement data ____recorded____ by modern instruments, scientists can establish precisely when a particular star exploded.,11,6175.805085679751,30000
+122,0,177716616.014341,Fill in the blank below,Over the years the anthropologist's opinions had ossified: he refused to tolerate new ideas and nothing could ____change____ his mind.,13,5587.614039570293,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+122,0,177749807.626825,Fill in the blank below,The lectures on quantum physics were invariably dull; the lecturer ____presented____ his ill-prepared material in a manner guaranteed to send even the most ardent student to sleep.,9,3175.3260735020067,30000
+122,0,177783767.88587,Fill in the blank below,New York fashion designer Anna Sui creates eclectic ____outfits____ that represent an amalgam of playful, 1970's funky style fused with an edgy, urban sensibility.,8,3934.560620574002,30000
+122,0,177817418.411488,Fill in the blank below,To reach Simonville, the traveller needs to drive with extreme caution along the windy curves of the ____alpine____ road that climbs steeply to the summit.,0,3618.408674711258,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+122,0,177850520.889725,Fill in the blank below,The progress of the disease is subtle; it ____develops____ stealthily without any symptoms in the early stages.,10,3069.46038292787,30000
+122,0,177887802.715349,Fill in the blank below,In frigid regions a ____permafrost____ of ice under the soil surface prevents water from sinking deep into the soil, and so the water floods the land, helping to create bog and swamp conditions.,3,7260.1968318165245,30000
+122,0,177921907.133042,Fill in the blank below,Architects define a physical structure as a set of materials arranged in such a way that these materials can resist the downward ____force____ of gravity.,2,4073.4296185628687,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+122,0,177955772.527692,Fill in the blank below,In addition to evaluating ____submissions____ of resumes and references, some employers want to supplement the hiring process by employing graphologists to study applicants' handwriting for character analysis.,7,3840.970021095187,30000
+122,0,177991198.990517,Fill in the blank below,Because he had decided not to glorify himself through the sales of his new product, the inventor anonymously ____donated____ all profits to charity.,15,5397.453543589923,30000
+122,0,178024832.25689,Fill in the blank below,According to the ancient Greek philosopher Plato, only philosophy can provide genuine understanding because it scrutinizes assumptions that other areas of study merely ____take____ for granted.,12,3607.7002803983123,30000

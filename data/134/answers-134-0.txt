@@ -1,0 +1,23 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+134,0,122604389.263251,Fill in the blank below,Over the years the anthropologist's opinions had ossified: he refused to tolerate new ideas and nothing could ____change____ his mind.,13,13004.65626617921,30000
+134,0,122637417.744256,Fill in the blank below,Angered that the book arrived in the mail in such a shabby condition, Elliot insisted that the bookseller ____replace____ it with a new copy.,16,2984.2910725997867,30000
+134,0,122670523.319059,Fill in the blank below,Brian was so fond of his dog that their brief ____encounrer____ left him not just saddened, but in a state of sorrow.,5,3077.1688425351645,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+134,0,122705405.938943,Fill in the blank below,Because he had decided not to glorify himself through the sales of his new product, the inventor anonymously ____donated____ all profits to charity.,15,4857.218953232708,30000
+134,0,122741189.211817,Fill in the blank below,The library's ____collection____ is a trove of Asian American historical documents, including rare materials about race relations.,4,5746.004392652974,30000
+134,0,122774461.442282,Fill in the blank below,In frigid regions a ____sht____ of ice under the soil surface prevents water from sinking deep into the soil, and so the water floods the land, helping to create bog and swamp conditions.,3,3246.3818797675076,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+134,0,122808143.295545,Fill in the blank below,Once his integrity had been challenged, the mayoral candidate was quick both to dismiss these attacks and to ____make____ counterattacks.,14,3662.6371097817496,30000
+134,0,122841416.082513,Fill in the blank below,According to the ancient Greek philosopher Plato, only philosophy can provide genuine understanding because it scrutinizes assumptions that other areas of study merely ____take____ for granted.,12,3236.7001184970113,30000
+134,0,122878830.16705,Fill in the blank below,Using detailed observations made by ancient astronomers in China, Korea, and Japan to complement data ____shown____ by modern instruments, scientists can establish precisely when a particular star exploded.,11,7385.084722979371,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+134,0,122915983.670527,Fill in the blank below,In addition to evaluating ____loads____ of resumes and references, some employers want to supplement the hiring process by employing graphologists to study applicants' handwriting for character analysis.,7,7132.3019202845735,30000
+134,0,122952383.455194,Fill in the blank below,Architects define a physical structure as a set of materials arranged in such a way that these materials can resist the downward ____force____ of gravity.,2,6373.118205399401,30000
+134,0,122987790.414764,Fill in the blank below,The progress of the disease is subtle; it ____pfogf____ stealthily without any symptoms in the early stages.,10,5380.309627536113,30000
+134,0,123021031.393356,Fill in the blank below,The lectures on quantum physics were invariably dull; the lecturer ____delivf____ his ill-prepared material in a manner guaranteed to send even the most ardent student to sleep.,9,3215.5940795216984,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+134,0,123055683.470896,Fill in the blank below,Since the foreign correspondent was accustomed to completing his ____work____ under tumultuous conditions, the commotion of the subway at rush hour presented no impediment to his creativity.,6,4623.489258193351,30000
+134,0,123093571.29101,Fill in the blank below,The admiral rescinded her ____ofder____ to attack when she saw the white flag raised by the enemy sailors; she was relieved that she could bring an end to the hostilities.,1,7863.77186870351,30000
+134,0,123129497.036326,Fill in the blank below,To reach Simonville, the traveller needs to drive with extreme caution along the windy curves of the ____mountain____ road that climbs steeply to the summit.,0,5901.016712310228,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+134,0,123166828.908675,Fill in the blank below,New York fashion designer Anna Sui creates eclectic ____clothes____ that represent an amalgam of playful, 1970's funky style fused with an edgy, urban sensibility.,8,7310.254969825647,30000

@@ -1,0 +1,60 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+105,1,16806540.884599,Some people prefer to spend time with one or two close friends. Others choose to spend time with a large number of friends. Compare the advantages of each choice.,small
+ friengs yo+u get to+ kno+w them better and ahve mo+re intimite co+nversatio+bns
+ 
+ l
+ arge gro+ups o+n the o+thert hand al
+ l
+ o+w fo+r so+me mo+re spo+nteniety so+metimes. Al
+ so+, ,5,15363.74830733008,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+105,1,16869583.170719,Some universities require students to take classes in many subjects. Other universities require students to specialize in one subject. Which is better? Explain.,O+ne subject, I'm no+t paying to+ take humanities.. they cant even sto+ck eno+uitg pro+fesso+rs in my department. eedicatio+n is a service!!!,3,3014.664428899721,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+105,1,16933391.074548,Some people believe that university students should be required to attend classes. Others believe that going to classes should be optional for students. Which point of view do you agree with, and why?,I bel
+ieve it depends o+n the cl
+ass. so+me yo+u need to+ pro+vr yo+ur frasp o+f the material
+ to+ get the degree. up to+ pro+fesso+r im,0,3785.090955477842,60000
+105,1,16998883.12317,Some people enjoy change, and they look forward to new experiences. Others like their lives to stay the same, and they do not change their usual habits. Compare these two approaches to life.,Change is necessary fo+r ful
+ful
+l
+ment. witho+ut change and respo+nsibil
+ity l
+ife l
+acks meaning,7,5441.781254710447,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+105,1,17065412.969274,Is it more important to be able to work with a group of people on a team or to work independently? Explain.,gro+ups o+f peo+pl
+e because o+f tio+days wio+rkl
+ ckl
+ io+mate peio+pkl
+ e kl
+ io+kl
+ e tio+ use grio+up/ paio+red prio+grammio+ng as a buzz wio+rd fio+r prio+fuctio+vio+ty,4,6508.894471386382,60000
+105,1,17131541.754585,Should a city try to preserve its old, historic buildings or destroy them and replace them with modern buildings? Explain.,depends io+n whether the new buio+kl
+dio+ngs wio+kl
+kl
+ add a kl
+ io+t tio+ the vakl
+ ue io+f the cio+ty,. GEnerakl
+ ky io+ prefer maio+ntaio+ng the io+kl
+ d io+nes,1,6101.234960908414,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+105,1,17197089.978855,Some people prefer to plan activities for their free time very carefully. Others choose not to make any plans at all for their free time. Compare the benefits of planning free-time activities with the benefits of not making plans.,is it reakl
+kl
+y free tio+me io+f yio+u are burdened wio+th pkl
+ans? Nio+ pkl
+ans akl
+kl
+io+ws fio+r spio+ntenio+ety whcio+h io+s vakl
+uabe tio+ me,6,5518.873478907686,60000
+105,1,17262656.743302,What would happen if everyone lived in space? (e.g., What type of houses would they live in? What type of clothing would they wear?),They wio+ukl
+d kl
+ivve io+n whatver was mio+st cio+vnenio+ent,. Earth hio+uses wio+ukl
+d be fio+rgio+tten and io+t wio+ukl
+dd be a matter io+f practio+cakl
+io+ty,8,5539.208770992242,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+105,1,17326410.083564,Do you agree or disagree with the following statement? The best way to travel is in a group led by a tour guide. Explain.,agree, yio+u wio+ukl
+d wander aio+mkl
+esskl
+y wiothio+ut io+ne and nio+t maxio+mioze yio+ut tio+me there.
+,2,3726.503371387194,60000

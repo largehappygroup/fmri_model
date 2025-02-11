@@ -1,0 +1,23 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+141,0,382858284.959585,Fill in the blank below,Since the foreign correspondent was accustomed to completing his ____report____ under tumultuous conditions, the commotion of the subway at rush hour presented no impediment to his creativity.,6,12631.950250949236,30000
+141,0,382890989.271074,Fill in the blank below,Over the years the anthropologist's opinions had ossified: he refused to tolerate new ideas and nothing could ____change____ his mind.,13,2654.270492316207,30000
+141,0,382927684.218264,Fill in the blank below,Architects define a physical structure as a set of materials arranged in such a way that these materials can resist the downward ____pull____ of gravity.,2,6667.199057942308,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+141,0,382964255.056527,Fill in the blank below,Brian was so fond of his dog that their brief ____separation____ left him not just saddened, but in a state of sorrow.,5,6527.612861411276,30000
+141,0,382998413.041994,Fill in the blank below,Because he had decided not to glorify himself through the sales of his new product, the inventor anonymously ____donated____ all profits to charity.,15,4131.207602911912,30000
+141,0,383031045.980911,Fill in the blank below,The library's ____collection____ is a trove of Asian American historical documents, including rare materials about race relations.,4,2609.7959877826906,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+141,0,383066955.704412,Fill in the blank below,According to the ancient Greek philosopher Plato, only philosophy can provide genuine understanding because it scrutinizes assumptions that other areas of study merely ____take____ for granted.,12,5884.099500859543,30000
+141,0,383103504.796307,Fill in the blank below,The admiral rescinded her ____order____ to attack when she saw the white flag raised by the enemy sailors; she was relieved that she could bring an end to the hostilities.,1,6516.576205577366,30000
+141,0,383138287.036626,Fill in the blank below,Angered that the book arrived in the mail in such a shabby condition, Elliot insisted that the bookseller ____replace____ it with a new copy.,16,4749.33487808192,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+141,0,383173112.781608,Fill in the blank below,To reach Simonville, the traveller needs to drive with extreme caution along the windy curves of the ____dangerous____ road that climbs steeply to the summit.,0,4802.347706186568,30000
+141,0,383207609.362689,Fill in the blank below,The progress of the disease is subtle; it ____appears manifest____ stealthily without any symptoms in the early stages.,10,4461.637550761048,30000
+141,0,383243998.515527,Fill in the blank below,New York fashion designer Anna Sui creates eclectic ____outfits____ that represent an amalgam of playful, 1970's funky style fused with an edgy, urban sensibility.,8,6361.273575508527,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+141,0,383280628.441112,Fill in the blank below,In addition to evaluating ____content____ of resumes and references, some employers want to supplement the hiring process by employing graphologists to study applicants' handwriting for character analysis.,7,6596.467274677236,30000
+141,0,383314335.777307,Fill in the blank below,The lectures on quantum physics were invariably dull; the lecturer ____presented____ his ill-prepared material in a manner guaranteed to send even the most ardent student to sleep.,9,3678.3104038645843,30000
+141,0,383350153.400831,Fill in the blank below,Once his integrity had been challenged, the mayoral candidate was quick both to dismiss these attacks and to ____employ____ counterattacks.,14,5793.502304555152,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+141,0,383385097.473317,Fill in the blank below,In frigid regions a ____layer____ of ice under the soil surface prevents water from sinking deep into the soil, and so the water floods the land, helping to create bog and swamp conditions.,3,4923.5182767128,30000
+141,0,383421132.230386,Fill in the blank below,Using detailed observations made by ancient astronomers in China, Korea, and Japan to complement data ____collected____ by modern instruments, scientists can establish precisely when a particular star exploded.,11,6010.896069901624,30000

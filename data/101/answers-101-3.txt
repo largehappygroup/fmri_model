@@ -1,0 +1,39 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+101,3,272961147.209455,Given a string, s, and an integer, x, update s such that its characters are shifted by x. Ex. s = "cd", x = 1. Loop results in s = "de",,4,12729.008725878844,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+101,3,273026366.781343,Implement a function is_sorted that accepts a vector of integer values and returns true if it is non-decreasing, and false otherwise,inr is sotyed [ibt% a]
+[
+ for [i]
+
+],3,5195.965717560627,60000
+101,3,273090840.297684,Implement a function secondGreatest that accepts a vector of integers and returns the second greatest element in the vector,inr secongGreatest [int% s]
+[
+fpr ibt u = 1 
+
+]
+
+,7,4434.80543613136,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+101,3,273154727.681899,Implement a function containsDuplicate that accepts a vector of integers and returns true if it contains a duplicate element, and false otherwise, ibt cobntainsDip [ibt% f]
+ [
+ for i=1 o< kevf
+   
+ ],6,3856.9526366374275,60000
+101,3,273219014.729157,Implement a function countdown() that accepts an integer n as a parameter and counts down from n, printing each number to standard output, separated by a space. After reaching n, print "liftoff!",int countdown [ibt ]
+  
+  for b-v b<,8,4264.363780079146,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+101,3,273286777.27327,Given integer variables amount and total both initialized to 0, write a loop that reads in values for amount from standard in and adds them to total until total is greater than 100.,wgike
+x << std in
+tit,5,7736.277769039073,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+101,3,273354355.772413,Write a statement that toggles the value of the bool variable onOffSwitch. That is, if onOffSwitch is false, itsvalue is changed to true; if onOffSwitch is true, its value is changed to false.,if onOFff 
+   onOff = fals
+ekse
+   onOfff - true,1,7549.222904927097,60000
+101,3,273419563.363284,Write the definition of a function isPositive, that receives an integer parameter and returns true if the parameter is positive, and false otherwise.,bool isPs[int s]
+
+uf x > 0
+retirb ,2,5179.358725773773,60000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+101,3,273483647.151612,Clunker Motors Inc. is recalling all vehicles in its Extravagant line from model years 1999-2002. Given an int variable modelYear and a string modelName, print "RECALL" if modelYear and modelName match the recal details,if modelYra >=1999 AND model%,0,4054.0443039726497,60000

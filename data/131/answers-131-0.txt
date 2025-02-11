@@ -1,0 +1,33 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11046967.250712,Fill in the blank below,In frigid regions a ________ of ice under the soil surface prevents water from sinking deep into the soil, and so the water floods the land, helping to create bog and swamp conditions.,3,13695.45268288054,30000
+131,0,11081312.29658,Fill in the blank below,Once his integrity had been challenged, the mayoral candidate was quick both to dismiss these attacks and to ________ counterattacks.,14,4305.492634792409,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11180698.553082,Fill in the blank below,In frigid regions a ________ of ice under the soil surface prevents water from sinking deep into the soil, and so the water floods the land, helping to create bog and swamp conditions.,3,13695.45268288054,30000
+131,0,11215039.948643,Fill in the blank below,Once his integrity had been challenged, the mayoral candidate was quick both to dismiss these attacks and to ________ counterattacks.,14,4305.492634792409,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11248822.42911,Fill in the blank below,In addition to evaluating ________ of resumes and references, some employers want to supplement the hiring process by employing graphologists to study applicants' handwriting for character analysis.,7,3751.4607061267784,30000
+131,0,11282385.828717,Fill in the blank below,Since the foreign correspondent was accustomed to completing his ________ under tumultuous conditions, the commotion of the subway at rush hour presented no impediment to his creativity.,6,3541.9762581912305,30000
+131,0,11320264.321033,Fill in the blank below,The admiral rescinded her ________ to attack when she saw the white flag raised by the enemy sailors; she was relieved that she could bring an end to the hostilities.,1,7849.406529413241,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11425558.717016,Fill in the blank below,In frigid regions a ____glacier____ of ice under the soil surface prevents water from sinking deep into the soil, and so the water floods the land, helping to create bog and swamp conditions.,3,13695.45268288054,30000
+131,0,11459892.743994,Fill in the blank below,Once his integrity had been challenged, the mayoral candidate was quick both to dismiss these attacks and to ____ten____ counterattacks.,14,4305.492634792409,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11493679.305048,Fill in the blank below,In addition to evaluating ____robustness____ of resumes and references, some employers want to supplement the hiring process by employing graphologists to study applicants' handwriting for character analysis.,7,3751.4607061267784,30000
+131,0,11527253.698023,Fill in the blank below,Since the foreign correspondent was accustomed to completing his ________ under tumultuous conditions, the commotion of the subway at rush hour presented no impediment to his creativity.,6,3541.9762581912305,30000
+131,0,11565128.56278,Fill in the blank below,The admiral rescinded her ____team____ to attack when she saw the white flag raised by the enemy sailors; she was relieved that she could bring an end to the hostilities.,1,7849.406529413241,30000
+131,0,11600443.539527,Fill in the blank below,According to the ancient Greek philosopher Plato, only philosophy can provide genuine understanding because it scrutinizes assumptions that other areas of study merely ____take____ for granted.,12,5294.982610140447,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11636153.929892,Fill in the blank below,The library's ____collection____ is a trove of Asian American historical documents, including rare materials about race relations.,4,5674.4810775579235,30000
+131,0,11673671.546689,Fill in the blank below,Over the years the anthropologist's opinions had ossified: he refused to tolerate new ideas and nothing could ____change____ his mind.,13,7472.002756095558,30000
+131,0,11706979.213943,Fill in the blank below,To reach Simonville, the traveller needs to drive with extreme caution along the windy curves of the ____gravel____ road that climbs steeply to the summit.,0,3282.1770611963393,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11742686.557669,Fill in the blank below,Architects define a physical structure as a set of materials arranged in such a way that these materials can resist the downward ____force____ of gravity.,2,5676.59977252997,30000
+131,0,11779202.612308,Fill in the blank below,The lectures on quantum physics were invariably dull; the lecturer ____droned____ his ill-prepared material in a manner guaranteed to send even the most ardent student to sleep.,9,6492.873764068039,30000
+131,0,11813756.790159,Fill in the blank below,Using detailed observations made by ancient astronomers in China, Korea, and Japan to complement data ____facts____ by modern instruments, scientists can establish precisely when a particular star exploded.,11,4519.055299830526,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11848559.00165,Fill in the blank below,Angered that the book arrived in the mail in such a shabby condition, Elliot insisted that the bookseller ____keep____ it with a new copy.,16,4784.343016890739,30000
+131,0,11882943.323416,Fill in the blank below,The progress of the disease is subtle; it ____spreads____ stealthily without any symptoms in the early stages.,10,4359.288053217932,30000
+131,0,11919553.087031,Fill in the blank below,Brian was so fond of his dog that their brief ____trip____ left him not just saddened, but in a state of sorrow.,5,6582.119499385707,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+131,0,11953390.472192,Fill in the blank below,New York fashion designer Anna Sui creates eclectic ____clothing____ that represent an amalgam of playful, 1970's funky style fused with an edgy, urban sensibility.,8,3806.3133303968293,30000
+131,0,11987335.205741,Fill in the blank below,Because he had decided not to glorify himself through the sales of his new product, the inventor anonymously ____donate____ all profits to charity.,15,3911.974947285781,30000

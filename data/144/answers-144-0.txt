@@ -1,0 +1,23 @@
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+144,0,127839588.65831,Fill in the blank below,Architects define a physical structure as a set of materials arranged in such a way that these materials can resist the downward ____pull____ of gravity.,2,14378.058957529463,30000
+144,0,127872735.36778,Fill in the blank below,New York fashion designer Anna Sui creates eclectic ____m____ that represent an amalgam of playful, 1970's funky style fused with an edgy, urban sensibility.,8,3121.2829609443033,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+144,0,127908246.031512,Fill in the blank below,In frigid regions a ____sheet____ of ice under the soil surface prevents water from sinking deep into the soil, and so the water floods the land, helping to create bog and swamp conditions.,3,5472.500685007225,30000
+144,0,127943443.895492,Fill in the blank below,Over the years the anthropologist's opinions had ossified: he refused to tolerate new ideas and nothing could ____change____ his mind.,13,5162.144564021832,30000
+144,0,127978207.100388,Fill in the blank below,The library's ____books____ is a trove of Asian American historical documents, including rare materials about race relations.,4,4739.692249790804,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+144,0,128014149.032859,Fill in the blank below,The progress of the disease is subtle; it ____acts____ stealthily without any symptoms in the early stages.,10,5916.015931026834,30000
+144,0,128048203.308062,Fill in the blank below,Since the foreign correspondent was accustomed to completing his ____w0rj____ under tumultuous conditions, the commotion of the subway at rush hour presented no impediment to his creativity.,6,4027.0131840544636,30000
+144,0,128081029.456967,Fill in the blank below,The admiral rescinded her ____troops____ to attack when she saw the white flag raised by the enemy sailors; she was relieved that she could bring an end to the hostilities.,1,2776.161164086516,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+144,0,128115582.544259,Fill in the blank below,Using detailed observations made by ancient astronomers in China, Korea, and Japan to complement data ____given____ by modern instruments, scientists can establish precisely when a particular star exploded.,11,4524.852987342658,30000
+144,0,128152207.740117,Fill in the blank below,Brian was so fond of his dog that their brief ____leave____ left him not just saddened, but in a state of sorrow.,5,6603.719002794216,30000
+144,0,128188478.314664,Fill in the blank below,Once his integrity had been challenged, the mayoral candidate was quick both to dismiss these attacks and to ____engage____ counterattacks.,14,6249.4385584051015,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+144,0,128224138.826592,Fill in the blank below,To reach Simonville, the traveller needs to drive with extreme caution along the windy curves of the ____dirt____ road that climbs steeply to the summit.,0,5632.476960402627,30000
+144,0,128259253.711596,Fill in the blank below,According to the ancient Greek philosopher Plato, only philosophy can provide genuine understanding because it scrutinizes assumptions that other areas of study merely ____taken____ for granted.,12,5084.30871872004,30000
+144,0,128294725.608436,Fill in the blank below,Angered that the book arrived in the mail in such a shabby condition, Elliot insisted that the bookseller ____replace____ it with a new copy.,16,5448.681504475034,30000
+participant-id,category,timestamp,prompt,answer,stimulus-id,previous-delay,stimulus_time
+144,0,128331650.585022,Fill in the blank below,Because he had decided not to glorify himself through the sales of his new product, the inventor anonymously ____donated____ all profits to charity.,15,6894.587334514151,30000
+144,0,128366347.271911,Fill in the blank below,The lectures on quantum physics were invariably dull; the lecturer ____presented____ his ill-prepared material in a manner guaranteed to send even the most ardent student to sleep.,9,4673.660304162728,30000
+144,0,128400665.774022,Fill in the blank below,In addition to evaluating ____hundreds____ of resumes and references, some employers want to supplement the hiring process by employing graphologists to study applicants' handwriting for character analysis.,7,4295.404932721997,30000
