@@ -1,0 +1,16 @@
+
+1. separate participants into experts and novices
+2. Run GLM by aligning experiment timing with fMRI data
+3. Find ROIs and narrow down voxels associated with these
+4. Can try MVPA
+
+
+4/26/2025
+- For an ML model, participants should be in their native spaces
+	- should use the func_brain.nii.gz files since those aren't registered to MNI space
+	- still need to perform ICA and nuisance regression on those though
+	- to perform ICA, I'll need to rename func_brain.nii.gz to filtered_func_data.nii.gz
+
+- For now, I think I'll just use the data I have, which has been registered and nuisance regressed
+
+
