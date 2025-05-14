@@ -1,6 +1,6 @@
 %% Function for
 
-function beta_weights = step_2_perform_glm(brain_data, TR, nframes, task_regressor)
+function beta_weights = perform_glm(brain_data, TR, nframes, task_regressor)
     
     % Programs such as FSL and SPM each contain a default HRF model, but
     % for now we will use the following model, which is based on

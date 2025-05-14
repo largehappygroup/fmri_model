@@ -11,16 +11,6 @@ mni_brain = niftiread(mni_brain_file);
 brain_idx = find(mask>0); % identifies only the voxels of the brain, not the empty space
 
 % This file can be another wrapper
-% For each file, filter to only voxels associated with brain_idx
-
-% Find top 10% of active voxels
-
-
-
-% Visually check the voxels
-
-
-% z-score voxels
 
 
 

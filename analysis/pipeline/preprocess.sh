@@ -73,15 +73,16 @@ find "$datapath/raw" -maxdepth 1 -type d | while read -r folder; do
       foldername="${folder:26}"
       
       if [[ "$foldername" =~  ^[0-9]{3}$ ]]; then
-            foldername='130' 
+            #foldername='130' 
             echo "Processing folder $foldername"
-            #ANAT="$folder/ht1spgr_208sl.nii"
-            #FUNC="$folder/utrun_01.nii"
-            ANAT="/home/zachkaras/fmri/fmri_model_data/raw/130/ht1spgr_208sl.nii"
-            FUNC="/home/zachkaras/fmri/fmri_model_data/raw/130/utrun_01_clipped.nii.gz" # just for participant 130
+            ANAT="$folder/ht1spgr_208sl.nii"
+            FUNC="$folder/utrun_01.nii"
+            #ANAT="/home/zachkaras/fmri/fmri_model_data/raw/130/ht1spgr_208sl.nii"
+            #FUNC="/home/zachkaras/fmri/fmri_model_data/raw/130/utrun_01_clipped.nii.gz" # just for participant 130
 
             outpath="$datapath/midprocess/$foldername"
-            #mkdir "$outpath" 
+
+            mkdir "$outpath" 
 
             #echo "$FUNC" "$ANAT"
             preprocess $ANAT $FUNC $outpath

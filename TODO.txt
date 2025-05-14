@@ -1,8 +1,12 @@
-
-1. separate participants into experts and novices
-2. Run GLM by aligning experiment timing with fMRI data
+Preprocess data again without registration 
+1. separate participants into experts and novices (3 timepoints for look at progression)
+2. Run GLM by aligning experiment timing with fMRI data -> GLM code is at /storage2/fmridata/new_tyler_code/
 3. Find ROIs and narrow down voxels associated with these
+	- Language network
+	- Multiple Demand system
+	- Cerebellar regions 
 4. Can try MVPA
+5. Topological data analysis
 
 
 4/26/2025
