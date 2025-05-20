@@ -2,7 +2,7 @@
 # after preprocessing 
 
 perform_ica(){
-      melodic -i "$1/raw_mc_epi2mni.nii.gz" -d 60 -o "$1/raw_mc_epi2mni.ica/" --Oorig --report --tr=0.8 -v 
+      melodic -i "$1/raw_mc_epi2mni.nii.gz" -d 60 -o "$1/filtered_func_data.ica/" --Oorig --report --tr=0.8 -v 
 }
 
 format_for_fix(){
@@ -18,6 +18,9 @@ format_for_fix(){
       
       # create temporal mean of 4d data
       fslmaths "$1/raw_mc_epi2mni.nii.gz" -Tmean "$1/mean_func.nii.gz"
+
+      # renaming preprocessed fMRI file
+      mv "$1/raw_mc_epi2mni.nii.gz" "$1/filtered_func_data.nii.gz"
       
       # move example anatomical to reg/highres.nii.gz
       mv "$1/BrainExtractionBrain.nii.gz" "$1/reg/highres.nii.gz"
@@ -26,29 +29,37 @@ format_for_fix(){
 }
 
 perform_fix(){
+      echo "Performing fix to classify components"
       ~/fix/fix -c "$1" Loop_ML_Model.RData 30
 }
 
 remove_components(){
-      ~/fix/fix -a "$1/fix4melview_Loop_ML_Model_thr30.txt"
+      echo "Removing components"
+      { # try
+            ~/fix/fix -a "$1/fix4melview_Loop_ML_Model_thr30.txt"
+      } || { # catch
+            echo "There may be an issue with the data file"
+            fslhd "$1/raw_mc_epi2mni.nii.gz" >> "$1/$2_header.txt"
+      }
 }
 
 # for loop for going through output directories  
-find "/home/zachkaras/fmri/fmri_model_data/midprocess" -maxdepth 1 -type d | while read -r folder; do
-      foldername="${folder:48}"
+find "/home/zachkaras/fmri/fmri_model_data/midprocess_prose" -maxdepth 1 -type d | while read -r folder; do
+      foldername="${folder:54}"
       #echo "$foldername"
       if [[ "$foldername" =~ ^[0-9]{3}$ ]]; then
             echo "$foldername"
-            #perform_ica "$folder"
-            #format_for_fix "$folder"
+            perform_ica "$folder"
+            format_for_fix "$folder"
             perform_fix "$folder"
-            remove_components "$folder"
+            remove_components "$folder" "$foldername"
             
             #break
             #((counter++))
             #if [[ $counter -ge 3 ]]; then
             #      break
             #fi
+            #break
       fi
 done
 

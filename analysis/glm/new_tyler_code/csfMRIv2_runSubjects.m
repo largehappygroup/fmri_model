@@ -73,7 +73,7 @@ function csfMRIv2_runSubjects(whichProc)
                         %csfMRIv2_addContrasts(nRuns(iSub), 'AR1');
                     
                         csfMRIv2_designStats_rwls(nRuns(iSub), 'rt', 1, subID);
-                        csfMRIv2_addContrasts(nRuns(iSub), 'rwls');
+                        % csfMRIv2_addContrasts(nRuns(iSub), 'rwls');
                         %csfMRIv3_smoothCons(subID, whichTask);
                 case 'smooth'
                     %In the case of 2nd-level analysis, the funtions below

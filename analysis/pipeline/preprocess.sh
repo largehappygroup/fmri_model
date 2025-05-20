@@ -68,9 +68,10 @@ preprocess(){
 # then sending functional and anatomical files into pipeline.
 # Preprocessed files (prior to Independent Component Analysis for physio correction)
 # are sent to the 'midprocess' folder
-datapath="../../fmri_model_data"
-find "$datapath/raw" -maxdepth 1 -type d | while read -r folder; do
-      foldername="${folder:26}"
+datapath="/home/zachkaras/fmri/fmri_model_data"
+find "$datapath/raw_prose" -maxdepth 1 -type d | while read -r folder; do
+      foldername="${folder:47}"
+      echo $foldername
       
       if [[ "$foldername" =~  ^[0-9]{3}$ ]]; then
             #foldername='130' 
@@ -80,13 +81,13 @@ find "$datapath/raw" -maxdepth 1 -type d | while read -r folder; do
             #ANAT="/home/zachkaras/fmri/fmri_model_data/raw/130/ht1spgr_208sl.nii"
             #FUNC="/home/zachkaras/fmri/fmri_model_data/raw/130/utrun_01_clipped.nii.gz" # just for participant 130
 
-            outpath="$datapath/midprocess/$foldername"
+            outpath="$datapath/midprocess_prose/$foldername"
 
             mkdir "$outpath" 
 
             #echo "$FUNC" "$ANAT"
             preprocess $ANAT $FUNC $outpath
-            break
+            #break
       fi
 done
 
