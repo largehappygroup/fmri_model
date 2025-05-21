@@ -4,7 +4,7 @@
 % saves a clean functional file in data/clean
 
 % for loop iterating through participants in preprocessed folder
-datapath = "/home/zachkaras/fmri/fmri_model_data/midprocess";
+datapath = "/home/zachkaras/fmri/fmri_model_data/midprocess_prose";
 files = dir(datapath); for i=3:numel(files); fnames{i-2}=files(i).name; end
 
 for i=1:numel(fnames)
@@ -24,7 +24,13 @@ for i=1:numel(fnames)
     
     % disp(brain_path)
     disp("reading nifti file")
-    brain_data = niftiread(brain_path);
+    try
+    
+        brain_data = niftiread(brain_path);
+    catch
+        fprintf("Participant %s does not have a nifti file", name)
+        continue
+    end
     len = size(brain_data,4);
 
     % design matrix and data
@@ -41,7 +47,7 @@ for i=1:numel(fnames)
 
     disp("saving")
     disp(name)
-    outdir = "/home/zachkaras/fmri/fmri_model_data/clean";
+    outdir = "/home/zachkaras/fmri/fmri_model_data/clean_prose";
     outfile = sprintf("%s/%s", outdir, name);
     disp(outfile)
     niftiwrite(YC, outfile);

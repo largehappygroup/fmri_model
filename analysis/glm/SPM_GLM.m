@@ -60,7 +60,7 @@ function SPM_GLM(subID, condition, fmri_datapath, outpath, onset_file, task)
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).orth     = 1;
 
     % No parametric modulation
-    matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(iRun).cond(1).pmod = struct('name', {}, 'param', {}, 'poly', {});
+    matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).pmod = struct('name', {}, 'param', {}, 'poly', {});
 
     % for iRun = 1:nRun
     % 
