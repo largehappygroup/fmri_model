@@ -7,8 +7,10 @@ function SPM_GLM(subID, condition, fmri_datapath, outpath, onset_file, task)
 
     duration = 60; % Duration for Long Response code and prose was 60s
 
+%% TODO
+% Unzip fMRI files and mask files, then zip them again after GLM
 
-% Create a new directory where we can store the relevant model output.
+%% Create a new directory where we can store the relevant model output.
 %--------------------------------------------------------------------------
     mkdir(outpath);
     cd(outpath);
@@ -38,6 +40,8 @@ function SPM_GLM(subID, condition, fmri_datapath, outpath, onset_file, task)
 % (seconds) and the TR of our pulse sequence (800ms). The other parameters
 % are SPM's defaults - they basically just determine how to 'magnify' the
 % temporal resolution of the 
+    % fprintf("Name: %s\n", condition)
+    % disp(cellstr(fmri_datapath))
 
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.timing.units   = 'secs';
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.timing.RT      = 0.800;
@@ -53,7 +57,7 @@ function SPM_GLM(subID, condition, fmri_datapath, outpath, onset_file, task)
         onsets = onsets.Var1;
     end
 
-    matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).name     = condition;
+    matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).name     = char(condition);
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).onset    = onsets;
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).duration = duration;
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).tmod     = 0;
@@ -169,11 +173,12 @@ function SPM_GLM(subID, condition, fmri_datapath, outpath, onset_file, task)
 % advantage to adding derivates is to account for small variations in the
 % latency/width of the hrf. However, this can complicate contrast
 % estimation, so we kept it simple here.
-    if task == "code"
-        mask_location = sprintf("/home/zachkaras/fmri/fmri_model_data/midprocess/%s/mask.nii.gz", subID);
-    elseif task == "prose"
-        mask_location = sprintf("/home/zachkaras/fmri/fmri_model_data/midprocess_prose/%s/mask.nii.gz", subID);
-    end
+    mask_location = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases/MNI152_T1_2mm_brain_mask.nii";
+    % if task == "code"
+    %     mask_location = sprintf("/home/zachkaras/fmri/fmri_model_data/midprocess/%s/mask.nii.gz", subID);
+    % elseif task == "prose"
+    %     mask_location = sprintf("/home/zachkaras/fmri/fmri_model_data/midprocess_prose/%s/mask.nii", subID);
+    % end
 
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.fact             = struct('name', {}, 'levels', {});
     % matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.bases.hrf.derivs = [0 0];
@@ -184,10 +189,13 @@ function SPM_GLM(subID, condition, fmri_datapath, outpath, onset_file, task)
     % matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.mask             = cellstr([location '/' wrw '/anatomy/t1spgr_208sl/Mask/sbrainmask.nii']);
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.mask             = cellstr(mask_location);
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.cvi              = 'wls';
+
+    disp(cellstr(mask_location))
     
 % Run design spec.
 %--------------------------------------------------------------------------
-
+    % disp(matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).scans); % Adjust path if using standard GLM
+    % disp(matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).name);
     spm_jobman('run', matlabbatch);
     
 % Run model estimation.

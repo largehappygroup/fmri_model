@@ -12,7 +12,7 @@ for i=1:numel(fnames)
     % if isempty(regexp(fnames{i}, 'out'))
     %     continue
     % end
-    disp(i)
+    % disp(i)
     disp(fnames{i})
     name = fnames{i};
     name = regexp(fnames{i}, '.nii.gz', 'split');
@@ -25,7 +25,7 @@ for i=1:numel(fnames)
     % disp(brain_path)
     disp("reading nifti file")
     try
-    
+        brain_info = niftiinfo(brain_path);
         brain_data = niftiread(brain_path);
     catch
         fprintf("Participant %s does not have a nifti file", name)
@@ -50,7 +50,8 @@ for i=1:numel(fnames)
     outdir = "/home/zachkaras/fmri/fmri_model_data/clean_prose";
     outfile = sprintf("%s/%s", outdir, name);
     disp(outfile)
-    niftiwrite(YC, outfile);
+    % niftiwrite(YC, outfile);
+    niftiwrite(YC, outfile, brain_info); % adding info to preserve orientation
     compress_file = sprintf("gzip %s/%s.nii", outdir, name);
     system(compress_file);
     toc

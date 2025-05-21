@@ -20,8 +20,18 @@ function iterate_through_participants(datapath, task)
     for i=3:length(files)
         person = files(i).name(1:3);
         fprintf("\nRunning GLMs for participant %s\n", person)
-        fmri_datapath = sprintf("%s/%s", datapath, files(i).name);
+        % fmri_datapath = sprintf("%s/%s", datapath, files(i).name);
+        if task == "prose"
+            fmri_datapath = sprintf("/home/zachkaras/fmri/fmri_model_data/midprocess_prose/%s/filtered_func_data_clean.nii.gz", person);
+        elseif task == "code"
+            fmri_datapath = sprintf("/home/zachkaras/fmri/fmri_model_data/midprocess/%s/filtered_func_data_clean.nii.gz", person);
+        end
 
+        uncompress_file = sprintf("gunzip %s", fmri_datapath);
+        system(uncompress_file);
+        uncompressed_datapath = char(fmri_datapath);
+        uncompressed_datapath = uncompressed_datapath(1:end-3);
+        
         % run GLM separately for the following:
         % Specify an output folder for each as well
 
@@ -30,7 +40,7 @@ function iterate_through_participants(datapath, task)
         outpath_all = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/%s/all/%s", task, person);
         onset_all = sprintf("/home/zachkaras/fmri/fmri_model/data/%s/relative-onsets-%s-%d.txt", person, person, blocknum);
         condition_all = sprintf("%s_all_questions", task);
-        SPM_GLM(person, condition_all, fmri_datapath, outpath_all, onset_all, task)
+        SPM_GLM(person, condition_all, uncompressed_datapath, outpath_all, onset_all, task)
 
         % Each question individually (question onset file)
         fprintf("Running GLM for question...")
@@ -39,7 +49,7 @@ function iterate_through_participants(datapath, task)
             outpath_question = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/%s/questions/%d/%s", task, ii, person);
             onset_question = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/onsets/%s/questions/%d/%s.csv", task, ii, person);
             condition_question = sprintf("%s_question_%d", task, ii);
-            SPM_GLM(subID, condition_question, fmri_datapath, outpath_question, onset_question, task)
+            SPM_GLM(person, condition_question, uncompressed_datapath, outpath_question, onset_question, task)
         end
 
         % Loops/nonloops for code
@@ -48,13 +58,17 @@ function iterate_through_participants(datapath, task)
             outpath_loops = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/code/loops/%s", person);
             onset_loops = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/onsets/code/loops/%s.csv", person);
             condition_loops = "code_loops";
-            SPM_GLM(subID, condition_loops, fmri_datapath, outpath_loops, onset_loops, task)
+            SPM_GLM(person, condition_loops, uncompressed_datapath, outpath_loops, onset_loops, task)
 
             outpath_nonloops = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/code/nonloops/%s", person);
             onset_nonloops = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/onsets/code/nonloops/%s.csv", person);
             condition_nonloops = "code_nonloops";
-            SPM_GLM(subID, condition_nonloops, fmri_datapath, outpath_nonloops, onset_nonloops, task)
+            SPM_GLM(person, condition_nonloops, uncompressed_datapath, outpath_nonloops, onset_nonloops, task)
         end
+
+        compress_file = sprintf("gzip %s", uncompressed_datapath);
+        system(compress_file);
+        break
     end
 end
 
