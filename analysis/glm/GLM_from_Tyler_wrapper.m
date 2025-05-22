@@ -26,11 +26,14 @@ function iterate_through_participants(datapath, task)
         elseif task == "code"
             fmri_datapath = sprintf("/home/zachkaras/fmri/fmri_model_data/midprocess/%s/filtered_func_data_clean.nii.gz", person);
         end
-
         uncompress_file = sprintf("gunzip %s", fmri_datapath);
         system(uncompress_file);
         uncompressed_datapath = char(fmri_datapath);
         uncompressed_datapath = uncompressed_datapath(1:end-3);
+        
+        if exist(uncompressed_datapath) < 1
+            continue
+        end
         
         % run GLM separately for the following:
         % Specify an output folder for each as well
@@ -38,9 +41,17 @@ function iterate_through_participants(datapath, task)
         % All questions (full onset file)
         fprintf("Running GLM for all questions\n")
         outpath_all = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/%s/all/%s", task, person);
+        
         onset_all = sprintf("/home/zachkaras/fmri/fmri_model/data/%s/relative-onsets-%s-%d.txt", person, person, blocknum);
         condition_all = sprintf("%s_all_questions", task);
-        SPM_GLM(person, condition_all, uncompressed_datapath, outpath_all, onset_all, task)
+        
+        if (exist(sprintf("%s/SPM.mat", outpath_all)) < 1) && (exist(onset_all) > 0)
+            try
+                SPM_GLM(person, condition_all, uncompressed_datapath, outpath_all, onset_all, task)
+            catch
+                fprintf("Issue with data from participant %s on all questions", person)
+            end
+        end
 
         % Each question individually (question onset file)
         fprintf("Running GLM for question...")
@@ -49,7 +60,13 @@ function iterate_through_participants(datapath, task)
             outpath_question = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/%s/questions/%d/%s", task, ii, person);
             onset_question = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/onsets/%s/questions/%d/%s.csv", task, ii, person);
             condition_question = sprintf("%s_question_%d", task, ii);
-            SPM_GLM(person, condition_question, uncompressed_datapath, outpath_question, onset_question, task)
+            if (exist(sprintf("%s/SPM.mat", outpath_question)) < 1) && (exist(onset_question) > 0)
+                try
+                    SPM_GLM(person, condition_question, uncompressed_datapath, outpath_question, onset_question, task)
+                catch
+                    fprintf("Issue with data from participant %s on question %d", person, ii)
+                end
+            end
         end
 
         % Loops/nonloops for code
@@ -58,12 +75,24 @@ function iterate_through_participants(datapath, task)
             outpath_loops = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/code/loops/%s", person);
             onset_loops = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/onsets/code/loops/%s.csv", person);
             condition_loops = "code_loops";
-            SPM_GLM(person, condition_loops, uncompressed_datapath, outpath_loops, onset_loops, task)
+            if (exist(sprintf("%s/SPM.mat", outpath_loops)) < 1) && (exist(onset_loops) > 0)
+                try
+                    SPM_GLM(person, condition_loops, uncompressed_datapath, outpath_loops, onset_loops, task)
+                catch
+                    fprintf("Issue with data from participant %s on loops", person)
+                end
+            end
 
             outpath_nonloops = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/code/nonloops/%s", person);
             onset_nonloops = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/onsets/code/nonloops/%s.csv", person);
             condition_nonloops = "code_nonloops";
-            SPM_GLM(person, condition_nonloops, uncompressed_datapath, outpath_nonloops, onset_nonloops, task)
+            if (exist(sprintf("%s/SPM.mat", outpath_nonloops)) < 1) && (exist(onset_nonloops) > 0)
+                try
+                    SPM_GLM(person, condition_nonloops, uncompressed_datapath, outpath_nonloops, onset_nonloops, task)
+                catch
+                    fprintf("Issue with data from participant %s on nonloops", nonperson)
+                end
+            end
         end
 
         compress_file = sprintf("gzip %s", uncompressed_datapath);
