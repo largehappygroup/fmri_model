@@ -68,7 +68,7 @@ function iterate_through_participants(datapath, task)
 
         compress_file = sprintf("gzip %s", uncompressed_datapath);
         system(compress_file);
-        break
+        % break
     end
 end
 
