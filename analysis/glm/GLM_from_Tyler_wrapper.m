@@ -1,6 +1,9 @@
 %% Performing GLM using SPM code
 
 % Load all participants
+% Even though I'm getting the filenames from the clean and clean_prose
+% directories, those data have been preprocessed too much since I applied
+% nuisance regression after ICA 
 prose_datapath = "/home/zachkaras/fmri/fmri_model_data/clean_prose";
 code_datapath = "/home/zachkaras/fmri/fmri_model_data/clean";
 
