@@ -1,4 +1,4 @@
-function nnw = write_nii_cc(nii_template,img_mat,fname)
+function nnw = write_nii(nii_template,img_mat,fname)
 % function nn = write_nii_nih(nii_template,img_to_write,fname)
 % write nii (3d or 4d) to nifti format, based on header info from
 % nii_template (in same space)

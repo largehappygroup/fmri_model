@@ -52,7 +52,7 @@ function iterate_through_participants(datapath, task)
             try
                 SPM_GLM(person, condition_all, uncompressed_datapath, outpath_all, onset_all, task)
             catch
-                fprintf("Issue with data from participant %s on all questions", person)
+                fprintf("Issue with data from participant %s on all questions\n", person)
             end
         end
 
@@ -67,7 +67,7 @@ function iterate_through_participants(datapath, task)
                 try
                     SPM_GLM(person, condition_question, uncompressed_datapath, outpath_question, onset_question, task)
                 catch
-                    fprintf("Issue with data from participant %s on question %d", person, ii)
+                    fprintf("Issue with data from participant %s on question %d\n", person, ii)
                 end
             end
         end
@@ -82,7 +82,7 @@ function iterate_through_participants(datapath, task)
                 try
                     SPM_GLM(person, condition_loops, uncompressed_datapath, outpath_loops, onset_loops, task)
                 catch
-                    fprintf("Issue with data from participant %s on loops", person)
+                    fprintf("Issue with data from participant %s on loops\n", person)
                 end
             end
 
@@ -93,7 +93,7 @@ function iterate_through_participants(datapath, task)
                 try
                     SPM_GLM(person, condition_nonloops, uncompressed_datapath, outpath_nonloops, onset_nonloops, task)
                 catch
-                    fprintf("Issue with data from participant %s on nonloops", nonperson)
+                    fprintf("Issue with data from participant %s on nonloops\n", nonperson)
                 end
             end
         end
