@@ -66,7 +66,7 @@ function SPM_GLM(subID, condition, fmri_datapath, outpath, onset_file, task)
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.bases.hrf.derivs = [1 1]; % ZK adding time and dispersion derivatives
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.volt             = 1;
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.global           = 'None';
-    matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.mthresh          = 0.9;
+    matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.mthresh          = 0.2;
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.mask             = cellstr(mask_location);
     matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.cvi              = 'wls';
 
