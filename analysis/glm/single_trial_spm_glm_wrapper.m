@@ -1,7 +1,7 @@
 prose_datapath = "/home/zachkaras/fmri/fmri_model_data/clean_prose";
 code_datapath = "/home/zachkaras/fmri/fmri_model_data/clean";
 
-iterate_through_participants(prose_datapath, "prose")
+% iterate_through_participants(prose_datapath, "prose")
 iterate_through_participants(code_datapath, "code")
 
 

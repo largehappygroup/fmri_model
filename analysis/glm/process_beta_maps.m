@@ -27,6 +27,8 @@ beta_paths = ["code/all",...
              "prose/questions/7",...
              "prose/questions/8"];
 
+
+
 % Loading atlases 
 % Loading a brain mask file and the atlas files for identifying seed regions
 maskfile = '/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases/MNI152_T1_2mm_brain_mask.nii.gz';
@@ -81,6 +83,7 @@ end
 % Based on the 'shared representations' paper, the researchers filtered the
 % voxels in the language and multiple demand system to the top 10% of
 % voxels that responded during the localization task
+
 
 
 function z_betas = process_beta_map(beta_map_path, brain_idx, empty_brain, atlas_2d_brain)
