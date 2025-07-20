@@ -45,10 +45,11 @@ function SPM_GLM_single_trial(subID, fmri_datapath, outpath, onsets, task)
         matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(i).duration = duration;
         matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(i).tmod     = 0;
         matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(i).orth     = 0;
+        matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(i).pmod = struct('name', {}, 'param', {}, 'poly', {});
     end
     
     % No parametric modulation
-    matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).pmod = struct('name', {}, 'param', {}, 'poly', {});
+    % matlabbatch{1}.spm.tools.rwls.fmri_rwls_spec.sess(1).cond(1).pmod = struct('name', {}, 'param', {}, 'poly', {});
 
 % Specify hrf basis, mask, and noise model for objective function.
 %--------------------------------------------------------------------------

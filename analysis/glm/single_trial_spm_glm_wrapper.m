@@ -16,6 +16,7 @@ function iterate_through_participants(datapath, task)
 
     for i=3:length(files)
         person = files(i).name(1:3);
+        question_onsets = create_design_matrix(person);
 
         outpath_question = sprintf("/home/zachkaras/fmri/fmri_model_data/beta_maps/%s/questions/%s", task, person);
 
@@ -49,6 +50,7 @@ function iterate_through_participants(datapath, task)
 
         
         question_onsets = create_design_matrix(person);
+
         if isempty(question_onsets)
             fprintf("Issue with data from participant %s, skipping.", person)
         end
@@ -64,7 +66,7 @@ function iterate_through_participants(datapath, task)
 
         compress_file = sprintf("gzip %s", uncompressed_datapath);
         system(compress_file);
-        % break
+        break
     end
 end
 

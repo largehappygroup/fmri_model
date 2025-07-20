@@ -7,46 +7,53 @@ contents = dir(datapath);
 contents = contents([contents.isdir]);
 participants = contents(~ismember({contents.name}, {'.', '..'}));
 
-% get order of conditions
-for i=1:length(participants)
-    
-    person = participants(i).name;
-    disp(person)
+% wrapper_for_making_regressors('code')
+wrapper_for_making_regressors('prose')
 
-    %% Reading in fMRI file to get number of frames
-    brain_file = sprintf("/home/zachkaras/fmri/fmri_model_data/clean/%s", person);
-    try
-        brain_data = niftiinfo(brain_file);
-    catch
-        fprintf("No fMRI data for %s", person)
-        continue
+
+function wrapper_for_making_regressors(condition)
+    % get order of conditions
+    for i=1:length(participants)
+        
+        person = participants(i).name;
+        disp(person)
+    
+        %% Reading in fMRI file to get number of frames
+        if strcmp(condition, 'code')
+            brain_file = sprintf("/home/zachkaras/fmri/fmri_model_data/clean/%s", person);
+        elseif strcmp(condition, 'prose')
+            brain_file = sprintf("/home/zachkaras/fmri/fmri_model_data/clean_prose/%s", person);
+        end
+
+        try
+            brain_data = niftiinfo(brain_file);
+        catch
+            fprintf("No fMRI data for %s", person)
+            continue
+        end
+        nframes = brain_data.ImageSize(4);
+        % nframes = 746;
+        
+        %% Reading in Task Info
+        if strcmp(condition, 'code')
+            onset_file = sprintf("/home/zachkaras/fmri/fmri_model/data/%s/relative-onsets-%s-3.txt", person, person);
+        elseif strcmp(condition, 'prose')
+            onset_file = sprintf("/home/zachkaras/fmri/fmri_model/data/%s/relative-onsets-%s-1.txt", person, person);
+        end
+
+        task_info = readtable(onset_file, 'Delimiter', ' ', 'ReadVariableNames', false);
+        
+        stim_ids = task_info.Var1;
+        onsets = task_info.Var2;
+        
+        create_question_regressors(person, nframes, stim_ids, onsets);
+        create_loop_regressors(person, nframes, stim_ids, onsets);
+     
+        % break
     end
-    nframes = brain_data.ImageSize(4);
-    % nframes = 746;
     
-    %% Reading in Task Info
-    onset_file = sprintf("/home/zachkaras/fmri/fmri_model/data/%s/relative-onsets-%s-3.txt", person, person);
-    task_info = readtable(onset_file, 'Delimiter', ' ', 'ReadVariableNames', false);
-    
-    stim_ids = task_info.Var1;
-    onsets = task_info.Var2;
-    
-    create_question_regressors(person, nframes, stim_ids, onsets);
-    create_loop_regressors(person, nframes, stim_ids, onsets);
- 
-    % break
+
 end
-
-% find volumes associated with loops, nonloops
-
-
-% find volumes associated with each condition
-
-
-% create file names
-
-
-% save in proper directories
 
 %% Function to create regressors for each question
 % Doesn't return anything, just saves to file
