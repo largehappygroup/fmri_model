@@ -102,7 +102,7 @@ def beta_processing_wrapper(participants, fmri_path, task):
             for roi,voxel_vals in roi_val.items():
                 questions_by_roi[roi][question_num] = voxel_vals
                 
-        output_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/{p}"
+        output_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/human/{p}"
         os.system(f'mkdir {output_path}')
 
         for roi,questions_activity in questions_by_roi.items():
@@ -114,9 +114,47 @@ def beta_processing_wrapper(participants, fmri_path, task):
 #######################################################################
 ############ Embedding Processing #####################################
 #######################################################################
+def process_embeddings(embedding_path):
+    embedding = torch.load(embedding_path)
+    mean_embedding = torch.mean(embedding, dim=0)
+    return mean_embedding
 
-def process_embeddings():
-    pass
+def aggregate_runs_by_question(model_path, model_name, task):
+    print(f"Processing embeddings for {model_name}")
+    
+    full_embedding_path = f"{model_path}/{model_name}"
+    output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model/{model_name}"
+    os.system(f"mkdir {output_dir}")
+    
+    # runs are basically 'participants'
+    runs = range(1,11)
+    
+    for r in runs:
+        print(f"Run {r}")
+        questions = range(0,9)
+        model_embeddings = {question_num : [] for question_num in questions}
+        
+        for q in questions:
+            embedding_path = f"{full_embedding_path}/question_{q}_run_{r}.pt"
+            question_embedding = process_embeddings(embedding_path)
+            model_embeddings[q] = question_embedding
+        
+        
+        output_file = f"run_{r}.csv"
+        
+        df = pd.DataFrame.from_dict(model_embeddings)
+        df.T.to_csv(f"{output_dir}/{output_file}")
+        # break
+
+
+def process_embeddings_wrapper(embedding_path, task):
+    model_path = f"{embedding_path}/{task}"
+    models = os.listdir(model_path)
+    models = [m for m in models if not re.search("csv", m)]
+    
+    for m in models:        
+        aggregate_runs_by_question(model_path, m, task)
+        # break
 
 
 # read in embeddings
@@ -151,23 +189,20 @@ def main():
     participants_code = os.listdir(f"{code_fmri_path}/0")
     participants_code = [f[0:3] for f in participants_code]
     participants_code.sort()
-    # print(participants_code)
-    # questions_code = [f for f in questions_code if re.match(r'[0-9]{3}', f)]
-    beta_processing_wrapper(participants_code, code_fmri_path, 'code')
+    # beta_processing_wrapper(participants_code, code_fmri_path, 'code')
 
     # Prose
-    # participants_prose = os.listdir(prose_fmri_path)
-    # participants_prose = [f for f in participants_prose if re.match(r'[0-9]{3}', f)]
     participants_prose = os.listdir(f"{prose_fmri_path}/0")
     participants_prose = [f[0:3] for f in participants_prose]
     participants_prose.sort()
-    beta_processing_wrapper(participants_prose, prose_fmri_path, 'prose')
+    # beta_processing_wrapper(participants_prose, prose_fmri_path, 'prose')
 
     # --- Processing Model Embeddings ---
-    code_embeddings_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings/code"
-    prose_embeddings_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings/prose"
+    embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
+    process_embeddings_wrapper(embedding_path, 'code')
+    process_embeddings_wrapper(embedding_path, 'prose')
 
-# for loop for participants
+
 
 if __name__=="__main__":
     main()
