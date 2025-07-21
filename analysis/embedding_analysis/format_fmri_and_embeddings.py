@@ -77,14 +77,16 @@ def beta_processing_wrapper(participants, fmri_path):
     # iterating through each participant
     for p in participants:
         print(f"Processing data from participant {p}")
-        beta_path = f"{fmri_path}/{p}"
-        betas = os.listdir(beta_path)
-
+        beta_folders = [f"{fmri_path}/{question_num}/{p}_beta.nii" for question_num in range(0,9)]
+        # beta_path = f"{fmri_path}/{p}_beta.nii"
+        # betas = os.listdir(beta_path)
 
         # making a dictionary where key values are the question numbers
         # Then the values will also be dictionaries
         # whose keys are the roi numbers, and whose values are the voxel values from that roi
         collected_betas = { question_num : {} for question_num in range(9)}
+        
+        # need to make a for loop through each of the 0-8 questions, then load the beta map for each
 
         for i,f in enumerate(betas):
             print(f"question {i}")
@@ -117,7 +119,6 @@ def beta_processing_wrapper(participants, fmri_path):
         # print(collected_betas.keys(), collected_betas[0].keys(), collected_betas[0][9])
         break
 
-
 #######################################################################
 ############ Embedding Processing #####################################
 #######################################################################
@@ -147,14 +148,19 @@ def process_embeddings():
 
 def main():
     # read in fMRI data
-    code_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/code" # then participant number, then betas, which are in patterns of threes 1,4,7,10...
-    prose_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/prose" # then participant number, then betas, which are in patterns of threes
-
+    # read from 
+    # code_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/code" #
+    # prose_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/prose" #
+    code_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/code/questions" # 
+    prose_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/prose/questions" # then 0-8/then {participant_id}_beta.nii 
 
     # --- Processing fMRI Data ---
     # Code
-    participants_code = os.listdir(code_fmri_path)
-    participants_code = [f for f in participants_code if re.match(r'[0-9]{3}', f)]
+    participants_code = os.listdir(f"{code_fmri_path}/0")
+    participants_code = [f[0:3] for f in participants_code]
+    participants_code.sort()
+    # print(participants_code)
+    # questions_code = [f for f in questions_code if re.match(r'[0-9]{3}', f)]
     beta_processing_wrapper(participants_code, code_fmri_path)
 
     # Prose

@@ -7,11 +7,11 @@ contents = dir(datapath);
 contents = contents([contents.isdir]);
 participants = contents(~ismember({contents.name}, {'.', '..'}));
 
-% wrapper_for_making_regressors('code')
-wrapper_for_making_regressors('prose')
+% wrapper_for_making_regressors('code', participants)
+wrapper_for_making_regressors('prose', participants)
 
 
-function wrapper_for_making_regressors(condition)
+function wrapper_for_making_regressors(condition, participants)
     % get order of conditions
     for i=1:length(participants)
         
@@ -28,7 +28,7 @@ function wrapper_for_making_regressors(condition)
         try
             brain_data = niftiinfo(brain_file);
         catch
-            fprintf("No fMRI data for %s", person)
+            fprintf("No fMRI data for %s\n", person)
             continue
         end
         nframes = brain_data.ImageSize(4);
@@ -46,8 +46,12 @@ function wrapper_for_making_regressors(condition)
         stim_ids = task_info.Var1;
         onsets = task_info.Var2;
         
-        create_question_regressors(person, nframes, stim_ids, onsets);
-        create_loop_regressors(person, nframes, stim_ids, onsets);
+        if strcmp(condition, 'code')
+            create_question_regressors(person, nframes, stim_ids, onsets);
+            create_loop_regressors(person, nframes, stim_ids, onsets);
+        elseif strcmp(condition, 'prose')
+            create_prose_condition_regressors(person, nframes, stim_ids, onsets);
+        end
      
         % break
     end
@@ -83,6 +87,51 @@ function create_question_regressors(person, nframes, stim_ids, onsets)
         end
         % break
     end
+
+end
+
+function create_prose_condition_regressors(person, nframes, stim_ids, onsets)
+    dur = 60;
+    TR = 0.8;
+    dur_in_vols = dur/TR;
+
+    % read in file with volumes for the condition
+    % splitting prose questions based on whether the question asks for a
+    % choice or asks to explain both sides
+    choice = [0,1,2,3,4];
+
+    choice_task = zeros(nframes, 1);
+    explain_task = zeros(nframes,1);
+    
+    for i=1:length(onsets)
+        id = stim_ids(i);
+        if ismember(id, choice)
+            category = "choice";
+        else
+            category = "explain_both";
+        end
+
+        sprintf("%d : %s", id, category)
+        if onsets(i) < (length(choice_task)*TR)
+
+            startTime = onsets(i);
+            startVol = startTime/TR;
+            rounded_startVol = round(startVol);
+            rounded_dur_in_vols = round(dur_in_vols);
+        
+            if strcmp(category, "choice")
+                choice_task(rounded_startVol:rounded_startVol + rounded_dur_in_vols) = 1; % double check this
+            elseif strcmp(category, "explain_both")
+                explain_task(rounded_startVol:rounded_startVol + rounded_dur_in_vols) = 1;
+            end
+        end
+    end
+
+    choice_savepath = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/regressors/prose/choice/%s.csv", person);
+    explain_savepath = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/regressors/prose/explain_both/%s.csv", person);
+    
+    writematrix(choice_task, choice_savepath);
+    writematrix(explain_task, explain_savepath);
 
 end
 

@@ -7,19 +7,19 @@
 % calculating single trial betas using GLMsingle
 
 % output directories
-outputdir_root = "/home/zachkaras/fmri/fmri_model_data/beta_maps";
-code_outputdir = sprintf("%s/code/questions", outputdir_root);
+outputdir_root  = "/home/zachkaras/fmri/fmri_model_data/beta_maps";
+code_outputdir  = sprintf("%s/code/conditions", outputdir_root);
+prose_outputdir = sprintf("%s/prose/conditions", outputdir_root);
 
 tr = 0.8;
 stimdur = 60;
-% prose_outputdir = sprintf("%s/prose/questions", outputdir_root);
-
 
 % iterate_through_participants(prose_datapath, "prose")
 code_datapath = "/home/zachkaras/fmri/fmri_model_data/midprocess/";
 iterate_through_participants(code_datapath, "code", code_outputdir, stimdur, tr)
 
-% need to format excel files as design matrix
+prose_datapath = "/home/zachkaras/fmri/fmri_model_data/midprocess_prose/";
+iterate_through_participants(porse_datapath, "prose", prose_outputdir, stimdur, tr)
 
 
 % need to load in corresponding brain data
@@ -32,19 +32,11 @@ function iterate_through_participants(datapath, task, outputdir, stimdur, tr)
         end
     end
 
-    
-    % disp(X)
-    % if task == "prose"
-    %     blocknum = 1;
-    % elseif task == "code"
-    %     blocknum = 3;
-    % end
-
     for i=3:length(fnames)
-        brain_data_path = sprintf("%s/%s/filtered_func_data_clean.nii.gz", datapath, fnames{i});
-        % disp("l")
+        person = fnames{i};
+        brain_data_path = sprintf("%s/%s/filtered_func_data_clean.nii.gz", datapath, person);
         brain_data = niftiread(brain_data_path);
-        design = create_design_matrix(fnames{i});
+        design = create_design_matrix(fnames{i}, task);
 
         opt = struct('wantmemoryoutputs',[1 1 1 1]);
 
@@ -52,7 +44,7 @@ function iterate_through_participants(datapath, task, outputdir, stimdur, tr)
         % "example2outputs/GLMsingle". If these outputs don't already exist, we
         % will perform the time-consuming call to GLMestimatesingletrial.m;
         % otherwise, we will just load from disk.
-        full_outputdir = sprintf('%s/GLMsingle', outputdir);
+        full_outputdir = sprintf('%s/%s/GLMsingle', outputdir, person);
         if ~exist(full_outputdir,'dir')
         
             [results] = GLMestimatesingletrial(design,brain_data,stimdur,tr,full_outputdir,opt);
@@ -84,7 +76,9 @@ function iterate_through_participants(datapath, task, outputdir, stimdur, tr)
 end
 
 
-function X = create_design_matrix(person)
+function X = create_question_design_matrix(person)
+    % if the task is code, load regressors from loops and nonloops
+    % if the task is prose, load regressors from prose/choice and and prose/explain_both 
     base_datapath = "/home/zachkaras/fmri/fmri_model/midprocessing/regressors/questions";
 
     X = [];
@@ -99,6 +93,24 @@ function X = create_design_matrix(person)
         
         X = [X, table2array(regressor)];
     end
+end
+
+function X = create_design_matrix(person, task)
+    % if the task is code, load regressors from loops and nonloops
+    % if the task is prose, load regressors from prose/choice and and prose/explain_both 
+    base_datapath = "/home/zachkaras/fmri/fmri_model/midprocessing/regressors";
+
+    if strcmp(task, 'code')
+        cond_one_path = sprintf("%s/loops_nonloops/loops/%s.csv", base_datapath, person);
+        cond_two_path = sprintf("%s/loops_nonloops/nonloops/%s.csv", base_datapath, person);
+    elseif strcmp(task, 'prose')
+        cond_one_path = sprintf("%s/prose/choice/%s.csv", base_datapath, person);
+        cond_two_path = sprintf("%s/prose/explain_both/%s.csv", base_datapath, person);
+    end
+
+    cond_one_onsets = readtable(cond_one_path);
+    cond_two_onsets = readtable(cond_two_path);
+    X = [table2array(cond_one_onsets), table2array(cond_two_onsets)];
 end
 
 
