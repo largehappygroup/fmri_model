@@ -40,7 +40,11 @@ def process_fmri(brain_path):
     # find ROI voxels from betas
 
     # format
-    data_nii = nib.load(brain_path)
+    try:
+        data_nii = nib.load(brain_path)
+    except:
+        print(f"No data for {brain_path}")
+        return 0
     data = data_nii.get_fdata()
     data_1D = data[tuple(brain_idx.T)]
     
@@ -72,14 +76,12 @@ def process_fmri(brain_path):
 
     # save in folders like midprocessing/code/fmri/{participant}_{roi}.csv
 
-def beta_processing_wrapper(participants, fmri_path):
+def beta_processing_wrapper(participants, fmri_path, task):
     
     # iterating through each participant
     for p in participants:
         print(f"Processing data from participant {p}")
-        beta_folders = [f"{fmri_path}/{question_num}/{p}_beta.nii" for question_num in range(0,9)]
-        # beta_path = f"{fmri_path}/{p}_beta.nii"
-        # betas = os.listdir(beta_path)
+        beta_files = [f"{fmri_path}/{question_num}/{p}_beta.nii" for question_num in range(0,9)]
 
         # making a dictionary where key values are the question numbers
         # Then the values will also be dictionaries
@@ -88,36 +90,26 @@ def beta_processing_wrapper(participants, fmri_path):
         
         # need to make a for loop through each of the 0-8 questions, then load the beta map for each
 
-        for i,f in enumerate(betas):
+        for i,f in enumerate(beta_files):
             print(f"question {i}")
-            beta_file = f"{beta_path}/{f}"
-            print(beta_file)
-            roi_activity = process_fmri(beta_file)
+            roi_activity = process_fmri(f)
+            if roi_activity == 0:
+                continue
             collected_betas[i] = roi_activity
-            # print(roi_activity.keys())
-            # print(roi_activity)
-            # break
+            
         questions_by_roi = defaultdict(dict)
         for question_num,roi_val in collected_betas.items():
             for roi,voxel_vals in roi_val.items():
-                # print(collected_betas.keys(), collected_betas[question_num].keys())
-                # collected_betas[question_num][roi]
-                # print(voxel_vals)
-                # print(voxel_vals)
                 questions_by_roi[roi][question_num] = voxel_vals
+                
+        output_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/{p}"
+        os.system(f'mkdir {output_path}')
 
         for roi,questions_activity in questions_by_roi.items():
-            # print(questions_activity.keys())
-            
- 
             df = pd.DataFrame.from_dict(questions_activity)
-            df.T.to_csv(f"/home/zachkaras/fmri/test_roi_{roi}.csv")
-            # break
-
-        # print(questions_by_roi.keys(), questions_by_roi[9].keys())
-        # # betas_by_seed_values = {roi : voxel_vals for roi in for question_num in collected_betas.keys()}
-        # print(collected_betas.keys(), collected_betas[0].keys(), collected_betas[0][9])
-        break
+            df.T.to_csv(f"{output_path}/roi_{roi}.csv")
+            
+        # break
 
 #######################################################################
 ############ Embedding Processing #####################################
@@ -161,12 +153,15 @@ def main():
     participants_code.sort()
     # print(participants_code)
     # questions_code = [f for f in questions_code if re.match(r'[0-9]{3}', f)]
-    beta_processing_wrapper(participants_code, code_fmri_path)
+    beta_processing_wrapper(participants_code, code_fmri_path, 'code')
 
     # Prose
-    participants_prose = os.listdir(prose_fmri_path)
-    participants_prose = [f for f in participants_prose if re.match(r'[0-9]{3}', f)]
-    # beta_processing_wrapper(participants_prose, prose_fmri_path)
+    # participants_prose = os.listdir(prose_fmri_path)
+    # participants_prose = [f for f in participants_prose if re.match(r'[0-9]{3}', f)]
+    participants_prose = os.listdir(f"{prose_fmri_path}/0")
+    participants_prose = [f[0:3] for f in participants_prose]
+    participants_prose.sort()
+    beta_processing_wrapper(participants_prose, prose_fmri_path, 'prose')
 
     # --- Processing Model Embeddings ---
     code_embeddings_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings/code"
