@@ -1,3 +1,10 @@
+import os
+import torch
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import cross_val_score
+
 
 # I have model embeddings in the form of 
 # model name: deepseek 2b
@@ -11,4 +18,112 @@
 
 # People typically calculate ridge regression between model embeddings and voxel values
 # How should I set this up? 
+
+def regression_wrapper(task):
+    
+    model_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
+    models = os.listdir(model_path)
+    
+    datapath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/human"
+    participants = os.listdir(datapath)
+    
+    for person in participants:
+        
+        print(f"Participant: {person}")
+        # For every csv file of ROI voxels
+        roi_dir = f"{datapath}/{person}"
+        ROIs = os.listdir(roi_dir)
+        
+        for roi_file in ROIs:
+            print(f"ROI: {roi_file[:-4]}")
+            roi_data_path = f"{roi_dir}/{roi_file}"
+            roi_df = pd.read_csv(roi_data_path).fillna(0)
+            
+            X = roi_df.to_numpy()
+            
+            # for every model 
+            for model in models:
+                print(f"Model: {model}")
+                model_dir = f"{model_path}/{model}"
+                runs = os.listdir(model_dir)
+                
+                # for every run
+                for run in runs:
+                    run_path = f"{model_dir}/{run}"
+                    run_df = pd.read_csv(run_path)
+                    y = run_df.to_numpy()
+                    
+                    # print(X.shape, y.shape)
+                    
+                    rr_model = Ridge(alpha=1.0)  
+                    # alpha is the regularization strength
+                    scores = cross_val_score(rr_model, X, y, cv=2, scoring='r2')
+                    
+                    
+                    print(f"Mean R² across ROI: {np.mean(scores):.3f}")
+                # break
+
+                    # print(f"Voxel {voxel_idx} R² scores: {scores}")
+                    # print(f"Mean R²: {np.mean(scores):.3f}")
+                    
+                    # from sklearn.model_selection import GridSearchCV
+
+                    # param_grid = {'alpha': np.logspace(-2, 3, 10)}
+                    # model = Ridge()
+                    # grid = GridSearchCV(model, param_grid, cv=5, scoring='r2')
+                    # grid.fit(X, Y[:, 0])  # for a single voxel
+                    # print("Best alpha:", grid.best_params_['alpha'])
+                    
+                    
+            
+            
+            # for every run within the model
+            
+            # I wonder if I could parallelize this
+            
+            
+            # print(X)
+            # break
+        break
+
+        # either calculate correlation coefficient, or use this is a sample for ridge regression
+        
+        
+        # Can also try RSA
+        # need X and Y
+        
+        # model = Ridge(alpha=1.0)  # alpha is the regularization strength
+        # scores = cross_val_score(model, X, y, cv=5, scoring='r2')
+
+        # print(f"Voxel {voxel_idx} R² scores: {scores}")
+        # print(f"Mean R²: {np.mean(scores):.3f}")
+        
+        # from sklearn.model_selection import GridSearchCV
+
+        # param_grid = {'alpha': np.logspace(-2, 3, 10)}
+        # model = Ridge()
+        # grid = GridSearchCV(model, param_grid, cv=5, scoring='r2')
+        # grid.fit(X, Y[:, 0])  # for a single voxel
+        # print("Best alpha:", grid.best_params_['alpha'])
+        
+        # pass
+    
+
+    # For every csv file of ROI voxels
+
+    # either calculate correlation coefficient, or use this is a sample for ridge regression
+
+
+def main():
+    # For code and prose
+    
+    regression_wrapper('code')
+    
+    # regression_wrapper('prose')
+
+
+if __name__ == "__main__":
+    main()
+
+
 
