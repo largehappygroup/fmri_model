@@ -44,13 +44,13 @@ base_outpath = "/home/zachkaras/fmri/model/embeddings"
 generated_code_outpath = f"{base_outpath}/code/generated_code.csv"
 generated_prose_outpath = f"{base_outpath}/prose/generated_prose.csv"
 
-with open(generated_code_outpath, 'a+') as f:
-        cfile = csv.writer(f)
-        cfile.writerow(['model', 'stim_id', 'run_num', 'generated_text'])
+# with open(generated_code_outpath, 'a+') as f:
+#         cfile = csv.writer(f)
+#         cfile.writerow(['model', 'stim_id', 'run_num', 'generated_text'])
 
-with open(generated_prose_outpath, 'a+') as f:
-        cfile = csv.writer(f)
-        cfile.writerow(['model', 'stim_id', 'run_num', 'generated_text'])
+# with open(generated_prose_outpath, 'a+') as f:
+#         cfile = csv.writer(f)
+#         cfile.writerow(['model', 'stim_id', 'run_num', 'generated_text'])
 
 # Load in 4-bit using bitsandbytes
 bnb_config = BitsAndBytesConfig(
@@ -103,7 +103,10 @@ def decide_model(model_name):
     #     return AutoModel.from_pretrained(model_name, trust_remote_code=True)
     # elif "starcoder2" in model_name or "codegemma" in model_name:
     try:
-        return AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, quantization_config=bnb_config)
+        return AutoModelForCausalLM.from_pretrained(model_name, 
+                                                    trust_remote_code=True, 
+                                                    quantization_config=bnb_config,
+                                                    attn_implementation='eager')
     # elif "openai" in model_name:
     #     return AutoModel.from_pretrained(model_name, trust_remote_code=True)
     except:
@@ -126,25 +129,32 @@ def get_least_used_gpu():
     # return best_gpu
     return 1
 
-def generate_and_capture_all(model, temperature, tokenizer, prompt, device, max_new_tokens=64):
+def generate_and_capture_all(model, tokenizer, prompt, device):
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
     attention_mask = torch.ones_like(input_ids)
     
-    # make 10 iterations for 10 runs
-    # hidden_states = {}
-    
+    hidden_states = {}
+
     with torch.no_grad():
         outputs = model(
             input_ids = input_ids,
             attention_mask = attention_mask,
             output_hidden_states = True,
+            # output_attentions = True,
             return_dict = True
         )
-        
-    print(vars(outputs))
     
-    
+    for i, hidden_state_layer in enumerate(outputs.hidden_states):
+         layer = hidden_state_layer.squeeze(0).cpu()
+         hidden_states[f'layer_{i}'] = layer
 
+    # save hidden states in directories 
+    # print(len())
+    return hidden_states
+    # print(outputs.attentions)
+    
+    
+'''
 def generate_and_capture(model, temperature, tokenizer, prompt, device, max_new_tokens=64):
     # Step 0: Tokenize the prompt
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
@@ -195,7 +205,7 @@ def generate_and_capture(model, temperature, tokenizer, prompt, device, max_new_
     hidden_states_tensor = torch.cat(hidden_states_per_step, dim=0)  # (steps, dim)
 
     return generated_text, hidden_states_tensor
-
+'''
 
 def generation_wrapper(dataset, task, model_name, temperature, num_samples):
     
@@ -203,12 +213,15 @@ def generation_wrapper(dataset, task, model_name, temperature, num_samples):
 
     # --- Function for saving output ---
     def record_in_csv(question_num, generated_text, hidden_states_tensor, run=0):
-        with open(generated_outpath, 'a+') as f:
-            cfile = csv.writer(f)
-            cfile.writerow([model_name, question_num, run, generated_text])
+        # with open(generated_outpath, 'a+') as f:
+        #     cfile = csv.writer(f)
+        #     cfile.writerow([model_name, question_num, run, generated_text])
         
         # Saving embeddings
-        outpath = f"embeddings/{task}/{model_name}/question_{question_num}_run_{run}.pt"
+        # outpath = f"embeddings/{task}/{model_name}/question_{question_num}_run_{run}.pt"
+        # outpath = f"embeddings/{task}/{model_name}/question_{question_num}_run_{run}.pt"
+        outpath = f"embeddings/{task}/{model_name}_question_{question_num}.pt"
+
         torch.save(hidden_states_tensor, outpath)
 
     
@@ -221,22 +234,25 @@ def generation_wrapper(dataset, task, model_name, temperature, num_samples):
         
         if temperature == None:
             # generated_text,hidden_states_tensor = generate_and_capture(model, temperature, tokenizer, prompt,device, max_new_tokens=max_tokens)
-            generated_text,hidden_states_tensor = generate_and_capture_all(model, temperature, tokenizer, prompt,device, max_new_tokens=max_tokens)
-            record_in_csv(question_num, generated_text, hidden_states_tensor)
+            hidden_states_tensor = generate_and_capture_all(model, tokenizer, prompt, device)
+            record_in_csv(question_num, None, hidden_states_tensor)
             
         else: # if temperature is set, collect a few samples for each prompt to get a variety of responses
             for i in range(num_samples):
-                generated_text, hidden_states_tensor = generate_and_capture(model, temperature, tokenizer, prompt,device, max_new_tokens=max_tokens)
-                record_in_csv(question_num, generated_text, hidden_states_tensor, run=i+1)
+                hidden_states_tensor = generate_and_capture_all(model, tokenizer, prompt, device)
+                record_in_csv(question_num, None, hidden_states_tensor, run=i+1)
+        # break
         
+        # --- Saving output ---
+        # Saving generated text
         
-        # # --- Saving output ---
-        # # Saving generated text
+        ### Not generating text with current approach
+        
         # with open(generated_outpath, 'a+') as f:
         #     cfile = csv.writer(f)
         #     cfile.writerow([model_name, question_num, generated_text])
         
-        # # Saving embeddings
+        # Saving embeddings
         # outpath = f"embeddings/{task}/{model_name}/question_{question_num}.pt"
         # torch.save(hidden_states_tensor, outpath)
 
@@ -255,13 +271,13 @@ for model_name, model_path in model_names.items():
     # redo check after finalizing output
     outpath_code = f"embeddings/code/{model_name}"
     outpath_prose = f"embeddings/prose/{model_name}"
-    if not os.path.exists(outpath_code):
-        os.system(f"mkdir {outpath_code}")
-    # else:
-    #     continue
+    # if not os.path.exists(outpath_code):
+    #     os.system(f"mkdir {outpath_code}")
+    # # else:
+    # #     continue
         
-    if not os.path.exists(outpath_prose):
-        os.system(f"mkdir {outpath_prose}")
+    # if not os.path.exists(outpath_prose):
+    #     os.system(f"mkdir {outpath_prose}")
     
     # if os.path.exists(outpath_code) and os.path.exists(outpath_prose):
     #     print(f"Embeddings for {model_name} already exist. Skipping...")
@@ -281,8 +297,8 @@ for model_name, model_path in model_names.items():
     print(f"Model on {device}\nTokenizing dataset")
     
     # generating/saving text and embeddings based on prompts
-    generation_wrapper(code_dataset, 'code', model_name, temperature, num_samples)
-    # generation_wrapper(prose_dataset, 'prose', model_name, temperature, num_samples)
+    # generation_wrapper(code_dataset, 'code', model_name, temperature, num_samples)
+    generation_wrapper(prose_dataset, 'prose', model_name, temperature, num_samples)
 
     # break
 
@@ -291,4 +307,5 @@ for model_name, model_path in model_names.items():
     # Garbage collection
     del model, tokenizer
     torch.cuda.empty_cache()  # Clear GPU memory
+    # break
 
