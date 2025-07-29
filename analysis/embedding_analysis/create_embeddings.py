@@ -126,6 +126,24 @@ def get_least_used_gpu():
     # return best_gpu
     return 1
 
+def generate_and_capture_all(model, temperature, tokenizer, prompt, device, max_new_tokens=64):
+    input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
+    attention_mask = torch.ones_like(input_ids)
+    
+    # make 10 iterations for 10 runs
+    # hidden_states = {}
+    
+    with torch.no_grad():
+        outputs = model(
+            input_ids = input_ids,
+            attention_mask = attention_mask,
+            output_hidden_states = True,
+            return_dict = True
+        )
+        
+    print(vars(outputs))
+    
+    
 
 def generate_and_capture(model, temperature, tokenizer, prompt, device, max_new_tokens=64):
     # Step 0: Tokenize the prompt
@@ -202,7 +220,8 @@ def generation_wrapper(dataset, task, model_name, temperature, num_samples):
         max_tokens = max_response_lengths[task][int(question_num)]
         
         if temperature == None:
-            generated_text,hidden_states_tensor = generate_and_capture(model, temperature, tokenizer, prompt,device, max_new_tokens=max_tokens)
+            # generated_text,hidden_states_tensor = generate_and_capture(model, temperature, tokenizer, prompt,device, max_new_tokens=max_tokens)
+            generated_text,hidden_states_tensor = generate_and_capture_all(model, temperature, tokenizer, prompt,device, max_new_tokens=max_tokens)
             record_in_csv(question_num, generated_text, hidden_states_tensor)
             
         else: # if temperature is set, collect a few samples for each prompt to get a variety of responses
@@ -263,7 +282,7 @@ for model_name, model_path in model_names.items():
     
     # generating/saving text and embeddings based on prompts
     generation_wrapper(code_dataset, 'code', model_name, temperature, num_samples)
-    generation_wrapper(prose_dataset, 'prose', model_name, temperature, num_samples)
+    # generation_wrapper(prose_dataset, 'prose', model_name, temperature, num_samples)
 
     # break
 

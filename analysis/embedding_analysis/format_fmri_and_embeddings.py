@@ -114,8 +114,11 @@ def beta_processing_wrapper(participants, fmri_path, task):
 #######################################################################
 ############ Embedding Processing #####################################
 #######################################################################
+
 def process_embeddings(embedding_path):
     embedding = torch.load(embedding_path)
+    
+    # this is mean for now, but probably want to use 
     mean_embedding = torch.mean(embedding, dim=0)
     return mean_embedding
 
