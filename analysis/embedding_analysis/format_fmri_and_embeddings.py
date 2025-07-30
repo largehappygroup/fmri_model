@@ -114,7 +114,17 @@ def beta_processing_wrapper(participants, fmri_path, task):
 #######################################################################
 ############ Embedding Processing #####################################
 #######################################################################
+def process_embeddings(embedding_path, model_name, question_num):
+    
+    embedding = torch.load(embedding_path)
+    
+    # pull out first layer
+    first_layer = embedding['layer_1']
+    print(first_layer.shape)
 
+
+
+'''
 def process_embeddings(embedding_path):
     embedding = torch.load(embedding_path)
     
@@ -148,15 +158,32 @@ def aggregate_runs_by_question(model_path, model_name, task):
         df = pd.DataFrame.from_dict(model_embeddings)
         df.T.to_csv(f"{output_dir}/{output_file}")
         # break
-
+'''
 
 def process_embeddings_wrapper(embedding_path, task):
+    embedding_task_path = f"{embedding_path}/{task}"
+    embeddings = os.listdir(embedding_task_path)
+
+    for i,e in enumerate(embeddings):
+        embedding_filepath = f"{embedding_task_path}/{e}"
+        embedding_info = embeddings[i].split('_')
+        model_name = f"{embedding_info[0]}_{embedding_info[1]}"
+        question_num = (embedding_info[-1])[:-3]
+        process_embeddings(embedding_filepath, model_name, question_num)
+        break
+
+    #print(embedding_info)
+
+    # embeddings are now in the format of residual stream
+    # need to extract the first layer, which is in the format of n_input_tokens x d_model
+    # maybe put that into a tensor or numpy array before running ridge regression
+    # maybe unwrap?
     model_path = f"{embedding_path}/{task}"
     models = os.listdir(model_path)
     models = [m for m in models if not re.search("csv", m)]
     
-    for m in models:        
-        aggregate_runs_by_question(model_path, m, task)
+    #for m in models:        
+    #    aggregate_runs_by_question(model_path, m, task)
         # break
 
 
@@ -203,7 +230,7 @@ def main():
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
     process_embeddings_wrapper(embedding_path, 'code')
-    process_embeddings_wrapper(embedding_path, 'prose')
+    #process_embeddings_wrapper(embedding_path, 'prose')
 
 
 
