@@ -114,13 +114,20 @@ def beta_processing_wrapper(participants, fmri_path, task):
 #######################################################################
 ############ Embedding Processing #####################################
 #######################################################################
-def process_embeddings(embedding_path, model_name, question_num):
+def process_embeddings(embedding_path, task, model_name, question_num):
     
     embedding = torch.load(embedding_path)
-    
+    # print(embedding.keys())
     # pull out first layer
-    first_layer = embedding['layer_1']
-    print(first_layer.shape)
+    first_layer = embedding['layer_0'].numpy()
+
+    
+    # save first layer 
+    outpath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
+    outfile = f"{model_name}_question_{question_num}_layer_0.csv"
+    
+    np.savetxt(f"{outpath}/{outfile}", first_layer, delimiter=',')
+    
 
 
 
@@ -169,8 +176,8 @@ def process_embeddings_wrapper(embedding_path, task):
         embedding_info = embeddings[i].split('_')
         model_name = f"{embedding_info[0]}_{embedding_info[1]}"
         question_num = (embedding_info[-1])[:-3]
-        process_embeddings(embedding_filepath, model_name, question_num)
-        break
+        process_embeddings(embedding_filepath, task, model_name, question_num)
+        # break
 
     #print(embedding_info)
 
@@ -229,8 +236,8 @@ def main():
 
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
-    process_embeddings_wrapper(embedding_path, 'code')
-    #process_embeddings_wrapper(embedding_path, 'prose')
+    # process_embeddings_wrapper(embedding_path, 'code')
+    process_embeddings_wrapper(embedding_path, 'prose')
 
 
 
