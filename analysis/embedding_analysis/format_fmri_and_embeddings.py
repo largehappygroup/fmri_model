@@ -51,16 +51,68 @@ def process_fmri(brain_path):
     # find seed values of interest
     # find indices associated with seed values
     # make vectors of just those
-    roi_vals = [9, 69, 73, 133, 151, 172, 192, 284, 339, 395]
+    # roi_vals = [69, 70, 71, 133, 151, 154,               # Left inferior temporal gyrus
+    #             204, 209, 271, 330, 338, 339,            # Right inferior temporal gyrus
+    #             72, 73, 93, 95, 96, 159, 160, 162, 163,  # Left superior parietal lobule
+    #             284, 332, 333, 335, 364, 365,            # Right superior parietal lobule
+    #             4, 5, 9,                                 # Lingual Gyrus
+    #             104, 105, 136, 166, 170, 172, 175,       # Broca's Area (Left inferior frontal gyrus)
+    #             309, 377, 378,                           # Right inferior frontal gyrus
+    #             216, 222, 273, 274, 363, 364             # Right temporo/partial/occipital
+    # ]
+    
+    roi_regions = {
+        # Left inferior temporal gyrus
+        69 : 'litg', 70 : 'litg', 71 : 'litg', 133 : 'litg', 151 : 'litg', 154 : 'litg',
+        
+        # Right inferior temporal gyrus
+        204 : 'ritg', 209 : 'ritg', 271 : 'ritg', 330 : 'ritg', 338 : 'ritg', 339 : 'ritg',
+        
+        # Left superior parietal lobule
+        72 : 'lspl', 73 : 'lspl', 93 : 'lspl', 95 : 'lspl', 96 : 'lspl', 159 : 'lspl', 160 : 'lspl', 162 : 'lspl', 163 : 'lspl',
+        
+        # Right superior parietal lobule
+        284 : 'rspl', 332 : 'rspl', 333 : 'rspl', 335 : 'rspl', 364 : 'rspl', 365 : 'rspl',
+        
+        # Lingual Gyrus
+        4 : 'lg', 5 : 'lg', 9 : 'lg',
+        
+        # Left inferior frontal gyrus (Broca's Area)
+        104 : 'lifg', 105 : 'lifg', 136 : 'lifg', 166 : 'lifg', 170 : 'lifg', 172 : 'lifg', 175 : 'lifg', 
+        
+        # Right inferior frontal gyrus 
+        309 : 'rifg', 377 : 'rifg', 378 : 'rifg', 
+        
+        # Right temporo/parietal/occipital
+        216 : 'rtpo', 222 : 'rtpo', 273 : 'rtpo', 274 : 'rtpo', 363 : 'rtpo', 364 : 'rtpo'
+    }
+    
+    roi_vals = list(roi_regions.keys())
+    # print(roi_vals)
+    
+    
+    # Original ROIs: [9, 69, 73, 133, 151, 172, 192, 284, 339, 395]
 
-    roi_dict = {r : [] for r in roi_vals}
+    # roi_dict = {r : [] for r in roi_vals}
+    
+    roi_dict = {
+        'litg' : [],
+        'ritg' : [],
+        'lspl' : [],
+        'rspl' : [],
+        'lg'   : [],
+        'lifg' : [],
+        'rifg' : [],
+        'rtpo' : []
+    }
     
     for r in roi_vals:
         roi_idx = np.argwhere(atlas_1D == r)
         roi_data = np.squeeze(data_1D[roi_idx].T)
-        # print(r, len(roi_data))
-
-        roi_dict[r] = roi_data
+        
+        roi_key = roi_regions[r]
+        roi_dict[roi_key].extend(roi_data)
+        
     return roi_dict
 
     # have different AOIs, so data format should be 
@@ -226,18 +278,18 @@ def main():
     participants_code = os.listdir(f"{code_fmri_path}/0")
     participants_code = [f[0:3] for f in participants_code]
     participants_code.sort()
-    # beta_processing_wrapper(participants_code, code_fmri_path, 'code')
+    beta_processing_wrapper(participants_code, code_fmri_path, 'code')
 
     # Prose
     participants_prose = os.listdir(f"{prose_fmri_path}/0")
     participants_prose = [f[0:3] for f in participants_prose]
     participants_prose.sort()
-    # beta_processing_wrapper(participants_prose, prose_fmri_path, 'prose')
+    beta_processing_wrapper(participants_prose, prose_fmri_path, 'prose')
 
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
     # process_embeddings_wrapper(embedding_path, 'code')
-    process_embeddings_wrapper(embedding_path, 'prose')
+    # process_embeddings_wrapper(embedding_path, 'prose')
 
 
 
