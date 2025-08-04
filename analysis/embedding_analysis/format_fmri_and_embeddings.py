@@ -1,5 +1,6 @@
 import os
 import re
+import math
 import torch
 import numpy as np
 import pandas as pd
@@ -48,19 +49,7 @@ def process_fmri(brain_path):
     data = data_nii.get_fdata()
     data_1D = data[tuple(brain_idx.T)]
     
-    # find seed values of interest
-    # find indices associated with seed values
-    # make vectors of just those
-    # roi_vals = [69, 70, 71, 133, 151, 154,               # Left inferior temporal gyrus
-    #             204, 209, 271, 330, 338, 339,            # Right inferior temporal gyrus
-    #             72, 73, 93, 95, 96, 159, 160, 162, 163,  # Left superior parietal lobule
-    #             284, 332, 333, 335, 364, 365,            # Right superior parietal lobule
-    #             4, 5, 9,                                 # Lingual Gyrus
-    #             104, 105, 136, 166, 170, 172, 175,       # Broca's Area (Left inferior frontal gyrus)
-    #             309, 377, 378,                           # Right inferior frontal gyrus
-    #             216, 222, 273, 274, 363, 364             # Right temporo/partial/occipital
-    # ]
-    
+    # dictionary mapping each schaefer parcel onto corresponding region
     roi_regions = {
         # Left inferior temporal gyrus
         69 : 'litg', 70 : 'litg', 71 : 'litg', 133 : 'litg', 151 : 'litg', 154 : 'litg',
@@ -90,7 +79,6 @@ def process_fmri(brain_path):
     roi_vals = list(roi_regions.keys())
     # print(roi_vals)
     
-    
     # Original ROIs: [9, 69, 73, 133, 151, 172, 192, 284, 339, 395]
 
     # roi_dict = {r : [] for r in roi_vals}
@@ -114,19 +102,6 @@ def process_fmri(brain_path):
         roi_dict[roi_key].extend(roi_data)
         
     return roi_dict
-
-    # have different AOIs, so data format should be 
-    # n_questions x n_roi_voxels
-
-    # beta_map format is 
-
-    # line up embeddings into a format like n_responses x d_embedding
-
-    # line up fmri into a format like n_beta_maps x n_voxels
-
-    # save both
-
-    # save in folders like midprocessing/code/fmri/{participant}_{roi}.csv
 
 def beta_processing_wrapper(participants, fmri_path, task):
     
@@ -166,19 +141,38 @@ def beta_processing_wrapper(participants, fmri_path, task):
 #######################################################################
 ############ Embedding Processing #####################################
 #######################################################################
-def process_embeddings(embedding_path, task, model_name, question_num):
+def process_embeddings(embedding_path, task, model_name, question_num, num_samples=4):
     
+    print(f"Processing model {model_name} for {task}, question {question_num}")
     embedding = torch.load(embedding_path)
-    # print(embedding.keys())
-    # pull out first layer
-    first_layer = embedding['layer_0'].numpy()
-
     
-    # save first layer 
+    # descriptive variables for accessing some intermediate layers too
+    num_layers = len(embedding.keys())
+    all_layers = list(embedding.keys())
+    num_layers = len(all_layers)
+    step = math.floor(num_layers/num_samples)
+    
+    intermediate_layer_idx = [n for n in range(0, num_layers, step)]
+    intermediate_layer_labels = [all_layers[i] for i in intermediate_layer_idx]
+    
+    
+    # I'd like to look at more than just the first layer, but I want to avoid just looking at every layer
+    # I could do a sampling across the embeddings, maybe 5?
+    # first layer, last layer, 3 intermediate layers
+    for layer_label in intermediate_layer_labels:
+        layer_num = (layer_label.split('_'))[-1]
+        this_layer = embedding[layer_label].numpy()
+    
+        outpath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
+        outfile = f"{model_name}_question_{question_num}_layer_{layer_num}.csv"
+        np.savetxt(f"{outpath}/{outfile}", this_layer, delimiter=',')
+        
+    # Saving last layer
+    last_layer_label = all_layers[-1]
+    last_layer = embedding[last_layer_label].numpy()
     outpath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
-    outfile = f"{model_name}_question_{question_num}_layer_0.csv"
-    
-    np.savetxt(f"{outpath}/{outfile}", first_layer, delimiter=',')
+    outfile = f"{model_name}_question_{question_num}_layer_{num_layers-1}.csv"
+    np.savetxt(f"{outpath}/{outfile}", last_layer, delimiter=',')
     
 
 
@@ -237,9 +231,9 @@ def process_embeddings_wrapper(embedding_path, task):
     # need to extract the first layer, which is in the format of n_input_tokens x d_model
     # maybe put that into a tensor or numpy array before running ridge regression
     # maybe unwrap?
-    model_path = f"{embedding_path}/{task}"
-    models = os.listdir(model_path)
-    models = [m for m in models if not re.search("csv", m)]
+    # model_path = f"{embedding_path}/{task}"
+    # models = os.listdir(model_path)
+    # models = [m for m in models if not re.search("csv", m)]
     
     #for m in models:        
     #    aggregate_runs_by_question(model_path, m, task)
@@ -278,18 +272,18 @@ def main():
     participants_code = os.listdir(f"{code_fmri_path}/0")
     participants_code = [f[0:3] for f in participants_code]
     participants_code.sort()
-    beta_processing_wrapper(participants_code, code_fmri_path, 'code')
+    # beta_processing_wrapper(participants_code, code_fmri_path, 'code')
 
     # Prose
     participants_prose = os.listdir(f"{prose_fmri_path}/0")
     participants_prose = [f[0:3] for f in participants_prose]
     participants_prose.sort()
-    beta_processing_wrapper(participants_prose, prose_fmri_path, 'prose')
+    # beta_processing_wrapper(participants_prose, prose_fmri_path, 'prose')
 
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
-    # process_embeddings_wrapper(embedding_path, 'code')
-    # process_embeddings_wrapper(embedding_path, 'prose')
+    process_embeddings_wrapper(embedding_path, 'code')
+    process_embeddings_wrapper(embedding_path, 'prose')
 
 
 

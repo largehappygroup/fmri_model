@@ -57,7 +57,7 @@ def regression_wrapper(task):
                     
                     rr_model = Ridge(alpha=1.0)  
                     # alpha is the regularization strength
-                    scores = cross_val_score(rr_model, X, y, cv=2, scoring='r2')
+                    scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
                     
                     
                     print(f"Mean R² across ROI: {np.mean(scores):.3f}")
