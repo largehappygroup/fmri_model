@@ -21,8 +21,8 @@ from sklearn.model_selection import cross_val_score
 
 def regression_wrapper(task):
     
-    model_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
-    models = os.listdir(model_path)
+    embedding_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
+    embeddings = os.listdir(embedding_path) # this is now the raw csv files of embeddings
     
     datapath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/human"
     participants = os.listdir(datapath)
@@ -30,7 +30,7 @@ def regression_wrapper(task):
     for person in participants:
         
         print(f"Participant: {person}")
-        # For every csv file of ROI voxels
+        # For every csv file of ROI voxels, which now includes larger regions with combined parcels
         roi_dir = f"{datapath}/{person}"
         ROIs = os.listdir(roi_dir)
         
@@ -41,7 +41,31 @@ def regression_wrapper(task):
             
             X = roi_df.to_numpy()
             
-            # for every model 
+            # for every model - every file
+            for e in embeddings:
+                print(f"Working on embedding {e} for {task}")
+                embedding_layer_path = f"{embedding_path}/{e}"
+                df = pd.read_csv(embedding_layer_path)
+                
+                y = df.to_numpy()
+                
+                # TODO can try mean pooling
+                
+                
+                rr_model = Ridge(alpha=1.0)  
+                # alpha is the regularization strength
+                
+                # There's a mismatch in the dimensions
+                scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
+                
+                
+                print(f"Mean R² across ROI: {np.mean(scores):.3f}")
+                
+                 
+                # break
+            break
+    
+            '''
             for model in models:
                 print(f"Model: {model}")
                 model_dir = f"{model_path}/{model}"
@@ -61,7 +85,8 @@ def regression_wrapper(task):
                     
                     
                     print(f"Mean R² across ROI: {np.mean(scores):.3f}")
-                # break
+            '''
+        break
 
                     # print(f"Voxel {voxel_idx} R² scores: {scores}")
                     # print(f"Mean R²: {np.mean(scores):.3f}")
@@ -84,7 +109,7 @@ def regression_wrapper(task):
             
             # print(X)
             # break
-        break
+        # break
 
         # either calculate correlation coefficient, or use this is a sample for ridge regression
         
