@@ -77,7 +77,6 @@ def process_fmri(brain_path):
     }
     
     roi_vals = list(roi_regions.keys())
-    # print(roi_vals)
     
     # Original ROIs: [9, 69, 73, 133, 151, 172, 192, 284, 339, 395]
 
@@ -143,13 +142,11 @@ def beta_processing_wrapper(participants, fmri_path, task):
 #######################################################################
 def process_layer(layer):
     # this is mean for now, but probably want to use 
-    # print(type(layer))
     # averaging across tokens to give a feature vector describing each token,
     # rather than the behavior of the features across the tokens
     
     # TODO - try CLS token
     mean_embedding = torch.mean(layer, dim=1)
-    # print(mean_embedding.shape)
     return mean_embedding
 
 
@@ -176,26 +173,18 @@ def process_embeddings(embedding_path, task, model_name, question_num, num_sampl
     onion = defaultdict()
     
     for layer_label in intermediate_layer_labels:
-        layer_num = (layer_label.split('_'))[-1]
         this_layer = embedding[layer_label]
-        
         processed_layer = process_layer(this_layer)
-        onion[layer_label] = processed_layer
         
-    
-        # outpath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
-        # outfile = f"{model_name}_question_{question_num}_layer_{layer_num}.csv"
-        # np.savetxt(f"{outpath}/{outfile}", this_layer, delimiter=',')
+        onion[layer_label] = processed_layer
         
     # Saving last layer
     last_layer_label = all_layers[-1]
-    last_layer = embedding[last_layer_label]
+    last_layer = process_layer(embedding[last_layer_label])
+    
     onion[last_layer_label] = last_layer
     
     return onion
-    # outpath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
-    # outfile = f"{model_name}_question_{question_num}_layer_{num_layers-1}.csv"
-    # np.savetxt(f"{outpath}/{outfile}", last_layer, delimiter=',')
     
 
 '''
@@ -227,17 +216,28 @@ def aggregate_runs_by_question(model_path, model_name, task):
         df.T.to_csv(f"{output_dir}/{output_file}")
         # break
 '''
-def save_layer_embeddings(question_embedding_layers):
+def save_embeddings(embeddings, output_dir):
     # this is a dictionary with structure {layer_num : embeddings, }
-    for key,value in question_embedding_layers.items():
+    for layer,question_embeddings in embeddings.items():
+            output_file = f"{layer}.csv"
         
-        pass
+            # saving in the format model_name, layer_num
+            df = pd.DataFrame.from_dict(question_embeddings)
+            df.T.to_csv(f"{output_dir}/{output_file}")
+
 
 def pad_model_embeddings(embeddings):
     # embeddings have the structure layer : {question_num : []}
     for layer, question_embedding in embeddings.items():
         max_length = max([emb.shape[0] for emb in question_embedding.values()])
-        print(max_length)
+        
+        for question, embedding in question_embedding.items():
+            pad_width = max_length - embedding.shape[0]
+            padded = np.pad(embedding, (0, pad_width), mode='constant')
+
+            embeddings[layer][question] = padded
+
+    return embeddings
 
 def process_embeddings_wrapper(embedding_path, task):
     embedding_task_path = f"{embedding_path}/{task}"
@@ -270,32 +270,15 @@ def process_embeddings_wrapper(embedding_path, task):
             # this is a dictionary with structure {layer_num : embeddings, }
             question_embedding_layers = process_embeddings(embedding_path, task, m, q)
             
-            # print(question_embedding_layers.keys())
             # for loop going through all the keys
             for layer,emb in question_embedding_layers.items():
-                # print(layer, emb)
                 model_embeddings[layer][q] = emb
-            
-            # print(model_embeddings['layer_0'].keys())
-            # break
-        # print(model_embeddings['layer_0'].keys())
-        # for loop going through layers of model_embeddings to save them
         
-        # TODO - pad model embeddings
-        pad_model_embeddings(model_embeddings)
+        padded_embeddings = pad_model_embeddings(model_embeddings)
+        save_embeddings(padded_embeddings, output_dir)
         
-        # for layer,question_embeddings in model_embeddings.items():
-        #     output_file = f"{layer}.csv"
         
-        #     # saving in the format model_name, layer_num
-        #     # print(len(question_embeddings))
-        #     # print(len(question_embeddings[0]))
-            
-        #     # TODO - need to pad the dictionary lengths
-        #     df = pd.DataFrame.from_dict(question_embeddings)
-        #     df.T.to_csv(f"{output_dir}/{output_file}")
-        
-        break
+        # break
             # model_embeddings[q] = question_embedding
     
     
@@ -376,7 +359,7 @@ def main():
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
     process_embeddings_wrapper(embedding_path, 'code')
-    # process_embeddings_wrapper(embedding_path, 'prose')
+    process_embeddings_wrapper(embedding_path, 'prose')
 
 
 
