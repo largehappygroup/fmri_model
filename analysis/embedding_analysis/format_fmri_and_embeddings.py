@@ -2,10 +2,15 @@ import os
 import re
 import math
 import torch
+import argparse
 import numpy as np
 import pandas as pd
 import nibabel as nib
 from collections import defaultdict
+
+parser = argparse.ArgumentParser(description="Method for embedding extraction")
+
+parser.add_argument("--cls", required=False, default=False, help="Opting to extract CLS tokens instead of using mean pooling for embedding extraction.")
 
 #######################################################################
 #################### fMRI Variables ###################################
@@ -150,11 +155,18 @@ def process_layer(layer):
     return mean_embedding
 
 
-def process_embeddings(embedding_path, task, model_name, question_num, num_samples=4):
+def process_embeddings(embedding_path, task, model_name, question_num, cls=False, num_samples=4):
     
     print(f"Processing model {model_name} for {task}, question {question_num}")
     embedding = torch.load(embedding_path)
+    print("SHAPE ", embedding['layer_0'].shape)
+    # return
+    print(len(embedding.keys()), embedding.keys(), embedding)
     
+    if cls:
+        cls_tokens = [embedding[layer][0] for layer in embedding.keys()]
+        return cls_tokens
+    # return
     # descriptive variables for accessing some intermediate layers too
     num_layers = len(embedding.keys())
     all_layers = list(embedding.keys())
@@ -239,7 +251,7 @@ def pad_model_embeddings(embeddings):
 
     return embeddings
 
-def process_embeddings_wrapper(embedding_path, task):
+def process_embeddings_wrapper(embedding_path, task, cls):
     embedding_task_path = f"{embedding_path}/{task}"
     embeddings = os.listdir(embedding_task_path)
     
@@ -268,14 +280,19 @@ def process_embeddings_wrapper(embedding_path, task):
             embedding_path = f"{embedding_task_path}/{m}_question_{q}.pt"
             
             # this is a dictionary with structure {layer_num : embeddings, }
-            question_embedding_layers = process_embeddings(embedding_path, task, m, q)
-            
-            # for loop going through all the keys
-            for layer,emb in question_embedding_layers.items():
-                model_embeddings[layer][q] = emb
+            # question_embedding_layers = process_embeddings(embedding_path, task, m, q)
+            question_embedding_layers = process_embeddings(embedding_path, task, m, q, cls)
+            if isinstance(question_embedding_layers, dict):
+                # for loop going through all the keys
+                for layer,emb in question_embedding_layers.items():
+                    model_embeddings[layer][q] = emb
+            else:
+                # for loop going through all the keys
+                for layer,emb in question_embedding_layers.items():
+                    model_embeddings[layer][q] = emb
         
         padded_embeddings = pad_model_embeddings(model_embeddings)
-        save_embeddings(padded_embeddings, output_dir)
+        # save_embeddings(padded_embeddings, output_dir)
         
         
         # break
@@ -358,8 +375,8 @@ def main():
 
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
-    process_embeddings_wrapper(embedding_path, 'code')
-    process_embeddings_wrapper(embedding_path, 'prose')
+    process_embeddings_wrapper(embedding_path, 'code', )
+    process_embeddings_wrapper(embedding_path, 'prose', )
 
 
 

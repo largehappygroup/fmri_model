@@ -1,7 +1,9 @@
 import os
 import torch
+import pickle
 import numpy as np
 import pandas as pd
+from collections import defaultdict
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import cross_val_score
 
@@ -21,11 +23,13 @@ from sklearn.model_selection import cross_val_score
 
 def regression_wrapper(task):
     
-    embedding_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
-    embeddings = os.listdir(embedding_path) # this is now the raw csv files of embeddings
+    model_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
+    models = os.listdir(model_path) # this is now the raw csv files of embeddings
     
     datapath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/human"
     participants = os.listdir(datapath)
+    
+    score_dict = {}
     
     for person in participants:
         
@@ -34,110 +38,59 @@ def regression_wrapper(task):
         roi_dir = f"{datapath}/{person}"
         ROIs = os.listdir(roi_dir)
         
+        roi_dict = {}
         for roi_file in ROIs:
-            print(f"ROI: {roi_file[:-4]}")
+            roi = roi_file[:-4]
+            print(f"ROI: {roi}")
             roi_data_path = f"{roi_dir}/{roi_file}"
             roi_df = pd.read_csv(roi_data_path).fillna(0)
             
             X = roi_df.to_numpy()
             
             # for every model - every file
-            for e in embeddings:
-                print(f"Working on embedding {e} for {task}")
-                embedding_layer_path = f"{embedding_path}/{e}"
-                df = pd.read_csv(embedding_layer_path)
+            model_dict = {}
+            for m in models:
+                print(f"Working on embeddings from {m} for {task}")
+                embedding_layer_path = f"{model_path}/{m}"
+                layers = os.listdir(embedding_layer_path)
                 
-                y = df.to_numpy()
-                
-                # TODO can try mean pooling
-                
-                
-                rr_model = Ridge(alpha=1.0)  
-                # alpha is the regularization strength
-                
-                # There's a mismatch in the dimensions
-                scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
-                
-                
-                print(f"Mean R² across ROI: {np.mean(scores):.3f}")
-                
-                 
-                # break
-            break
-    
-            '''
-            for model in models:
-                print(f"Model: {model}")
-                model_dir = f"{model_path}/{model}"
-                runs = os.listdir(model_dir)
-                
-                # for every run
-                for run in runs:
-                    run_path = f"{model_dir}/{run}"
-                    run_df = pd.read_csv(run_path)
-                    y = run_df.to_numpy()
+                for l in layers:
+                    layer_path = f"{embedding_layer_path}/{l}"
                     
-                    # print(X.shape, y.shape)
+                    df = pd.read_csv(layer_path)
+                
+                    y = df.to_numpy()
                     
-                    rr_model = Ridge(alpha=1.0)  
+                    if X.shape[0] != y.shape[0]:
+                        print("Shape mismatch, skipping")
+                        continue
+                    
                     # alpha is the regularization strength
-                    scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
+                    rr_model = Ridge(alpha=1.0)  
+                    
+                    # scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
+                    scores = cross_val_score(rr_model, y, X, cv=3, scoring='r2') # predicting beta values from tokens seems to improve performance
                     
                     
-                    print(f"Mean R² across ROI: {np.mean(scores):.3f}")
-            '''
-        break
+                    # print(f"Mean R² across ROI: {np.mean(scores):.3f}")
 
-                    # print(f"Voxel {voxel_idx} R² scores: {scores}")
-                    # print(f"Mean R²: {np.mean(scores):.3f}")
-                    
-                    # from sklearn.model_selection import GridSearchCV
-
-                    # param_grid = {'alpha': np.logspace(-2, 3, 10)}
-                    # model = Ridge()
-                    # grid = GridSearchCV(model, param_grid, cv=5, scoring='r2')
-                    # grid.fit(X, Y[:, 0])  # for a single voxel
-                    # print("Best alpha:", grid.best_params_['alpha'])
-                    
-                    
-            
-            
-            # for every run within the model
-            
-            # I wonder if I could parallelize this
-            
-            
-            # print(X)
-            # break
+                    # save the scores for every embedding layer that I sampled, from every model, for each ROI, for each person
+                model_dict[m] = np.mean(scores)
+            roi_dict[roi] = model_dict
+        score_dict[person] = roi_dict
         # break
-
-        # either calculate correlation coefficient, or use this is a sample for ridge regression
-        
-        
-        # Can also try RSA
-        # need X and Y
-        
-        # model = Ridge(alpha=1.0)  # alpha is the regularization strength
-        # scores = cross_val_score(model, X, y, cv=5, scoring='r2')
-
-        # print(f"Voxel {voxel_idx} R² scores: {scores}")
-        # print(f"Mean R²: {np.mean(scores):.3f}")
-        
-        # from sklearn.model_selection import GridSearchCV
-
-        # param_grid = {'alpha': np.logspace(-2, 3, 10)}
-        # model = Ridge()
-        # grid = GridSearchCV(model, param_grid, cv=5, scoring='r2')
-        # grid.fit(X, Y[:, 0])  # for a single voxel
-        # print("Best alpha:", grid.best_params_['alpha'])
-        
-        # pass
-    
-
-    # For every csv file of ROI voxels
-
-    # either calculate correlation coefficient, or use this is a sample for ridge regression
-
+    with open("/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/beta_values_from_token_embeddings.pkl", 'wb') as f:
+        pickle.dump(score_dict, f)
+'''
+person : {
+    ROI : {
+        model : {
+            layer : score
+                
+        }
+    }
+}
+'''
 
 def main():
     # For code and prose
@@ -150,5 +103,79 @@ def main():
 if __name__ == "__main__":
     main()
 
+                # break
+            # break
+    
+'''
+for model in models:
+    print(f"Model: {model}")
+    model_dir = f"{model_path}/{model}"
+    runs = os.listdir(model_dir)
+    
+    # for every run
+    for run in runs:
+        run_path = f"{model_dir}/{run}"
+        run_df = pd.read_csv(run_path)
+        y = run_df.to_numpy()
+        
+        # print(X.shape, y.shape)
+        
+        rr_model = Ridge(alpha=1.0)  
+        # alpha is the regularization strength
+        scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
+        
+        
+        print(f"Mean R² across ROI: {np.mean(scores):.3f}")
+'''
+# break
 
+        # print(f"Voxel {voxel_idx} R² scores: {scores}")
+        # print(f"Mean R²: {np.mean(scores):.3f}")
+        
+        # from sklearn.model_selection import GridSearchCV
+
+        # param_grid = {'alpha': np.logspace(-2, 3, 10)}
+        # model = Ridge()
+        # grid = GridSearchCV(model, param_grid, cv=5, scoring='r2')
+        # grid.fit(X, Y[:, 0])  # for a single voxel
+        # print("Best alpha:", grid.best_params_['alpha'])
+        
+        
+
+
+# for every run within the model
+
+# I wonder if I could parallelize this
+
+
+# print(X)
+# break
+# break
+
+# either calculate correlation coefficient, or use this is a sample for ridge regression
+
+
+# Can also try RSA
+# need X and Y
+
+# model = Ridge(alpha=1.0)  # alpha is the regularization strength
+# scores = cross_val_score(model, X, y, cv=5, scoring='r2')
+
+# print(f"Voxel {voxel_idx} R² scores: {scores}")
+# print(f"Mean R²: {np.mean(scores):.3f}")
+
+# from sklearn.model_selection import GridSearchCV
+
+# param_grid = {'alpha': np.logspace(-2, 3, 10)}
+# model = Ridge()
+# grid = GridSearchCV(model, param_grid, cv=5, scoring='r2')
+# grid.fit(X, Y[:, 0])  # for a single voxel
+# print("Best alpha:", grid.best_params_['alpha'])
+
+# pass
+
+
+# For every csv file of ROI voxels
+
+# either calculate correlation coefficient, or use this is a sample for ridge regression
 
