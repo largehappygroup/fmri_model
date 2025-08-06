@@ -145,59 +145,6 @@ def beta_processing_wrapper(participants, fmri_path, task):
 #######################################################################
 ############ Embedding Processing #####################################
 #######################################################################
-def process_layer(layer):
-    # this is mean for now, but probably want to use 
-    # averaging across tokens to give a feature vector describing each token,
-    # rather than the behavior of the features across the tokens
-    
-    # TODO - try CLS token
-    mean_embedding = torch.mean(layer, dim=1)
-    return mean_embedding
-
-
-def process_embeddings(embedding_path, task, model_name, question_num, cls=False, num_samples=4):
-    
-    print(f"Processing model {model_name} for {task}, question {question_num}")
-    embedding = torch.load(embedding_path)
-    print("SHAPE ", embedding['layer_0'].shape)
-    # return
-    print(len(embedding.keys()), embedding.keys(), embedding)
-    
-    if cls:
-        cls_tokens = [embedding[layer][0] for layer in embedding.keys()]
-        return cls_tokens
-    # return
-    # descriptive variables for accessing some intermediate layers too
-    num_layers = len(embedding.keys())
-    all_layers = list(embedding.keys())
-    num_layers = len(all_layers)
-    step = math.floor(num_layers/num_samples)
-    
-    intermediate_layer_idx = [n for n in range(0, num_layers, step)]
-    intermediate_layer_labels = [all_layers[i] for i in intermediate_layer_idx]
-    
-    
-    # I'd like to look at more than just the first layer, but I want to avoid just looking at every layer
-    # I could do a sampling across the embeddings, maybe 5?
-    # first layer, last layer, 3 intermediate layers
-    
-    # layered like an onion - aggregating the different layers for a given question
-    onion = defaultdict()
-    
-    for layer_label in intermediate_layer_labels:
-        this_layer = embedding[layer_label]
-        processed_layer = process_layer(this_layer)
-        
-        onion[layer_label] = processed_layer
-        
-    # Saving last layer
-    last_layer_label = all_layers[-1]
-    last_layer = process_layer(embedding[last_layer_label])
-    
-    onion[last_layer_label] = last_layer
-    
-    return onion
-    
 
 '''
 
@@ -251,6 +198,67 @@ def pad_model_embeddings(embeddings):
 
     return embeddings
 
+def process_layer(layer):
+    # this is mean for now, but probably want to use 
+    # averaging across tokens to give a feature vector describing each token,
+    # rather than the behavior of the features across the tokens
+    
+    mean_embedding = torch.mean(layer, dim=1)
+    return mean_embedding
+
+
+def process_embeddings(embedding_path, task, model_name, question_num, cls=False, num_samples=4):
+    
+    print(f"Processing model {model_name} for {task}, question {question_num}")
+    embedding = torch.load(embedding_path)
+    # print("SHAPE ", embedding['layer_0'].shape)
+    # return
+    # print(len(embedding.keys()), embedding.keys(), embedding)
+    
+    # if cls:
+        
+    #     cls_tokens = [embedding[layer][0] for layer in embedding.keys()]
+    #     # print(len(cls_tokens), type(cls_tokens), len(cls_tokens[0]), type(cls_tokens[0]))
+    #     return cls_tokens
+    # return
+    # descriptive variables for accessing some intermediate layers too
+    num_layers = len(embedding.keys())
+    all_layers = list(embedding.keys())
+    num_layers = len(all_layers)
+    step = math.floor(num_layers/num_samples)
+    
+    intermediate_layer_idx = [n for n in range(0, num_layers, step)]
+    intermediate_layer_labels = [all_layers[i] for i in intermediate_layer_idx]
+    
+    
+    # I'd like to look at more than just the first layer, but I want to avoid just looking at every layer
+    # I could do a sampling across the embeddings, maybe 5?
+    # first layer, last layer, 3 intermediate layers
+    
+    # layered like an onion - aggregating the different layers for a given question
+    onion = defaultdict()
+    
+    for layer_label in intermediate_layer_labels:
+        this_layer = embedding[layer_label]
+        
+        # if cls:
+        #     cls_token = this_layer[0]
+        #     print(len(cls_token))
+        # else:
+        processed_layer = this_layer[0] if cls else process_layer(this_layer)
+        print(len(processed_layer))
+        
+        onion[layer_label] = processed_layer
+        
+    # Saving last layer
+    last_layer_label = all_layers[-1]
+    last_layer = embedding[last_layer_label][0] if cls else process_layer(embedding[last_layer_label])
+    print(len(last_layer))
+    
+    onion[last_layer_label] = last_layer
+    
+    return onion
+
 def process_embeddings_wrapper(embedding_path, task, cls):
     embedding_task_path = f"{embedding_path}/{task}"
     embeddings = os.listdir(embedding_task_path)
@@ -264,7 +272,7 @@ def process_embeddings_wrapper(embedding_path, task, cls):
     
     # iterating through those model names to collect data from each question
     for m in models:        
-        output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model/{m}"
+        output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_cls/{m}"
         os.system(f'mkdir {output_dir}')
         questions = range(0,9)
         
@@ -282,17 +290,19 @@ def process_embeddings_wrapper(embedding_path, task, cls):
             # this is a dictionary with structure {layer_num : embeddings, }
             # question_embedding_layers = process_embeddings(embedding_path, task, m, q)
             question_embedding_layers = process_embeddings(embedding_path, task, m, q, cls)
-            if isinstance(question_embedding_layers, dict):
+            
+            # if isinstance(question_embedding_layers, dict):
                 # for loop going through all the keys
-                for layer,emb in question_embedding_layers.items():
-                    model_embeddings[layer][q] = emb
-            else:
-                # for loop going through all the keys
-                for layer,emb in question_embedding_layers.items():
-                    model_embeddings[layer][q] = emb
+            for layer,emb in question_embedding_layers.items():
+                model_embeddings[layer][q] = emb
+            # else:
+            #     # otherwise it's a 
+            #     # process the cls tokens
+            #     pass
+            # break
         
         padded_embeddings = pad_model_embeddings(model_embeddings)
-        # save_embeddings(padded_embeddings, output_dir)
+        save_embeddings(padded_embeddings, output_dir)
         
         
         # break
@@ -353,6 +363,9 @@ def process_embeddings_wrapper(embedding_path, task, cls):
 #######################################################################
 
 def main():
+    
+    args = parser.parse_args()
+    cls = args.cls
     # read in fMRI data
     # read from 
     # code_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/code" #
@@ -375,8 +388,8 @@ def main():
 
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
-    process_embeddings_wrapper(embedding_path, 'code', )
-    process_embeddings_wrapper(embedding_path, 'prose', )
+    process_embeddings_wrapper(embedding_path, 'code', cls)
+    # process_embeddings_wrapper(embedding_path, 'prose', cls)
 
 
 

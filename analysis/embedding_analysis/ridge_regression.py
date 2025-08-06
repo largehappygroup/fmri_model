@@ -68,8 +68,8 @@ def regression_wrapper(task):
                     # alpha is the regularization strength
                     rr_model = Ridge(alpha=1.0)  
                     
-                    # scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
-                    scores = cross_val_score(rr_model, y, X, cv=3, scoring='r2') # predicting beta values from tokens seems to improve performance
+                    scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
+                    # scores = cross_val_score(rr_model, y, X, cv=3, scoring='r2') # predicting beta values from tokens seems to improve performance
                     
                     
                     # print(f"Mean R² across ROI: {np.mean(scores):.3f}")
@@ -79,7 +79,10 @@ def regression_wrapper(task):
             roi_dict[roi] = model_dict
         score_dict[person] = roi_dict
         # break
-    with open("/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/beta_values_from_token_embeddings.pkl", 'wb') as f:
+    # outputfile  = "/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/beta_values_from_token_embeddings.pkl"
+    outputfile  = "/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/token_embeddings_from_beta_values.pkl"
+    
+    with open(outputfile, 'wb') as f:
         pickle.dump(score_dict, f)
 '''
 person : {
