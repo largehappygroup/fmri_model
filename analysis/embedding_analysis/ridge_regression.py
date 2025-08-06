@@ -23,7 +23,7 @@ from sklearn.model_selection import cross_val_score
 
 def regression_wrapper(task):
     
-    model_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model"
+    model_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_cls"
     models = os.listdir(model_path) # this is now the raw csv files of embeddings
     
     datapath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/human"
@@ -68,8 +68,8 @@ def regression_wrapper(task):
                     # alpha is the regularization strength
                     rr_model = Ridge(alpha=1.0)  
                     
-                    scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
-                    # scores = cross_val_score(rr_model, y, X, cv=3, scoring='r2') # predicting beta values from tokens seems to improve performance
+                    # scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
+                    scores = cross_val_score(rr_model, y, X, cv=3, scoring='r2') # predicting beta values from tokens seems to improve performance
                     
                     
                     # print(f"Mean R² across ROI: {np.mean(scores):.3f}")
@@ -79,8 +79,8 @@ def regression_wrapper(task):
             roi_dict[roi] = model_dict
         score_dict[person] = roi_dict
         # break
-    # outputfile  = "/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/beta_values_from_token_embeddings.pkl"
-    outputfile  = "/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/token_embeddings_from_beta_values.pkl"
+    # outputfile  = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/token_embeddings_from_beta_values_{task}.pkl"
+    outputfile  = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/beta_values_from_cls_tokens_{task}.pkl"
     
     with open(outputfile, 'wb') as f:
         pickle.dump(score_dict, f)
@@ -96,11 +96,10 @@ person : {
 '''
 
 def main():
+    
     # For code and prose
-    
     regression_wrapper('code')
-    
-    # regression_wrapper('prose')
+    regression_wrapper('prose')
 
 
 if __name__ == "__main__":
