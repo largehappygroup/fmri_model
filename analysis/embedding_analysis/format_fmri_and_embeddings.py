@@ -211,16 +211,7 @@ def process_embeddings(embedding_path, task, model_name, question_num, cls=False
     
     print(f"Processing model {model_name} for {task}, question {question_num}")
     embedding = torch.load(embedding_path)
-    # print("SHAPE ", embedding['layer_0'].shape)
-    # return
-    # print(len(embedding.keys()), embedding.keys(), embedding)
-    
-    # if cls:
-        
-    #     cls_tokens = [embedding[layer][0] for layer in embedding.keys()]
-    #     # print(len(cls_tokens), type(cls_tokens), len(cls_tokens[0]), type(cls_tokens[0]))
-    #     return cls_tokens
-    # return
+
     # descriptive variables for accessing some intermediate layers too
     num_layers = len(embedding.keys())
     all_layers = list(embedding.keys())
@@ -241,10 +232,6 @@ def process_embeddings(embedding_path, task, model_name, question_num, cls=False
     for layer_label in intermediate_layer_labels:
         this_layer = embedding[layer_label]
         
-        # if cls:
-        #     cls_token = this_layer[0]
-        #     print(len(cls_token))
-        # else:
         processed_layer = this_layer[0] if cls else process_layer(this_layer)
         print(len(processed_layer))
         
@@ -291,17 +278,11 @@ def process_embeddings_wrapper(embedding_path, task, cls):
             # question_embedding_layers = process_embeddings(embedding_path, task, m, q)
             question_embedding_layers = process_embeddings(embedding_path, task, m, q, cls)
             
-            # if isinstance(question_embedding_layers, dict):
-                # for loop going through all the keys
+            # for loop going through all the keys
             for layer,emb in question_embedding_layers.items():
                 model_embeddings[layer][q] = emb
-            # else:
-            #     # otherwise it's a 
-            #     # process the cls tokens
-            #     pass
-            # break
         
-        padded_embeddings = pad_model_embeddings(model_embeddings)
+        padded_embeddings = model_embeddings if cls else pad_model_embeddings(model_embeddings)
         save_embeddings(padded_embeddings, output_dir)
         
         
@@ -366,8 +347,8 @@ def main():
     
     args = parser.parse_args()
     cls = args.cls
+    
     # read in fMRI data
-    # read from 
     # code_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/code" #
     # prose_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/prose" #
     code_fmri_path = "/home/zachkaras/fmri/fmri_model_data/beta_maps/z_scored/code/questions" # 
@@ -389,8 +370,7 @@ def main():
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
     process_embeddings_wrapper(embedding_path, 'code', cls)
-    # process_embeddings_wrapper(embedding_path, 'prose', cls)
-
+    process_embeddings_wrapper(embedding_path, 'prose', cls)
 
 
 if __name__=="__main__":
