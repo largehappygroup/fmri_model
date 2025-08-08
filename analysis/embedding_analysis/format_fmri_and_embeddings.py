@@ -205,9 +205,20 @@ def process_layer(layer):
     return mean_embedding
 
 def zscore_embedding_dictionary(embeddings):
-    print(len(embeddings), embeddings['layer_0'].shape)
-    all_data = torch.cat(list(ebmeddings.values()), dim=0)  # shape: (total_rows, num_features)
-
+    # print(len(embeddings), embeddings['layer_0'].shape)
+    all_data = torch.stack(list(embeddings.values()), dim=2)  # shape: (total_rows, num_features)
+    mean = all_data.mean(dim=2)
+    std = all_data.std(dim=2)
+    
+    # print("SHAPES", mean.shape, std.shape)
+    
+    # print(mean.shape, std.shape)
+    zscored_data = { k : (v - mean)/std for k,v in embeddings.items()}
+    # print(embeddings['layer_0'])
+    # print(zscored_data['layer_0'])
+    # print(len(zscored_data), zscored_data['layer_0'].shape)
+    
+    return zscored_data
 
 def process_embeddings(embedding_path, task, model_name, question_num, cls=False, num_samples=4):
     
@@ -215,11 +226,11 @@ def process_embeddings(embedding_path, task, model_name, question_num, cls=False
     embedding = torch.load(embedding_path)
     
     # TODO need to z-score at this point 
-    zscore_embedding_dictionary(embedding)
+    zscored_embeddings = zscore_embedding_dictionary(embedding)
 
     # descriptive variables for accessing some intermediate layers too
-    num_layers = len(embedding.keys())
-    all_layers = list(embedding.keys())
+    num_layers = len(zscored_embeddings.keys())
+    all_layers = list(zscored_embeddings.keys())
     num_layers = len(all_layers)
     step = math.floor(num_layers/num_samples)
     
@@ -235,7 +246,7 @@ def process_embeddings(embedding_path, task, model_name, question_num, cls=False
     onion = defaultdict()
     
     for layer_label in intermediate_layer_labels:
-        this_layer = embedding[layer_label]
+        this_layer = zscored_embeddings[layer_label]
         
         processed_layer = this_layer[0] if cls else process_layer(this_layer)
         # print(len(processed_layer))
@@ -244,7 +255,7 @@ def process_embeddings(embedding_path, task, model_name, question_num, cls=False
         
     # Saving last layer
     last_layer_label = all_layers[-1]
-    last_layer = embedding[last_layer_label][0] if cls else process_layer(embedding[last_layer_label])
+    last_layer = zscored_embeddings[last_layer_label][0] if cls else process_layer(zscored_embeddings[last_layer_label])
     # print(len(last_layer))
     
     onion[last_layer_label] = last_layer
@@ -264,7 +275,8 @@ def process_embeddings_wrapper(embedding_path, task, cls):
     
     # iterating through those model names to collect data from each question
     for m in models:        
-        output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_cls/{m}"
+        output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_mean_pooling/{m}"
+        # output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_cls/{m}"
         os.system(f'mkdir {output_dir}')
         questions = range(0,9)
         
@@ -288,7 +300,7 @@ def process_embeddings_wrapper(embedding_path, task, cls):
                 model_embeddings[layer][q] = emb
         
         padded_embeddings = model_embeddings if cls else pad_model_embeddings(model_embeddings)
-        #save_embeddings(padded_embeddings, output_dir)
+        save_embeddings(padded_embeddings, output_dir)
         
         
         # break
@@ -375,7 +387,7 @@ def main():
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
     process_embeddings_wrapper(embedding_path, 'code', cls)
-    #process_embeddings_wrapper(embedding_path, 'prose', cls)
+    process_embeddings_wrapper(embedding_path, 'prose', cls)
 
 
 if __name__=="__main__":
