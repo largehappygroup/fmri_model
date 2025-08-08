@@ -24,6 +24,7 @@ from sklearn.model_selection import cross_val_score
 def regression_wrapper(task):
     
     model_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_cls"
+    #model_path = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_mean_pooling"
     models = os.listdir(model_path) # this is now the raw csv files of embeddings
     
     datapath = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/human"
@@ -83,6 +84,7 @@ def regression_wrapper(task):
         # break
     # outputfile  = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/token_embeddings_from_beta_values_{task}.pkl"
     outputfile  = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/beta_values_from_cls_tokens_{task}.pkl"
+    #outputfile  = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/results/beta_values_from_mean_pooling_{task}.pkl"
     
     with open(outputfile, 'wb') as f:
         pickle.dump(score_dict, f)

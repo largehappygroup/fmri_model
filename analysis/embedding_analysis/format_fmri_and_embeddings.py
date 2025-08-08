@@ -275,7 +275,7 @@ def process_embeddings_wrapper(embedding_path, task, cls):
     
     # iterating through those model names to collect data from each question
     for m in models:        
-        output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_mean_pooling/{m}"
+        output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_cls/{m}"
         # output_dir = f"/home/zachkaras/fmri/fmri_model/analysis/embedding_analysis/midprocessing/{task}/model_cls/{m}"
         os.system(f'mkdir {output_dir}')
         questions = range(0,9)
