@@ -54,6 +54,8 @@ def regression_wrapper(task):
                 embedding_layer_path = f"{model_path}/{m}"
                 layers = os.listdir(embedding_layer_path)
                 
+                # TODO - need to save the values for each layer
+                layer_dict = {}
                 for l in layers:
                     layer_path = f"{embedding_layer_path}/{l}"
                     
@@ -70,12 +72,12 @@ def regression_wrapper(task):
                     
                     # scores = cross_val_score(rr_model, X, y, cv=3, scoring='r2')
                     scores = cross_val_score(rr_model, y, X, cv=3, scoring='r2') # predicting beta values from tokens seems to improve performance
-                    
+                    layer_dict[l] = np.mean(scores)
                     
                     # print(f"Mean R² across ROI: {np.mean(scores):.3f}")
 
                     # save the scores for every embedding layer that I sampled, from every model, for each ROI, for each person
-                model_dict[m] = np.mean(scores)
+                model_dict[m] = layer_dict
             roi_dict[roi] = model_dict
         score_dict[person] = roi_dict
         # break

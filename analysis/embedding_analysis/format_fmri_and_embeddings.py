@@ -199,9 +199,7 @@ def pad_model_embeddings(embeddings):
     return embeddings
 
 def process_layer(layer):
-    # this is mean for now, but probably want to use 
-    # averaging across tokens to give a feature vector describing each token,
-    # rather than the behavior of the features across the tokens
+    # this is just mean for now
     
     mean_embedding = torch.mean(layer, dim=1)
     return mean_embedding
@@ -211,6 +209,8 @@ def process_embeddings(embedding_path, task, model_name, question_num, cls=False
     
     print(f"Processing model {model_name} for {task}, question {question_num}")
     embedding = torch.load(embedding_path)
+    
+    # TODO need to z-score at this point 
 
     # descriptive variables for accessing some intermediate layers too
     num_layers = len(embedding.keys())
@@ -233,14 +233,14 @@ def process_embeddings(embedding_path, task, model_name, question_num, cls=False
         this_layer = embedding[layer_label]
         
         processed_layer = this_layer[0] if cls else process_layer(this_layer)
-        print(len(processed_layer))
+        # print(len(processed_layer))
         
         onion[layer_label] = processed_layer
         
     # Saving last layer
     last_layer_label = all_layers[-1]
     last_layer = embedding[last_layer_label][0] if cls else process_layer(embedding[last_layer_label])
-    print(len(last_layer))
+    # print(len(last_layer))
     
     onion[last_layer_label] = last_layer
     
