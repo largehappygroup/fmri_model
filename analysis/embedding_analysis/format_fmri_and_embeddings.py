@@ -204,6 +204,10 @@ def process_layer(layer):
     mean_embedding = torch.mean(layer, dim=1)
     return mean_embedding
 
+def zscore_embedding_dictionary(embeddings):
+    print(len(embeddings), embeddings['layer_0'].shape)
+    all_data = torch.cat(list(ebmeddings.values()), dim=0)  # shape: (total_rows, num_features)
+
 
 def process_embeddings(embedding_path, task, model_name, question_num, cls=False, num_samples=4):
     
@@ -211,6 +215,7 @@ def process_embeddings(embedding_path, task, model_name, question_num, cls=False
     embedding = torch.load(embedding_path)
     
     # TODO need to z-score at this point 
+    zscore_embedding_dictionary(embedding)
 
     # descriptive variables for accessing some intermediate layers too
     num_layers = len(embedding.keys())
@@ -283,7 +288,7 @@ def process_embeddings_wrapper(embedding_path, task, cls):
                 model_embeddings[layer][q] = emb
         
         padded_embeddings = model_embeddings if cls else pad_model_embeddings(model_embeddings)
-        save_embeddings(padded_embeddings, output_dir)
+        #save_embeddings(padded_embeddings, output_dir)
         
         
         # break
@@ -370,7 +375,7 @@ def main():
     # --- Processing Model Embeddings ---
     embedding_path = "/home/zachkaras/fmri/fmri_model_data/model_embeddings"
     process_embeddings_wrapper(embedding_path, 'code', cls)
-    process_embeddings_wrapper(embedding_path, 'prose', cls)
+    #process_embeddings_wrapper(embedding_path, 'prose', cls)
 
 
 if __name__=="__main__":
