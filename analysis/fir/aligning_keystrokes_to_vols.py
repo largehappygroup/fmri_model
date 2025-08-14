@@ -68,42 +68,59 @@ def calculate_question_duration(timestamps, answer, alignment_time):
     return diff
 
 
-def process_keystrokes(keyfile, onsetfile):
+def process_keystrokes(keyfile, onset_df):
     
     if not os.path.exists(keyfile):
         return pd.DataFrame()
     
+    question_sequence = onset_df['question_num'].apply(lambda x: int(x))
+    
     with open(keyfile, 'r') as kf:
         
-        answer = '' # where the participant's response will be accumulated
-        timestamps = [] # all the timestamps for each keystroke for a participant response
-        durations = [] # all the durations based on the keystroke data
+        # answer = '' # where the participant's response will be accumulated
+        # timestamps = [] # all the timestamps for each keystroke for a participant response
+        # durations = [] # all the durations based on the keystroke data
         keystroke_df = []
-        alignment_time = calculate_stim_onset(onsetfile)
+        # alignment_time = calculate_stim_onset(onsetfile)
         
-        all_answers = {}
-        all_timestamps = {}
-        # TODO - figure out question number so the answer and timestamps be mapped to the right question
+        qi = 0 # question number
+        question = question_sequence[qi]
+        
+        # all_answers = {}
+        # all_timestamps = {}
         
         lines = kf.readlines() # reading lines of keystroke file
         
-        for i, line in enumerate(lines):
+        for i,line in enumerate(lines):
+            if bool(re.search('new stimulus', line)):
+                question = question_sequence[qi]
+                qi += 1
+                continue
+            
             # as we're reading through each line of the keystroke file
-            time_asci_row = re.split(',', line.strip()) # columns are timestamp, ascii_code (e.g., 352145856.275517, 16)
+            time_asci_row = re.split(', ', line.strip()) # columns are timestamp, ascii_code (e.g., 352145856.275517, 16)
+            time_asci_row[0],time_asci_row[1] = float(time_asci_row[0]), int(time_asci_row[1]) # type conversion
+            
+            time_asci_row.insert(0, question)
+            
+            print(time_asci_row)
             
             keystroke_df.append(time_asci_row)
             
-            answer, timestamps = process_answer(i, answer, timestamps, time_asci_row, num_lines=len(lines) )  
-            # TODO - add answer and timestamps to dictionaries with question number as keys
+            # answer, timestamps = process_answer(i, answer, timestamps, time_asci_row, num_lines=len(lines))  
                             
         keystroke_df = pd.DataFrame(keystroke_df)
-        keystroke_df.columns = ['timestamps', 'ascii_code']
-        # keystroke_df = keystroke_df.loc[1:]
+        keystroke_df.columns = ['question_num', 'timestamps', 'ascii_code']
+
         return keystroke_df
     
     
-def make_volume_windows(keystroke_df):
+def make_volume_windows(keystroke_df, onset_df):
+    
+    # read in the keystrokes and the onsets
+    
     vol_number = 0
+    
     for rt in range(800, 597600, 800): # TODO - figure out what this hard coded value is and why it's this
         window_start = rt/10**3
         window_end = (window_start + 0.8)
@@ -139,32 +156,30 @@ def make_volume_windows(keystroke_df):
 # The purpose of the main function is to iterate through each participants' keystroke files
 # and figure out what keys were pressed during what volumes of the fMRI scan
 # The output should be in a format that can be ingested by a method for creating model embeddings
-# maybe a dictionary where keys are volume numbers, and keystrokes are the accumulated answer at that point
+# maybe a dictionary where keys are volume numbers, and keystrokes are the accumulated answer at that points
 def main():
     
     keydir = "/home/zachkaras/fmri/fmri_model/data"
     keyfiles = os.listdir(keydir)
+    
     for person in keyfiles:
-        keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-3.txt"
+        print(person)
         onset_file = f"{keydir}/{person}/relative-onsets-{person}-3.txt"
+        keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-3.txt"
         
-        keystroke_df = process_keystrokes(keystrokes_file, onset_file)
+        onset_df = pd.read_csv(onset_file, header=None, sep=' ', names=['question_num', 'onset_time'])
+        keystroke_df = process_keystrokes(keystrokes_file, onset_df)
+        
+        
+        fmri_base_file = f"/home/zachkaras/fmri/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
         
         if keystroke_df.empty:
             print("keytroke file doesn't exist")
             continue
         
-        # TODO - this is the timing for aligning keystrokes to volumes
-        make_volume_windows(keystroke_df)
+        make_volume_windows(keystroke_df, onset_df)
         
         break
-        
-        
-        # reading in keystroke file from long response coding
-        # try: # fill in the blank is category 2, long response is category 3
-        # except:
-        #     print("no keystroke files")
-        #     continue
         
     
 if __name__ == "__main__":
