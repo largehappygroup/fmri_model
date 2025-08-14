@@ -103,7 +103,7 @@ def process_keystrokes(keyfile, onset_df):
             
             time_asci_row.insert(0, question)
             
-            print(time_asci_row)
+            # print(time_asci_row)
             
             keystroke_df.append(time_asci_row)
             
@@ -114,40 +114,52 @@ def process_keystrokes(keyfile, onset_df):
 
         return keystroke_df
     
+def align_timestamps():
+    # to align timestamps, I need to use the processed-answers files, which contain the final timestamps for each question
+    pass
     
-def make_volume_windows(keystroke_df, onset_df):
     
-    # read in the keystrokes and the onsets
+def make_volume_windows(num_vols, tr, keystroke_df, onset_df):
+    curr_vol = 0
+    time_in_ms = int(tr*1000) # converting to milliseconds since floats aren't iterable
+    total_time = int(time_in_ms * num_vols)
     
-    vol_number = 0
+    print(time_in_ms, total_time)
+    print(keystroke_df)
     
-    for rt in range(800, 597600, 800): # TODO - figure out what this hard coded value is and why it's this
-        window_start = rt/10**3
-        window_end = (window_start + 0.8)
+    for t in range(time_in_ms, total_time, time_in_ms): # from start volume to total time, with step sizes corresponding to TR
+        
+        window_start = t/1000
+        window_end = (t + 0.8)
         
         # iterate through keystrokes and find the ones within the range
         writing = ''
-        for i in range(len(keystroke_df)):
+        for i,row in keystroke_df.iterrows():
+            pass
             
-            if keystroke_df.loc[i, 'timestamps'] == 'new stimulus':
-                
-                # TODO - probably need to add some functionality here for when the stimulus changes
-                
-                continue
+        # for i in range(len(keystroke_df)):
+            print(row)
             
-            key_time = float(keystroke_df.loc[i, 'timestamps'])
+            # if keystroke_df.loc[i, 'timestamps'] == 'new stimulus':
+                
+            #     # TODO - probably need to add some functionality here for when the stimulus changes
+                
+            #     continue
+            
+            # key_time = float(keystroke_df.loc[i, 'timestamps'])
 
-            # TODO - need to align times from onset file to fmri volumes
+            # # TODO - need to align times from onset file to fmri volumes
                 
-            if window_end < key_time:
-                continue
-            elif window_end > key_time and window_start < key_time:
-                writing += keystroke_df.loc[i, 'ascii_code'] 
+            # if window_end < key_time:
+            #     continue
+            # elif window_end > key_time and window_start < key_time:
+            #     writing += keystroke_df.loc[i, 'ascii_code'] 
         
-        if writing:
-            print(f'volume: {vol_number} | window end: {window_start} | window end: {window_end} | writing: {writing}')
+        # if writing:
+        #     print(f'volume: {vol_number} | window end: {window_start} | window end: {window_end} | writing: {writing}')
             
-        vol_number += 1
+        curr_vol += 1
+        break
     
 # TODO - I think there are about 16 seconds of open scan time at the start of each scan, before participants see any questions
 # I should probably clip these scans to only look at brain signal for which we have corresponding data
@@ -170,14 +182,17 @@ def main():
         onset_df = pd.read_csv(onset_file, header=None, sep=' ', names=['question_num', 'onset_time'])
         keystroke_df = process_keystrokes(keystrokes_file, onset_df)
         
-        
-        fmri_base_file = f"/home/zachkaras/fmri/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+        alignment_time = align_timestamps()
         
         if keystroke_df.empty:
             print("keytroke file doesn't exist")
             continue
         
-        make_volume_windows(keystroke_df, onset_df)
+        fmri_file = f"/home/zachkaras/fmri/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+        fmri_data = nib.load(fmri_file)
+        num_vols = fmri_data.header['dim'][4]
+        tr = 0.8 # in seconds
+        make_volume_windows(num_vols, tr, keystroke_df, onset_df)
         
         break
         
@@ -185,7 +200,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-df = []
+# df = []
 
 
 """
