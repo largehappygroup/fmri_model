@@ -1,74 +1,119 @@
 import os
 import re
 import pickle
+import argparse
 import numpy as np
 import pandas as pd
 import nibabel as nib
 
-with open("/home/zachkaras/fmri/fmri_model/midprocessing/special_character_symbols.pkl", 'rb') as f:
+##########################################################################################
+############# VARIABLES ##################################################################
+##########################################################################################
+
+parser = argparse.ArgumentParser(description="Script to align timestamps of keystrokes with the fMRI file")
+parser.add_argument("--computer", required=True, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
+
+args = parser.parse_args()
+
+if args.computer == 'mymac':
+    bass_path = "/Users/zacharykaras/Desktop"
+elif args.computer == 'cumberland':
+    bass_path = "/home/zachkaras/fmri"
+
+character_path = f"{bass_path}/fmri_model/midprocessing/special_character_symbols.pkl"
+with open(character_path, 'rb') as f:
     special_characters = pickle.load(f)
 
+shift_chars_path = f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl"
+with open(shift_chars_path, 'rb') as f:
+    shift_characters = pickle.load(f)
+shift_patterns = re.compile("|".join(f"({re.escape(k)})" for k in shift_characters))
+print(shift_patterns)
 
-def process_answer(i, answer, timestamps, time_asci_row, num_lines):
+##########################################################################################
+############# FUNCTIONS ##################################################################
+##########################################################################################
+
+def process_keystrokes(ascii_keystrokes):
     
+    # converting ascii into characters
+    keystroke_chars = [chr(asci).lower() for asci in ascii_keystrokes]
 
-    if (len(time_asci_row) <= 1 and i != 0) or (i == num_lines-1): # if it's 'new stimulus' or '<timestamp>, <ascii key>'
+    # converting special ascii characters for things like enter and shift 
+    converted_chars = [special_characters[char] if char in special_characters.keys() else char for char in keystroke_chars]
 
-        # resetting the answer and timestamps after each stimulus
-        answer = ''
-        timestamps = []
-                
-    elif len(time_asci_row) == 2: # if it's the comma separated timestamp and keystroke
-        
-        asci_chr = chr(int(time_asci_row[1]))
-        
-        try: # see if it's one of the special characters
-            asci_chr = special_characters[asci_chr]
-        except:
-            y = "carry on"
-            
-        ts = float(time_asci_row[0])
-        timestamps.append(ts)
-        if asci_chr == "BACKSPACE":
-            answer = answer[:-1]
-        elif asci_chr == "ENTER":
-            answer += '\n'
-        else:
-            answer += asci_chr
-    return answer, timestamps
+    # need to remove duplicates for shift, control, arrows
 
+    # combining keys using shift
+    converted_chars = str.join('', converted_chars)
 
-def calculate_stim_onset(onsetfile):
-    onset_df = []
-    with open(onsetfile, 'r') as f:
-        for line in f:
-            newline = line.strip()
-            onset_df.append(re.split('\s', newline))
-    onset_df = pd.DataFrame(onset_df)
-    onset_df.columns = ['stim_id', 'timestamp']
-    # # print(onset_df)
-
-    # print("first timestamp?", onset_df.loc[0, 'timestamp'], onset_df.loc[1, 'timestamp'])
-    ts_to_match = float(onset_df.loc[1, 'timestamp'])
+    # combining shift terms and maybe TODO: remove shifts where nothing was written after
+    # need to do string matching 
+    def replacer(match):
+        for i,key in enumerate(shift_characters, start=1):
+            if match.group(i):
+                return shift_characters[key]
+        return match.group(0)
     
-    end_ts = float(onset_df.loc[0,'timestamp'])/10**3
-    alignment_time = (ts_to_match - end_ts) * (-1)
-    # onset_df['timestamp'].apply(lambda x: (float(x)/10**3) - alignment_time) # this gives end timestamps
-    return alignment_time
+    # replace shift characters
+    shift_replaced = shift_patterns.sub(replacer, converted_chars)
+    return shift_replaced
+    
+    
+def find_volume_keystrokes(keystroke_df, aligned_timestamp, num_vols, tr):
+    
+    timestep = tr*1000
+    end_window = aligned_timestamp
+
+    keystrokes_by_volume = []
+
+    for v in range(num_vols, -1,-1):
+        # 
+        start_window = end_window - timestep
+
+        # dense code that finds keystrokes with timestamps for current volume
+        # Last steps involve converting the ascii codes into keystrokes
+        idx_keystrokes_in_window = (np.where((keystroke_df['timestamp'] >= start_window) & (keystroke_df['timestamp'] < end_window)))[0]
+        ascii_keystrokes = list(keystroke_df.loc[idx_keystrokes_in_window, 'ascii_code'])
+        cleaned_keystrokes = process_keystrokes(ascii_keystrokes)
+        keystrokes_by_volume.append([v, cleaned_keystrokes])
+
+        end_window = start_window 
+    
+    keystrokes_by_volume.reverse()
+    clean_keystrokes_df = pd.DataFrame(keystrokes_by_volume, columns=['vol_num', 'keystrokes'])
+
+    return clean_keystrokes_df
 
 
-# keystrokes
-def calculate_question_duration(timestamps, answer, alignment_time):
-    # alignment_time = calculate_stim_onset()
-    diff = (timestamps[-1] - timestamps[0])/10**3 # duration based on keystrokes
-    # print('\nnew stimulus') 
-    # print(diff) 
-    # print([(float(t)/10**3) - alignment_time for t in timestamps])
-    # print(answer) 
-    return diff
+def align_timestamps(task_info, num_vols, tr):
+    # to align timestamps, I need to use the processed-answers files, which contain the final timestamps for each question
+    
+    # Timestamps in processed-answers and keystrokes appear to be in milliseconds
+        # subtracting the first timestamp from the last timestamp results in a value ~520,000
+        # If the timestamps are in milliseconds, that means the trial would be a little less than 10 minutes
+        # which makes sense since there are four blocks of questions
+
+        # to align timestamps, the final timestamp in the processed-answers file corresponds to the 
+        # time when the participant finished the final question
+        # then it looks like I need to add the result of multiplying the TR by 2,
+        # which corresponds to the final two volumes recorded after the end of the last stimulus.
+        # I calculated 2 volumes using the following process:
+        # each trial was 60 seconds and I  the volumes of the fMRI scan that correspond to a given trial
+        # It's consistent that the final two volumes aren't associated with a task
+        final_idx = len(task_info)-1
+        final_question_time = task_info.loc[final_idx, 'timestamp']
+        tr_in_ms = tr*1000
+        final_vol_time = final_question_time + (2*tr_in_ms)
+
+        # Performing calculations to make the timestamp iterable by the number of volumes
+        remainder = round(final_vol_time)%num_vols
+        divisible_time = round(final_vol_time)-remainder
+
+        return divisible_time
 
 
-def process_keystrokes(keyfile, onset_df):
+def create_keystroke_dataframe(keyfile, onset_df):
     
     if not os.path.exists(keyfile):
         return pd.DataFrame()
@@ -76,24 +121,20 @@ def process_keystrokes(keyfile, onset_df):
     question_sequence = onset_df['question_num'].apply(lambda x: int(x))
     
     with open(keyfile, 'r') as kf:
-        
-        # answer = '' # where the participant's response will be accumulated
-        # timestamps = [] # all the timestamps for each keystroke for a participant response
-        # durations = [] # all the durations based on the keystroke data
         keystroke_df = []
-        # alignment_time = calculate_stim_onset(onsetfile)
         
         qi = 0 # question number
         question = question_sequence[qi]
-        
-        # all_answers = {}
-        # all_timestamps = {}
         
         lines = kf.readlines() # reading lines of keystroke file
         
         for i,line in enumerate(lines):
             if bool(re.search('new stimulus', line)):
-                question = question_sequence[qi]
+                try:
+                    question = question_sequence[qi]
+                except:
+                    print("Participant doesn't have data for all questions. Using questions for which we do have data.")
+                    continue
                 qi += 1
                 continue
             
@@ -102,67 +143,81 @@ def process_keystrokes(keyfile, onset_df):
             time_asci_row[0],time_asci_row[1] = float(time_asci_row[0]), int(time_asci_row[1]) # type conversion
             
             time_asci_row.insert(0, question)
-            
-            # print(time_asci_row)
-            
             keystroke_df.append(time_asci_row)
-            
-            # answer, timestamps = process_answer(i, answer, timestamps, time_asci_row, num_lines=len(lines))  
                             
         keystroke_df = pd.DataFrame(keystroke_df)
-        keystroke_df.columns = ['question_num', 'timestamps', 'ascii_code']
+        keystroke_df.columns = ['question_num', 'timestamp', 'ascii_code']
 
         return keystroke_df
     
-def align_timestamps():
-    # to align timestamps, I need to use the processed-answers files, which contain the final timestamps for each question
-    pass
-    
-    
-def make_volume_windows(num_vols, tr, keystroke_df, onset_df):
-    curr_vol = 0
-    time_in_ms = int(tr*1000) # converting to milliseconds since floats aren't iterable
-    total_time = int(time_in_ms * num_vols)
-    
-    print(time_in_ms, total_time)
-    print(keystroke_df)
-    
-    for t in range(time_in_ms, total_time, time_in_ms): # from start volume to total time, with step sizes corresponding to TR
-        
-        window_start = t/1000
-        window_end = (t + 0.8)
-        
-        # iterate through keystrokes and find the ones within the range
-        writing = ''
-        for i,row in keystroke_df.iterrows():
-            pass
-            
-        # for i in range(len(keystroke_df)):
-            print(row)
-            
-            # if keystroke_df.loc[i, 'timestamps'] == 'new stimulus':
-                
-            #     # TODO - probably need to add some functionality here for when the stimulus changes
-                
-            #     continue
-            
-            # key_time = float(keystroke_df.loc[i, 'timestamps'])
 
-            # # TODO - need to align times from onset file to fmri volumes
-                
-            # if window_end < key_time:
-            #     continue
-            # elif window_end > key_time and window_start < key_time:
-            #     writing += keystroke_df.loc[i, 'ascii_code'] 
+# iterating through participants' data based on their answers to the coding task and the prose task
+# loading all the necessary data files
+def process_task(task, keydir, keyfiles):
+
+    if task == 'code':
+        task_num = 3
+    elif task == 'prose':
+        task_num = 1
+
+    # Iterate through each participant's data
+    for person in keyfiles:
+        print(person)
+
+        # different filepaths
+        onset_file = f"{keydir}/{person}/relative-onsets-{person}-{task_num}.txt"
+        info_file = f"{keydir}/{person}/processed-answers-{person}-{task_num}.txt"
         
-        # if writing:
-        #     print(f'volume: {vol_number} | window end: {window_start} | window end: {window_end} | writing: {writing}')
-            
-        curr_vol += 1
-        break
-    
-# TODO - I think there are about 16 seconds of open scan time at the start of each scan, before participants see any questions
-# I should probably clip these scans to only look at brain signal for which we have corresponding data
+        fmri_file = f"{bass_path}/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+        tr = 0.8 # in seconds
+
+        keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-{task_num}.txt"
+
+        person_output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}"
+        os.system(f"mkdir {person_output_path}")
+        
+        #########################################
+        ### Loading files for participant #######
+        #########################################
+
+        ### Question onsets
+        try:
+            onset_df = pd.read_csv(onset_file, header=None, sep=' ', names=['question_num', 'onset_time'])
+        except:
+            print(f"No onset file for {person}. Skipping.")
+            continue
+
+        # adding information about question number
+        keystroke_df = create_keystroke_dataframe(keystrokes_file, onset_df)
+        
+        if keystroke_df.empty:
+            print("keytroke file doesn't exist")
+            continue
+        
+        # task info that contains final timestamps for stimuli
+        try:
+            task_info = pd.read_csv(info_file)
+        except:
+            print(f"No task file for {person}. Skipping")
+            continue
+        
+        # fMRI data        
+        try:
+            fmri_data = nib.load(fmri_file)
+        except:
+            print(f"Cannot find fMRI data for {person}")
+            continue
+
+        num_vols = fmri_data.header['dim'][4]
+
+        # Aligning fMRI volumes to timestamps used for keystroke files
+        aligned_timestamp = align_timestamps(task_info, num_vols, tr)
+        
+        # processing the raw ascii codes into something that can be interpreted by a model... probably after some more preprocessing
+        cleaned_keystrokes_df = find_volume_keystrokes(keystroke_df, aligned_timestamp, num_vols, tr)
+
+        df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
+        cleaned_keystrokes_df.to_csv(df_outpath, index=False)
 
 
 # The purpose of the main function is to iterate through each participants' keystroke files
@@ -171,98 +226,14 @@ def make_volume_windows(num_vols, tr, keystroke_df, onset_df):
 # maybe a dictionary where keys are volume numbers, and keystrokes are the accumulated answer at that points
 def main():
     
-    keydir = "/home/zachkaras/fmri/fmri_model/data"
+    keydir = f"{bass_path}/fmri_model/data"
     keyfiles = os.listdir(keydir)
+
+    process_task('code', keydir, keyfiles)
+    # process_task('prose', keydir, keyfiles)
     
-    for person in keyfiles:
-        print(person)
-        onset_file = f"{keydir}/{person}/relative-onsets-{person}-3.txt"
-        keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-3.txt"
-        
-        onset_df = pd.read_csv(onset_file, header=None, sep=' ', names=['question_num', 'onset_time'])
-        keystroke_df = process_keystrokes(keystrokes_file, onset_df)
-        
-        alignment_time = align_timestamps()
-        
-        if keystroke_df.empty:
-            print("keytroke file doesn't exist")
-            continue
-        
-        fmri_file = f"/home/zachkaras/fmri/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
-        fmri_data = nib.load(fmri_file)
-        num_vols = fmri_data.header['dim'][4]
-        tr = 0.8 # in seconds
-        make_volume_windows(num_vols, tr, keystroke_df, onset_df)
-        
-        break
-        
+            
     
 if __name__ == "__main__":
     main()
-
-# df = []
-
-
-"""
-with open('../data/125/processed-answers-125-3.txt', 'r') as f:
-    for line in f:
-        # print(line.strip())
-        newline = line.strip()
-        df.append(re.split(',', newline))
-df = pd.DataFrame(df)
-df.columns = df.iloc[0]
-df = df[1:].reset_index()
-
-df['timestamp'].apply(lambda x: float(x)/10**3)
-
-
-
-onset_df = []
-with open('../data/125/relative-onsets-125-3.txt', 'r') as f:
-    for line in f:
-        newline = line.strip()
-        onset_df.append(re.split('\s', newline))
-onset_df = pd.DataFrame(onset_df)
-onset_df.columns = ['stim_id', 'timestamp']
-print(onset_df)
-
-
-
-
-ts_to_match = float(onset_df.loc[1, 'timestamp'])
-end_ts = float(df.loc[0,'timestamp'])/10**3
-alignment_time = (ts_to_match - end_ts) * (-1)
-df['timestamp'].apply(lambda x: (float(x)/10**3) - alignment_time) # this gives end timestamps
-
-
-vol_number = 0
-for rt in range(800, 597600, 800):
-    window_start = rt/10**3
-    window_end = (window_start + 0.8)
-    
-    # iterate through keystrokes and find the ones within the range
-    writing = ''
-    for i in range(len(keystroke_df)):
-        key_time = float(keystroke_df.loc[i, 'timestamps'])
-        if window_end < key_time:
-            continue
-        elif window_end > key_time and window_start < key_time:
-            writing += keystroke_df.loc[i, 'ascii_code'] 
-    
-    if writing:
-        print(f'volume: {vol_number} | window end: {window_start} | window end: {window_end} | writing: {writing}')
-        
-    vol_number += 1
-"""
-# Need to read in keystroke files
-
-
-
-# Need to read in fMRI volumes
-
-#  
-
-
-
-
 
