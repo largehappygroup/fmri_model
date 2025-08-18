@@ -28,7 +28,6 @@ shift_chars_path = f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl"
 with open(shift_chars_path, 'rb') as f:
     shift_characters = pickle.load(f)
 shift_patterns = re.compile("|".join(f"({re.escape(k)})" for k in shift_characters))
-# print(shift_patterns)
 
 ##########################################################################################
 ############# FUNCTIONS ##################################################################
@@ -58,7 +57,6 @@ def process_keystrokes(ascii_keystrokes):
     
     # replace shift characters
     shift_replaced = shift_patterns.sub(replacer, converted_chars)
-    # print(keystroke_chars, converted_chars, shift_replaced)
     return shift_replaced
     
     
@@ -78,20 +76,9 @@ def find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_tim
         idx_keystrokes_in_window = (np.where((keystroke_df['end_timestamp'] >= start_window) & (keystroke_df['end_timestamp'] < end_window)))[0]
         ascii_keystrokes = list(keystroke_df.loc[idx_keystrokes_in_window, 'ascii_code'])
         cleaned_keystrokes = process_keystrokes(ascii_keystrokes)
-        # print(cleaned_keystrokes)
-        # print(question_nums_by_volume_df)
         
         curr_row = question_nums_by_volume_df.loc[v]
         question_num = (np.where(curr_row == 1))[0]
-        # print(question_num, curr_row)
-        
-        # TODO Need to find the question number by looking at end times in processed answers
-        # and probably relative onset times in relative onsets, along with previous-delay info
-        # Need to align the two types of timestamps...
-        # can use my regressor files
-        
-        # question_num = list(set(keystroke_df.loc[idx_keystrokes_in_window, 'question_num']))
-        # question_num = question_num[0] if len(question_num) > 0 else -1
         keystrokes_by_volume.append([v, question_num, cleaned_keystrokes])
 
         end_window = start_window 
@@ -199,7 +186,10 @@ def process_task(task, keydir, keyfiles):
         onset_file = f"{keydir}/{person}/relative-onsets-{person}-{task_num}.txt"
         info_file = f"{keydir}/{person}/processed-answers-{person}-{task_num}.txt"
         
-        fmri_file = f"{bass_path}/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+        if task == 'code':
+            fmri_file = f"{bass_path}/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+        elif task == 'prose':
+            fmri_file = f"{bass_path}/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
         tr = 0.8 # in seconds
 
         keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-{task_num}.txt"
@@ -214,7 +204,6 @@ def process_task(task, keydir, keyfiles):
         ### Question onsets
         try:
             onset_df = pd.read_csv(onset_file, header=None, sep=' ', names=['question_num', 'onset_time'])
-            # print(onset_df.iloc[-1, 1])
         except:
             print(f"No onset file for {person}. Skipping.")
             continue
@@ -265,9 +254,7 @@ def main():
     keyfiles = os.listdir(keydir)
 
     process_task('code', keydir, keyfiles)
-    # process_task('prose', keydir, keyfiles)
-    
-            
+    process_task('prose', keydir, keyfiles)           
     
 if __name__ == "__main__":
     main()

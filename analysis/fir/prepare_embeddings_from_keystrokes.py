@@ -1,5 +1,8 @@
 import os
+import re
+import math
 import argparse
+# import numpy as np
 import pandas as pd
 
 parser = argparse.ArgumentParser(description="Script to concatenate keystrokes into discrete chunks that are more interpretable.")
@@ -28,21 +31,34 @@ answer = ''
 # timestamps.append(ts)
 
 
-def process_participant(task, participant_path):
+def process_participant(task, person, participant_path):
 
     df_path = f"{participant_path}/{task}_keystrokes_by_volume.csv"
-    vol_keystroke_df = pd.read_csv(df_path, header=True)
+    try:
+        vol_keystroke_df = pd.read_csv(df_path)
+    except:
+        print(f"No file for participant {person} for {task}")
+        return
     
-    # TODO - process answers
+    # TODO need a greedy algorithm for ingesting characters
     
+    answer = ''
     for i,row in vol_keystroke_df.iterrows():
         asci_chr = row['keystrokes']
-        if asci_chr == "BACKSPACE":
-            answer = answer[:-1]
-        elif asci_chr == "ENTER":
-            answer += '\n'
-        else:
-            answer += asci_chr
+        # print(type(asci_chr))
+        if isinstance(asci_chr, float):
+            continue
+        
+        # if '[BACKSPACE]' in asci_chr:
+        #     print("hullo", asci_chr)
+        test = re.search(r"\[BACKSPACE\]", asci_chr)
+        print(type(asci_chr), test, asci_chr)
+        # if re.search(asci_chr, "[BACKSPACE]"):
+        #     print("hello")
+        # elif asci_chr == "ENTER":
+        #     answer += '\n'
+        # else:
+        #     answer += asci_chr
 
 
 def main():
@@ -53,8 +69,9 @@ def main():
     for person in participants:
         participant_path = f"{datapath}/{person}"
 
-        process_participant('code', participant_path)
-        process_participant('prose', participant_path)
+        process_participant('code', person, participant_path)
+        # process_participant('prose', participant_path)
+        break
 
 if __name__ == "__main__":
     main()
