@@ -7,7 +7,7 @@ contents = dir(datapath);
 contents = contents([contents.isdir]);
 participants = contents(~ismember({contents.name}, {'.', '..'}));
 
-% wrapper_for_making_regressors('code', participants)
+wrapper_for_making_regressors('code', participants)
 wrapper_for_making_regressors('prose', participants)
 
 
@@ -47,10 +47,11 @@ function wrapper_for_making_regressors(condition, participants)
         onsets = task_info.Var2;
         
         if strcmp(condition, 'code')
-            create_question_regressors(person, nframes, stim_ids, onsets);
-            create_loop_regressors(person, nframes, stim_ids, onsets);
+            create_question_regressors(person, condition, nframes, stim_ids, onsets);
+            % create_loop_regressors(person, nframes, stim_ids, onsets);
         elseif strcmp(condition, 'prose')
-            create_prose_condition_regressors(person, nframes, stim_ids, onsets);
+            % create_prose_condition_regressors(person, nframes, stim_ids, onsets);
+            create_question_regressors(person, condition, nframes, stim_ids, onsets);
         end
      
         % break
@@ -61,7 +62,7 @@ end
 
 %% Function to create regressors for each question
 % Doesn't return anything, just saves to file
-function create_question_regressors(person, nframes, stim_ids, onsets)
+function create_question_regressors(person, condition, nframes, stim_ids, onsets)
     % disp(onsets)
     % dur = stimuli.duration;
     dur = 60;
@@ -81,7 +82,7 @@ function create_question_regressors(person, nframes, stim_ids, onsets)
             rounded_dur_in_vols = round(dur_in_vols);
 
             task(rounded_startVol:rounded_startVol + rounded_dur_in_vols) = 1; % double check this
-            savepath = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/regressors/questions/%d/%s.csv", id, person);
+            savepath = sprintf("/home/zachkaras/fmri/fmri_model/midprocessing/regressors/questions/%s/%d/%s.csv", condition, id, person);
             writematrix(task, savepath);
             
         end

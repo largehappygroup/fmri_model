@@ -3,7 +3,7 @@ import argparse
 import pandas as pd
 
 parser = argparse.ArgumentParser(description="Script to concatenate keystrokes into discrete chunks that are more interpretable.")
-parser.add_argument("--computer", required=True, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
+parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
 
 args = parser.parse_args()
 

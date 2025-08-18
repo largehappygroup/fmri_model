@@ -28,7 +28,7 @@ shift_chars_path = f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl"
 with open(shift_chars_path, 'rb') as f:
     shift_characters = pickle.load(f)
 shift_patterns = re.compile("|".join(f"({re.escape(k)})" for k in shift_characters))
-print(shift_patterns)
+# print(shift_patterns)
 
 ##########################################################################################
 ############# FUNCTIONS ##################################################################
@@ -42,7 +42,7 @@ def process_keystrokes(ascii_keystrokes):
     # converting special ascii characters for things like enter and shift 
     converted_chars = [special_characters[char] if char in special_characters.keys() else char for char in keystroke_chars]
 
-    # need to remove duplicates for shift, control, arrows
+    # maybe TODO: remove duplicates for shift, control, arrows
 
     # combining keys using shift
     converted_chars = str.join('', converted_chars)
@@ -58,34 +58,40 @@ def process_keystrokes(ascii_keystrokes):
     
     # replace shift characters
     shift_replaced = shift_patterns.sub(replacer, converted_chars)
-    print(keystroke_chars, converted_chars, shift_replaced)
+    # print(keystroke_chars, converted_chars, shift_replaced)
     return shift_replaced
     
     
-def find_volume_keystrokes(keystroke_df, aligned_timestamp, num_vols, tr):
+def find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_timestamp, num_vols, tr):
     
     timestep = tr*1000
     end_window = aligned_timestamp
 
     keystrokes_by_volume = []
 
-    for v in range(num_vols, -1,-1):
+    for v in range(num_vols-1, 0,-1):
         # 
         start_window = end_window - timestep
 
         # dense code that finds keystrokes with timestamps for current volume
         # Last steps involve converting the ascii codes into keystrokes
-        idx_keystrokes_in_window = (np.where((keystroke_df['timestamp'] >= start_window) & (keystroke_df['timestamp'] < end_window)))[0]
+        idx_keystrokes_in_window = (np.where((keystroke_df['end_timestamp'] >= start_window) & (keystroke_df['end_timestamp'] < end_window)))[0]
         ascii_keystrokes = list(keystroke_df.loc[idx_keystrokes_in_window, 'ascii_code'])
         cleaned_keystrokes = process_keystrokes(ascii_keystrokes)
         # print(cleaned_keystrokes)
+        # print(question_nums_by_volume_df)
+        
+        curr_row = question_nums_by_volume_df.loc[v]
+        question_num = (np.where(curr_row == 1))[0]
+        # print(question_num, curr_row)
         
         # TODO Need to find the question number by looking at end times in processed answers
-        # and probably relative onset times in relative onsets. 
+        # and probably relative onset times in relative onsets, along with previous-delay info
         # Need to align the two types of timestamps...
+        # can use my regressor files
         
-        question_num = list(set(keystroke_df.loc[idx_keystrokes_in_window, 'question_num']))
-        question_num = question_num[0] if len(question_num) > 0 else -1
+        # question_num = list(set(keystroke_df.loc[idx_keystrokes_in_window, 'question_num']))
+        # question_num = question_num[0] if len(question_num) > 0 else -1
         keystrokes_by_volume.append([v, question_num, cleaned_keystrokes])
 
         end_window = start_window 
@@ -94,6 +100,21 @@ def find_volume_keystrokes(keystroke_df, aligned_timestamp, num_vols, tr):
     clean_keystrokes_df = pd.DataFrame(keystrokes_by_volume, columns=['vol_num', 'question_num', 'keystrokes'])
 
     return clean_keystrokes_df
+
+def find_question_nums_by_volume(person, task):
+    regressor_base_path = f"{bass_path}/fmri_model/midprocessing/regressors/questions/{task}"
+    questions = [q for q in range(9)]
+    
+    participant_df = pd.DataFrame(columns=[i for i in range(9)])
+    for q in questions:
+        regressor_path = f"{regressor_base_path}/{q}/{person}.csv"
+        try:
+            regressor_df = pd.read_csv(regressor_path, header=None)
+        except:
+            continue
+        participant_df[q] = regressor_df
+    
+    return participant_df
 
 
 def align_timestamps(task_info, num_vols, tr):
@@ -156,7 +177,7 @@ def create_keystroke_dataframe(keyfile, onset_df):
             keystroke_df.append(time_asci_row)
                             
         keystroke_df = pd.DataFrame(keystroke_df)
-        keystroke_df.columns = ['question_num', 'timestamp', 'ascii_code']
+        keystroke_df.columns = ['question_num', 'end_timestamp', 'ascii_code']
 
         return keystroke_df
     
@@ -193,6 +214,7 @@ def process_task(task, keydir, keyfiles):
         ### Question onsets
         try:
             onset_df = pd.read_csv(onset_file, header=None, sep=' ', names=['question_num', 'onset_time'])
+            # print(onset_df.iloc[-1, 1])
         except:
             print(f"No onset file for {person}. Skipping.")
             continue
@@ -223,12 +245,15 @@ def process_task(task, keydir, keyfiles):
         # Aligning fMRI volumes to timestamps used for keystroke files
         aligned_timestamp = align_timestamps(task_info, num_vols, tr)
         
+        # getting question numbers for each corresponding volume for annotation purposes
+        question_nums_by_volume_df = find_question_nums_by_volume(person, task)
+        
         # processing the raw ascii codes into something that can be interpreted by a model... probably after some more preprocessing
-        cleaned_keystrokes_df = find_volume_keystrokes(keystroke_df, aligned_timestamp, num_vols, tr)
+        cleaned_keystrokes_df = find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_timestamp, num_vols, tr)
 
-        # df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
-        # cleaned_keystrokes_df.to_csv(df_outpath, index=False)
-        break
+        df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
+        cleaned_keystrokes_df.to_csv(df_outpath, index=False)
+        # break
 
 # The purpose of the main function is to iterate through each participants' keystroke files
 # and figure out what keys were pressed during what volumes of the fMRI scan
@@ -246,4 +271,3 @@ def main():
     
 if __name__ == "__main__":
     main()
-
