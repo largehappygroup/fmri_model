@@ -17,23 +17,15 @@ elif args.computer == 'cumberland':
 
 # Need some way of concetanating keystrokes into meaningful chunks
 
-
-
 # should start with prompt, then add on successive characters and try processing the answer
 
 answer = ''
                 
 # durations.append(diff)
-timestamps = []
+# timestamps = []
 # break
 # ts = float(asci[0])
 # timestamps.append(ts)
-if asci_chr == "BACKSPACE":
-    answer = answer[:-1]
-elif asci_chr == "ENTER":
-    answer += '\n'
-else:
-    answer += asci_chr
 
 
 def process_participant(task, participant_path):
@@ -41,8 +33,16 @@ def process_participant(task, participant_path):
     df_path = f"{participant_path}/{task}_keystrokes_by_volume.csv"
     vol_keystroke_df = pd.read_csv(df_path, header=True)
     
+    # TODO - process answers
+    
     for i,row in vol_keystroke_df.iterrows():
-        pass
+        asci_chr = row['keystrokes']
+        if asci_chr == "BACKSPACE":
+            answer = answer[:-1]
+        elif asci_chr == "ENTER":
+            answer += '\n'
+        else:
+            answer += asci_chr
 
 
 def main():

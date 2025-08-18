@@ -11,7 +11,7 @@ import nibabel as nib
 ##########################################################################################
 
 parser = argparse.ArgumentParser(description="Script to align timestamps of keystrokes with the fMRI file")
-parser.add_argument("--computer", required=True, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
+parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
 
 args = parser.parse_args()
 
@@ -46,6 +46,7 @@ def process_keystrokes(ascii_keystrokes):
 
     # combining keys using shift
     converted_chars = str.join('', converted_chars)
+    
 
     # combining shift terms and maybe TODO: remove shifts where nothing was written after
     # need to do string matching 
@@ -57,6 +58,7 @@ def process_keystrokes(ascii_keystrokes):
     
     # replace shift characters
     shift_replaced = shift_patterns.sub(replacer, converted_chars)
+    print(keystroke_chars, converted_chars, shift_replaced)
     return shift_replaced
     
     
@@ -76,12 +78,20 @@ def find_volume_keystrokes(keystroke_df, aligned_timestamp, num_vols, tr):
         idx_keystrokes_in_window = (np.where((keystroke_df['timestamp'] >= start_window) & (keystroke_df['timestamp'] < end_window)))[0]
         ascii_keystrokes = list(keystroke_df.loc[idx_keystrokes_in_window, 'ascii_code'])
         cleaned_keystrokes = process_keystrokes(ascii_keystrokes)
-        keystrokes_by_volume.append([v, cleaned_keystrokes])
+        # print(cleaned_keystrokes)
+        
+        # TODO Need to find the question number by looking at end times in processed answers
+        # and probably relative onset times in relative onsets. 
+        # Need to align the two types of timestamps...
+        
+        question_num = list(set(keystroke_df.loc[idx_keystrokes_in_window, 'question_num']))
+        question_num = question_num[0] if len(question_num) > 0 else -1
+        keystrokes_by_volume.append([v, question_num, cleaned_keystrokes])
 
         end_window = start_window 
     
     keystrokes_by_volume.reverse()
-    clean_keystrokes_df = pd.DataFrame(keystrokes_by_volume, columns=['vol_num', 'keystrokes'])
+    clean_keystrokes_df = pd.DataFrame(keystrokes_by_volume, columns=['vol_num', 'question_num', 'keystrokes'])
 
     return clean_keystrokes_df
 
@@ -216,9 +226,9 @@ def process_task(task, keydir, keyfiles):
         # processing the raw ascii codes into something that can be interpreted by a model... probably after some more preprocessing
         cleaned_keystrokes_df = find_volume_keystrokes(keystroke_df, aligned_timestamp, num_vols, tr)
 
-        df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
-        cleaned_keystrokes_df.to_csv(df_outpath, index=False)
-
+        # df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
+        # cleaned_keystrokes_df.to_csv(df_outpath, index=False)
+        break
 
 # The purpose of the main function is to iterate through each participants' keystroke files
 # and figure out what keys were pressed during what volumes of the fMRI scan
