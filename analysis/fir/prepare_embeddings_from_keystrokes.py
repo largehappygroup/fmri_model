@@ -20,6 +20,12 @@ elif args.computer == 'cumberland':
 
 # Need some way of concetanating keystrokes into meaningful chunks
 
+# TODO use real characters for printable keys
+# TODO use angle-bracket tags for non-printable actions: <KEY:BACKSPACE x=3>
+# TODO compress repeats (the x=3 part)
+# TODO use newline for enter \t for tab, etc.
+
+
 # should start with prompt, then add on successive characters and try processing the answer
 def injest_vol_text(vol_text):
     patterns = [

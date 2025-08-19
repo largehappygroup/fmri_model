@@ -21,74 +21,74 @@ vol_num,question_num,keystrokes
 20,[3],
 21,[3],
 22,[3],
-23,[3],[CLOSE BRACE]i
+23,[3],SHIFTI
 24,[3],
 25,[3],=
-26,[3],[BACKSPACE][BACKSPACE]
-27,[3],[CLOSE BRACE]ir
-28,[3],;[BACKSPACE]
-29,[3],[BACKSPACE]r
-30,[3],[BACKSPACE]t
-31,[3],þ
-32,[3],s 
-33,[3],bet
-34,[3],ter 
-35,[3],to 
+26,[3],<K:BS><K:BS>
+27,[3],SHIFTIR
+28,[3],;<K:BS>
+29,[3],<K:BS>R
+30,[3],<K:BS>T
+31,[3],'
+32,[3],S 
+33,[3],BET
+34,[3],TER 
+35,[3],TO 
 36,[3],
-37,[3],tak
-38,[3],e man
-39,[3],t c
-40,[3],[BACKSPACE][BACKSPACE][BACKSPACE]y 
-41,[3],class
-42,[3],es a
-43,[3],t firs
-44,[3],t and 
-45,[3],then 
-46,[3],slo
-47,[3],wly
-48,[3], rea
-49,[3],ch a p
-50,[3],oint w
-51,[3],here th
-52,[3],e stud
-53,[3],ents 
-54,[3],start 
-55,[3],to spe
-56,[3],ciali
-57,[3],ze in 
-58,[3],one 
-59,[3],sub
-60,[3],j
-61,[3],ec
-62,[3],t .
-63,[3],[BACKSPACE]
-64,[3],[BACKSPACE]. [CLOSE BRACE]this 
-65,[3],is be
-66,[3],cause 
-67,[3],our 
-68,[3],so
-69,[3],ciet
-70,[3],y 
-71,[3],tu
-72,[3],[BACKSPACE][BACKSPACE]r
-73,[3],uns 
-74,[3],i
-75,[3],n 
+37,[3],TAK
+38,[3],E MAN
+39,[3],T C
+40,[3],<K:BS><K:BS><K:BS>Y 
+41,[3],CLASS
+42,[3],ES A
+43,[3],T FIRS
+44,[3],T AND 
+45,[3],THEN 
+46,[3],SLO
+47,[3],WLY
+48,[3], REA
+49,[3],CH A P
+50,[3],OINT W
+51,[3],HERE TH
+52,[3],E STUD
+53,[3],ENTS 
+54,[3],START 
+55,[3],TO SPE
+56,[3],CIALI
+57,[3],ZE IN 
+58,[3],ONE 
+59,[3],SUB
+60,[3],J
+61,[3],EC
+62,[3],T .
+63,[3],<K:BS>
+64,[3],<K:BS>. SHIFTTHIS 
+65,[3],IS BE
+66,[3],CAUSE 
+67,[3],OUR 
+68,[3],SO
+69,[3],CIET
+70,[3],Y 
+71,[3],TU
+72,[3],<K:BS><K:BS>R
+73,[3],UNS 
+74,[3],I
+75,[3],N 
 76,[3],
-77,[3],d
-78,[3],[BACKSPACE]di
-79,[3],ffer
-80,[3],ent s
-81,[3],ec
-82,[3],tors an
-83,[3],dd t[BACKSPACE]
-84,[3],[BACKSPACE][BACKSPACE] ther
-85,[3],es 
-86,[3],not 
-87,[3],really 
-88,[3],a jo
-89,[3],v
-90,[3],[BACKSPACE]b f
+77,[3],D
+78,[3],<K:BS>DI
+79,[3],FFER
+80,[3],ENT S
+81,[3],EC
+82,[3],TORS AN
+83,[3],DD T<K:BS>
+84,[3],<K:BS><K:BS> THER
+85,[3],ES 
+86,[3],NOT 
+87,[3],REALLY 
+88,[3],A JO
+89,[3],V
+90,[3],<K:BS>B F
 91,[],
 92,[],
 93,[],
@@ -103,77 +103,77 @@ vol_num,question_num,keystrokes
 102,[0],
 103,[0],
 104,[0],
-105,[0],[CLOSE BRACE]i th
-106,[0],ihnk[BACKSPACE]
-107,[0],[BACKSPACE][BACKSPACE]
-108,[0],nk 
+105,[0],SHIFTI TH
+106,[0],IHNK<K:BS>
+107,[0],<K:BS><K:BS>
+108,[0],NK 
 109,[0],
 110,[0],
-111,[0],it sho
-112,[0],ul
-113,[0],d  be 
-114,[0],option
-115,[0],sa[BACKSPACE][BACKSPACE]a
-116,[0],l for
-117,[0], studen
-118,[0],ts beca
-119,[0],use d
-120,[0],[BACKSPACE]sti
-121,[0],de=[BACKSPACE]
-122,[0],[BACKSPACE][BACKSPACE][BACKSPACE]u
-123,[0],den
-124,[0],ts lear
-125,[0],n dif
-126,[0],ferent
-127,[0],ly. 
-128,[0],[CLOSE BRACE]some
-129,[0], stude
-130,[0],nts ma
-131,[0], [BACKSPACE]y 
-132,[0],like 
-133,[0],readi
-134,[0],ng the 
-135,[0],text
-136,[0],book 
+111,[0],IT SHO
+112,[0],UL
+113,[0],D  BE 
+114,[0],OPTION
+115,[0],SA<K:BS><K:BS>A
+116,[0],L FOR
+117,[0], STUDEN
+118,[0],TS BECA
+119,[0],USE D
+120,[0],<K:BS>STI
+121,[0],DE=<K:BS>
+122,[0],<K:BS><K:BS><K:BS>U
+123,[0],DEN
+124,[0],TS LEAR
+125,[0],N DIF
+126,[0],FERENT
+127,[0],LY. 
+128,[0],SHIFTSOME
+129,[0], STUDE
+130,[0],NTS MA
+131,[0], <K:BS>Y 
+132,[0],LIKE 
+133,[0],READI
+134,[0],NG THE 
+135,[0],TEXT
+136,[0],BOOK 
 137,[0],
-138,[0],inste
-139,[0],ad of
-140,[0], l
-141,[0],[BACKSPACE]heari
-142,[0],ng the 
-143,[0],pro
-144,[0],fess
-145,[0],ors lec
-146,[0],tir
-147,[0],e o[BACKSPACE][BACKSPACE]
-148,[0],[BACKSPACE][BACKSPACE][BACKSPACE]o
-149,[0],r[BACKSPACE][BACKSPACE]u
-150,[0],re on 
-151,[0],conten
-152,[0],t they 
-153,[0],have 
-154,[0],a
-155,[0],lrea
-156,[0],[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE]
-157,[0],l[BACKSPACE]al
-158,[0],ready
-159,[0], read
+138,[0],INSTE
+139,[0],AD OF
+140,[0], L
+141,[0],<K:BS>HEARI
+142,[0],NG THE 
+143,[0],PRO
+144,[0],FESS
+145,[0],ORS LEC
+146,[0],TIR
+147,[0],E O<K:BS><K:BS>
+148,[0],<K:BS><K:BS><K:BS>O
+149,[0],R<K:BS><K:BS>U
+150,[0],RE ON 
+151,[0],CONTEN
+152,[0],T THEY 
+153,[0],HAVE 
+154,[0],A
+155,[0],LREA
+156,[0],<K:BS><K:BS><K:BS><K:BS><K:BS>
+157,[0],L<K:BS>AL
+158,[0],READY
+159,[0], READ
 160,[0],. 
-161,[0],[CLOSE BRACE]
-162,[0],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]i
-163,[0],[BACKSPACE][CLOSE BRACE]
-164,[0],other 
-165,[0],studen
-166,[0],ts l
-167,[0],ike le
-168,[0],cture 
-169,[0],and c
-170,[0],an con
-171,[0],tinue
-172,[0], [BACKSPACE]e
-173,[0],[BACKSPACE] 
-174,[0],going 
-175,[],to 
+161,[0],SHIFT
+162,[0],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTI
+163,[0],<K:BS>SHIFT
+164,[0],OTHER 
+165,[0],STUDEN
+166,[0],TS L
+167,[0],IKE LE
+168,[0],CTURE 
+169,[0],AND C
+170,[0],AN CON
+171,[0],TINUE
+172,[0], <K:BS>E
+173,[0],<K:BS> 
+174,[0],GOING 
+175,[],TO 
 176,[],
 177,[],
 178,[],
@@ -184,77 +184,77 @@ vol_num,question_num,keystrokes
 183,[5],
 184,[5],
 185,[5],
-186,[5],[CLOSE BRACE]t
-187,[5],he ad
-188,[5],va
-189,[5],ntage
-190,[5],s of 
-191,[5],spend
-192,[5],ing ti
-193,[5],e[BACKSPACE]m
-194,[5],e with
-195,[5], one o
-196,[5],t[BACKSPACE]r 
-197,[5],two 
-198,[5],close 
-199,[5],friend
-200,[5],s is that
-201,[5], you 
-202,[5],get to
-203,[5], n[BACKSPACE]
-204,[5],know t
-205,[5],hem a 
-206,[5],lot bet
-207,[5],ter. [CLOSE BRACE]t
-208,[5],he ad
-209,[5],vand
-210,[5],a[BACKSPACE]
-211,[5],[BACKSPACE]tage
-212,[5], of p
-213,[5],[BACKSPACE]spe
-214,[5],nding t
-215,[5],ime wit
-216,[5],h a lar
-217,[5],ge n
-218,[5],umber o
-219,[5],f fr
-220,[5],iends 
-221,[5],is that
-222,[5], yo
-223,[5],u 
-224,[5],c
-225,[5],[BACKSPACE]have
-226,[5], more
-227,[5], pat
-228,[5],[BACKSPACE]rt
-229,[5],icipat
-230,[5],ion in
-231,[5], a 
-232,[5],g
-233,[5],roup o
-234,[5],f pe
-235,[5],ople 
-236,[5],an
-237,[5],d 
-238,[5],you g
-239,[5],et more
-240,[5], socia
-241,[5],l 
-242,[5],cl[BACKSPACE]
-243,[5],c[BACKSPACE]
-244,[5],lout
+186,[5],SHIFTT
+187,[5],HE AD
+188,[5],VA
+189,[5],NTAGE
+190,[5],S OF 
+191,[5],SPEND
+192,[5],ING TI
+193,[5],E<K:BS>M
+194,[5],E WITH
+195,[5], ONE O
+196,[5],T<K:BS>R 
+197,[5],TWO 
+198,[5],CLOSE 
+199,[5],FRIEND
+200,[5],S IS THAT
+201,[5], YOU 
+202,[5],GET TO
+203,[5], N<K:BS>
+204,[5],KNOW T
+205,[5],HEM A 
+206,[5],LOT BET
+207,[5],TER. SHIFTT
+208,[5],HE AD
+209,[5],VAND
+210,[5],A<K:BS>
+211,[5],<K:BS>TAGE
+212,[5], OF P
+213,[5],<K:BS>SPE
+214,[5],NDING T
+215,[5],IME WIT
+216,[5],H A LAR
+217,[5],GE N
+218,[5],UMBER O
+219,[5],F FR
+220,[5],IENDS 
+221,[5],IS THAT
+222,[5], YO
+223,[5],U 
+224,[5],C
+225,[5],<K:BS>HAVE
+226,[5], MORE
+227,[5], PAT
+228,[5],<K:BS>RT
+229,[5],ICIPAT
+230,[5],ION IN
+231,[5], A 
+232,[5],G
+233,[5],ROUP O
+234,[5],F PE
+235,[5],OPLE 
+236,[5],AN
+237,[5],D 
+238,[5],YOU G
+239,[5],ET MORE
+240,[5], SOCIA
+241,[5],L 
+242,[5],CL<K:BS>
+243,[5],C<K:BS>
+244,[5],LOUT
 245,[5],. 
-246,[5],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]
-247,[5],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]t[BACKSPACE]
-248,[5],[CLOSE BRACE]it
-249,[5],s ea
-250,[5],sier 
-251,[5],in a la
-252,[5],rge 
-253,[5],group t
-254,[5],o find
-255,[5], someo
-256,[5],ne to 
+246,[5],SHIFTSHIFTSHIFTSHIFT
+247,[5],SHIFTSHIFTSHIFTSHIFTSHIFTT<K:BS>
+248,[5],SHIFTIT
+249,[5],S EA
+250,[5],SIER 
+251,[5],IN A LA
+252,[5],RGE 
+253,[5],GROUP T
+254,[5],O FIND
+255,[5], SOMEO
+256,[5],NE TO 
 257,[],
 258,[],
 259,[],
@@ -264,77 +264,77 @@ vol_num,question_num,keystrokes
 263,[8],
 264,[8],
 265,[8],
-266,[8],[CLOSE BRACE]the
-267,[8],y wou
-268,[8],ld l
-269,[8],ike 
-270,[8],[BACKSPACE][BACKSPACE]
-271,[8],[BACKSPACE]ve i
-272,[8],n a 
+266,[8],SHIFTTHE
+267,[8],Y WOU
+268,[8],LD L
+269,[8],IKE 
+270,[8],<K:BS><K:BS>
+271,[8],<K:BS>VE I
+272,[8],N A 
 273,[8],
-274,[8],spac
-275,[8],ef[BACKSPACE]
-276,[8],sip 
-277,[8],[BACKSPACE][BACKSPACE][BACKSPACE]h
-278,[8],ip
-279,[8], t
-280,[8],ype 
-281,[8],hou
-282,[8],si[BACKSPACE]e
-283,[8],s or
-284,[8],bit
-285,[8],ing the 
-286,[8],planet
-287,[8],. [CLOSE BRACE]the
-288,[8], clo
-289,[8],thes 
-290,[8],they w
-291,[8],ould we
-292,[8],ar w
-293,[8],ould ha
-294,[8],ve to 
+274,[8],SPAC
+275,[8],EF<K:BS>
+276,[8],SIP 
+277,[8],<K:BS><K:BS><K:BS>H
+278,[8],IP
+279,[8], T
+280,[8],YPE 
+281,[8],HOU
+282,[8],SI<K:BS>E
+283,[8],S OR
+284,[8],BIT
+285,[8],ING THE 
+286,[8],PLANET
+287,[8],. SHIFTTHE
+288,[8], CLO
+289,[8],THES 
+290,[8],THEY W
+291,[8],OULD WE
+292,[8],AR W
+293,[8],OULD HA
+294,[8],VE TO 
 295,[8],
-296,[8],b
-297,[8],e
+296,[8],B
+297,[8],E
 298,[8], 
 299,[8],
-300,[8],tig
-301,[8],ht 
-302,[8],b
-303,[8],[BACKSPACE]s
-304,[8],o 
-305,[8],it 
-306,[8],[BACKSPACE][BACKSPACE][BACKSPACE]
-307,[8],a r
-308,[8],andom
+300,[8],TIG
+301,[8],HT 
+302,[8],B
+303,[8],<K:BS>S
+304,[8],O 
+305,[8],IT 
+306,[8],<K:BS><K:BS><K:BS>
+307,[8],A R
+308,[8],ANDOM
 309,[8], 
-310,[8],piece
-311,[8], would
-312,[8],nt j
-313,[8],ust 
-314,[8],float
-315,[8], a
-316,[8],way 
-317,[8],in sp
-318,[8],ace. [CLOSE BRACE]
-319,[8],the ho
-320,[8],uses 
-321,[8],woul
-322,[8],d hav
-323,[8],e to 
-324,[8],be 
+310,[8],PIECE
+311,[8], WOULD
+312,[8],NT J
+313,[8],UST 
+314,[8],FLOAT
+315,[8], A
+316,[8],WAY 
+317,[8],IN SP
+318,[8],ACE. SHIFT
+319,[8],THE HO
+320,[8],USES 
+321,[8],WOUL
+322,[8],D HAV
+323,[8],E TO 
+324,[8],BE 
 325,[8],
-326,[8],[BACKSPACE]
-327,[8],[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE]
-328,[8],fur
-329,[8],nirut
-330,[8],[BACKSPACE][BACKSPACE][BACKSPACE]tu
-331,[8],re that 
-332,[8],is ti
-333,[8],ed d
-334,[8],own 
-335,[8],so i
-336,[],t do
+326,[8],<K:BS>
+327,[8],<K:BS><K:BS><K:BS><K:BS><K:BS>
+328,[8],FUR
+329,[8],NIRUT
+330,[8],<K:BS><K:BS><K:BS>TU
+331,[8],RE THAT 
+332,[8],IS TI
+333,[8],ED D
+334,[8],OWN 
+335,[8],SO I
+336,[],T DO
 337,[],
 338,[],
 339,[],
@@ -345,75 +345,75 @@ vol_num,question_num,keystrokes
 344,[7],
 345,[7],
 346,[7],
-347,[7],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]
-348,[7],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]the 
-349,[7],people 
-350,[7],that e
-351,[7],njo
-352,[7],y cha
-353,[7],nge 
+347,[7],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFT
+348,[7],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTTHE 
+349,[7],PEOPLE 
+350,[7],THAT E
+351,[7],NJO
+352,[7],Y CHA
+353,[7],NGE 
 354,[7],
-355,[7],p
-356,[7],[BACKSPACE]
-357,[7],d
-358,[7],o[BACKSPACE][BACKSPACE]
-359,[7],i
-360,[7],[BACKSPACE]
-361,[7],gets
-362,[7], to e
-363,[7],x
-364,[7],pre[BACKSPACE][BACKSPACE]
-365,[7],erienc
-366,[7],e new 
-367,[7],ti[BACKSPACE]
-368,[7],hinga
-369,[7], [BACKSPACE][BACKSPACE]
-370,[7],s ev
-371,[7],ery
-372,[7],day
-373,[7], but 
-374,[7],the p
-375,[7],eople 
-376,[7],who sta
-377,[7],y th
-378,[7],e same
+355,[7],P
+356,[7],<K:BS>
+357,[7],D
+358,[7],O<K:BS><K:BS>
+359,[7],I
+360,[7],<K:BS>
+361,[7],GETS
+362,[7], TO E
+363,[7],X
+364,[7],PRE<K:BS><K:BS>
+365,[7],ERIENC
+366,[7],E NEW 
+367,[7],TI<K:BS>
+368,[7],HINGA
+369,[7], <K:BS><K:BS>
+370,[7],S EV
+371,[7],ERY
+372,[7],DAY
+373,[7], BUT 
+374,[7],THE P
+375,[7],EOPLE 
+376,[7],WHO STA
+377,[7],Y TH
+378,[7],E SAME
 379,[7], 
-380,[7],e[BACKSPACE]
-381,[7],are
-382,[7], stil
-383,[7],l 
+380,[7],E<K:BS>
+381,[7],ARE
+382,[7], STIL
+383,[7],L 
 384,[7],
-385,[7],[BACKSPACE]
+385,[7],<K:BS>
 386,[7], 
-387,[7],p
-388,[7],re
-389,[7],tty
-390,[7], co
-391,[7],ntent 
-392,[7],as th
-393,[7],ey make
-394,[7], do 
-395,[7],with wh
-396,[7],at they
-397,[7], have
-398,[7], an
-399,[7],d what 
-400,[7],theyre 
+387,[7],P
+388,[7],RE
+389,[7],TTY
+390,[7], CO
+391,[7],NTENT 
+392,[7],AS TH
+393,[7],EY MAKE
+394,[7], DO 
+395,[7],WITH WH
+396,[7],AT THEY
+397,[7], HAVE
+398,[7], AN
+399,[7],D WHAT 
+400,[7],THEYRE 
 401,[7],
-402,[7],used to
-403,[7],. [CLOSE BRACE]
-404,[7],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]
-405,[7],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]
-406,[7],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]n
-407,[7],ew ex
-408,[7],perie
-409,[7],nces 
-410,[7],seem 
-411,[7],e[BACKSPACE]
-412,[7],be
-413,[7],tter a
-414,[7],s 
-415,[7],you
+402,[7],USED TO
+403,[7],. SHIFT
+404,[7],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFT
+405,[7],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFT
+406,[7],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTN
+407,[7],EW EX
+408,[7],PERIE
+409,[7],NCES 
+410,[7],SEEM 
+411,[7],E<K:BS>
+412,[7],BE
+413,[7],TTER A
+414,[7],S 
+415,[7],YOU
 416,[], 
 417,[],
 418,[],
@@ -427,75 +427,75 @@ vol_num,question_num,keystrokes
 426,[1],
 427,[1],
 428,[1],
-429,[1],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]
-430,[1],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]
-431,[1],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]i
-432,[1],t
-433,[1], sho
-434,[1],uld 
-435,[1],try t
-436,[1],o des
-437,[1],tro
-438,[1],y the
-439,[1],m and 
-440,[1],replace 
-441,[1],them wit
-442,[1],h moder
-443,[1],n bui
-444,[1],ldings
-445,[1],. [CLOSE BRACE]
-446,[1],some o
-447,[1],ld 
-448,[1],histo
-449,[1],riv 
-450,[1],[BACKSPACE][BACKSPACE]c
-451,[1], bu
-452,[1],ilsing
-453,[1],[BACKSPACE][BACKSPACE][BACKSPACE]
-454,[1],[BACKSPACE]dings
+429,[1],SHIFTSHIFTSHIFT
+430,[1],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFT
+431,[1],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTI
+432,[1],T
+433,[1], SHO
+434,[1],ULD 
+435,[1],TRY T
+436,[1],O DES
+437,[1],TRO
+438,[1],Y THE
+439,[1],M AND 
+440,[1],REPLACE 
+441,[1],THEM WIT
+442,[1],H MODER
+443,[1],N BUI
+444,[1],LDINGS
+445,[1],. SHIFT
+446,[1],SOME O
+447,[1],LD 
+448,[1],HISTO
+449,[1],RIV 
+450,[1],<K:BS><K:BS>C
+451,[1], BU
+452,[1],ILSING
+453,[1],<K:BS><K:BS><K:BS>
+454,[1],<K:BS>DINGS
 455,[1], 
-456,[1],have 
-457,[1],safe
-458,[1],ty
-459,[1], haz
-460,[1],ar
-461,[1],ds l
-462,[1],ike 
-463,[1],wieh 
-464,[1],t[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE]
-465,[1],th lea
-466,[1],d pai
-467,[1],nt or b
-468,[1],ad 
-469,[1],sup
-470,[1],port s
-471,[1],truct
-472,[1],ure. 
-473,[1],[CLOSE BRACE]i
-474,[1],[BACKSPACE][CLOSE BRACE]t
-475,[1],o m
-476,[1],ove 
-477,[1],for
-478,[1],q[BACKSPACE]w
-479,[1],ard w
-480,[1],ith 
+456,[1],HAVE 
+457,[1],SAFE
+458,[1],TY
+459,[1], HAZ
+460,[1],AR
+461,[1],DS L
+462,[1],IKE 
+463,[1],WIEH 
+464,[1],T<K:BS><K:BS><K:BS><K:BS>
+465,[1],TH LEA
+466,[1],D PAI
+467,[1],NT OR B
+468,[1],AD 
+469,[1],SUP
+470,[1],PORT S
+471,[1],TRUCT
+472,[1],URE. 
+473,[1],SHIFTI
+474,[1],<K:BS>SHIFTT
+475,[1],O M
+476,[1],OVE 
+477,[1],FOR
+478,[1],Q<K:BS>W
+479,[1],ARD W
+480,[1],ITH 
 481,[1],
-482,[1],the 
-483,[1],city
+482,[1],THE 
+483,[1],CITY
 484,[1],", "
 485,[1],
-486,[1],a[BACKSPACE]t
-487,[1],he 
-488,[1],[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE]
-489,[1],old 
-490,[1],buildi
-491,[1],ngs 
-492,[1],shoul
-493,[1],d be 
-494,[1],destr
-495,[1],oye
-496,[1],d for
-497,[], new 
+486,[1],A<K:BS>T
+487,[1],HE 
+488,[1],<K:BS><K:BS><K:BS><K:BS>
+489,[1],OLD 
+490,[1],BUILDI
+491,[1],NGS 
+492,[1],SHOUL
+493,[1],D BE 
+494,[1],DESTR
+495,[1],OYE
+496,[1],D FOR
+497,[], NEW 
 498,[],
 499,[],
 500,[],
@@ -508,79 +508,79 @@ vol_num,question_num,keystrokes
 507,[4],
 508,[4],
 509,[4],
-510,[4],[CLOSE BRACE]
-511,[4],it is
+510,[4],SHIFT
+511,[4],IT IS
 512,[4], 
-513,[4],more i
-514,[4],[BACKSPACE]
-515,[4],[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE][CLOSE BRACE]
-516,[4],it dep
-517,[4],ends on
-518,[4], the fi
-519,[4],eld of 
-520,[4],cohic
-521,[4],[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE]
-522,[4],hoice
-523,[4],. [CLOSE BRACE]i
-524,[4],[BACKSPACE]
-525,[4],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]i
-526,[4],f it 
-527,[4],is a s
-528,[4],pce
-529,[4],[BACKSPACE][BACKSPACE]ec
-530,[4],ializ
-531,[4],ation i
-532,[4],n an 
-533,[4],area 
-534,[4],of 
+513,[4],MORE I
+514,[4],<K:BS>
+515,[4],<K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS><K:BS>SHIFT
+516,[4],IT DEP
+517,[4],ENDS ON
+518,[4], THE FI
+519,[4],ELD OF 
+520,[4],COHIC
+521,[4],<K:BS><K:BS><K:BS><K:BS>
+522,[4],HOICE
+523,[4],. SHIFTI
+524,[4],<K:BS>
+525,[4],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTI
+526,[4],F IT 
+527,[4],IS A S
+528,[4],PCE
+529,[4],<K:BS><K:BS>EC
+530,[4],IALIZ
+531,[4],ATION I
+532,[4],N AN 
+533,[4],AREA 
+534,[4],OF 
 535,[4],
-536,[4],[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE]
-537,[4], then
-538,[4], it 
-539,[4],is m
-540,[4],ore im
-541,[4],porta
-542,[4],nt to 
-543,[4],be ab
-544,[4],le to wo
-545,[4],rk ind
-546,[4],epend
-547,[4],ent
-548,[4],ly an
-549,[4],d[BACKSPACE][BACKSPACE]s 
-550,[4],not ma
-551,[4],ny ot
-552,[4],her peop
-553,[4],le mi
-554,[4],ght now
-555,[4],[BACKSPACE][BACKSPACE]
-556,[4],[BACKSPACE]know 
-557,[4],the 
-558,[4],exac
-559,[4],ts of
-560,[4], the wo
-561,[4],rk. [CLOSE BRACE]i
-562,[4],t is i
-563,[4],mpor
-564,[4],tant 
-565,[4],to work
-566,[4], in a
-567,[4], team w
-568,[4],hen its
-569,[4], a l
-570,[4],ot of
-571,[4], peop
-572,[4],le wor
-573,[4],king to
-574,[4],gether 
-575,[4],as 
-576,[4],[BACKSPACE][BACKSPACE][BACKSPACE]
-577,[4],lik
-578,[4],e in 
-579,[4],pip
-580,[4],e
-581,[4],linin
-582,[],g 
+536,[4],<K:BS><K:BS><K:BS><K:BS>
+537,[4], THEN
+538,[4], IT 
+539,[4],IS M
+540,[4],ORE IM
+541,[4],PORTA
+542,[4],NT TO 
+543,[4],BE AB
+544,[4],LE TO WO
+545,[4],RK IND
+546,[4],EPEND
+547,[4],ENT
+548,[4],LY AN
+549,[4],D<K:BS><K:BS>S 
+550,[4],NOT MA
+551,[4],NY OT
+552,[4],HER PEOP
+553,[4],LE MI
+554,[4],GHT NOW
+555,[4],<K:BS><K:BS>
+556,[4],<K:BS>KNOW 
+557,[4],THE 
+558,[4],EXAC
+559,[4],TS OF
+560,[4], THE WO
+561,[4],RK. SHIFTI
+562,[4],T IS I
+563,[4],MPOR
+564,[4],TANT 
+565,[4],TO WORK
+566,[4], IN A
+567,[4], TEAM W
+568,[4],HEN ITS
+569,[4], A L
+570,[4],OT OF
+571,[4], PEOP
+572,[4],LE WOR
+573,[4],KING TO
+574,[4],GETHER 
+575,[4],AS 
+576,[4],<K:BS><K:BS><K:BS>
+577,[4],LIK
+578,[4],E IN 
+579,[4],PIP
+580,[4],E
+581,[4],LININ
+582,[],G 
 583,[],
 584,[],
 585,[],
@@ -596,73 +596,73 @@ vol_num,question_num,keystrokes
 595,[2],
 596,[2],
 597,[2],
-598,[2],[CLOSE BRACE]i
-599,[2],[BACKSPACE][CLOSE BRACE]i 
-600,[2],disa
-601,[2],fre
-602,[2],[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE]gr
-603,[2],e[BACKSPACE][BACKSPACE][BACKSPACE]
-604,[2],agree 
-605,[2],bec
-606,[2],ause it 
-607,[2],is eas
-608,[2],ty[BACKSPACE]
-609,[2],[BACKSPACE]y to
-610,[2], stop 
-611,[2],payin
-612,[2],g atte
-613,[2],ntion to
-614,[2], a tour
-615,[2], gui
-616,[2],r[BACKSPACE]de
-617,[2],. [CLOSE BRACE]
-618,[2],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]h
-619,[2],[BACKSPACE][CLOSE BRACE]e
-620,[2],xplor
-621,[2],ing a 
+598,[2],SHIFTI
+599,[2],<K:BS>SHIFTI 
+600,[2],DISA
+601,[2],FRE
+602,[2],<K:BS><K:BS><K:BS><K:BS>GR
+603,[2],E<K:BS><K:BS><K:BS>
+604,[2],AGREE 
+605,[2],BEC
+606,[2],AUSE IT 
+607,[2],IS EAS
+608,[2],TY<K:BS>
+609,[2],<K:BS>Y TO
+610,[2], STOP 
+611,[2],PAYIN
+612,[2],G ATTE
+613,[2],NTION TO
+614,[2], A TOUR
+615,[2], GUI
+616,[2],R<K:BS>DE
+617,[2],. SHIFT
+618,[2],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTH
+619,[2],<K:BS>SHIFTE
+620,[2],XPLOR
+621,[2],ING A 
 622,[2],
-623,[2],place 
-624,[2],by 
-625,[2],yourse
-626,[2],lf 
-627,[2],s
-628,[2],[BACKSPACE]
-629,[2],fi
-630,[2],[BACKSPACE][BACKSPACE]give
-631,[2],s you a
-632,[2], change
-633,[2], to[BACKSPACE]
-634,[2],[BACKSPACE][BACKSPACE][BACKSPACE][BACKSPACE]ce
-635,[2], to 
-636,[2],ap[BACKSPACE][BACKSPACE]p
-637,[2],ay atte
-638,[2],ntion 
-639,[2],to th
-640,[2],e ting
-641,[2],s [BACKSPACE][BACKSPACE][BACKSPACE]
-642,[2],[BACKSPACE][BACKSPACE]hi
-643,[2],ngs that 
-644,[2],a[BACKSPACE]c
-645,[2],apture 
-646,[2],it ra
-647,[2],ther t
-648,[2],han wa
-649,[2],nder 
-650,[2],through 
-651,[2],unkno
-652,[2],wi
-653,[2],ngly 
+623,[2],PLACE 
+624,[2],BY 
+625,[2],YOURSE
+626,[2],LF 
+627,[2],S
+628,[2],<K:BS>
+629,[2],FI
+630,[2],<K:BS><K:BS>GIVE
+631,[2],S YOU A
+632,[2], CHANGE
+633,[2], TO<K:BS>
+634,[2],<K:BS><K:BS><K:BS><K:BS>CE
+635,[2], TO 
+636,[2],AP<K:BS><K:BS>P
+637,[2],AY ATTE
+638,[2],NTION 
+639,[2],TO TH
+640,[2],E TING
+641,[2],S <K:BS><K:BS><K:BS>
+642,[2],<K:BS><K:BS>HI
+643,[2],NGS THAT 
+644,[2],A<K:BS>C
+645,[2],APTURE 
+646,[2],IT RA
+647,[2],THER T
+648,[2],HAN WA
+649,[2],NDER 
+650,[2],THROUGH 
+651,[2],UNKNO
+652,[2],WI
+653,[2],NGLY 
 654,[2],
-655,[2],[BACKSPACE]
-656,[2], throu
-657,[2],gh the 
-658,[2],city 
+655,[2],<K:BS>
+656,[2], THROU
+657,[2],GH THE 
+658,[2],CITY 
 659,[2],
 660,[2],
-661,[2],w
-662,[2],[BACKSPACE]and l
-663,[2],etting 
-664,[],the tou
+661,[2],W
+662,[2],<K:BS>AND L
+663,[2],ETTING 
+664,[],THE TOU
 665,[],
 666,[],
 667,[],
@@ -676,71 +676,71 @@ vol_num,question_num,keystrokes
 675,[6],
 676,[6],
 677,[6],
-678,[6],[CLOSE BRACE]t
-679,[6],he be
-680,[6],nefit
-681,[6],s of p
-682,[6],lannin
-683,[6],g f
-684,[6],ree 
-685,[6],time 
-686,[6],aci
-687,[6],[BACKSPACE]ti
-688,[6],vities
-689,[6], is that
-690,[6], youl
-691,[6],l al
-692,[6],ways 
-693,[6],have
-694,[6], somethi
-695,[6],ng to 
-696,[6],do in 
-697,[6],that fre
-698,[6],e time
-699,[6],. [CLOSE BRACE]fp
-700,[6],[BACKSPACE][BACKSPACE][CLOSE BRACE]p
-701,[6],roba
-702,[6],bly so
-703,[6],mething 
-704,[6],that yo
-705,[6],ull 
-706,[6],in[BACKSPACE][BACKSPACE]e
-707,[6],no[BACKSPACE]
-708,[6],joy.
-709,[6], [CLOSE BRACE]the 
+678,[6],SHIFTT
+679,[6],HE BE
+680,[6],NEFIT
+681,[6],S OF P
+682,[6],LANNIN
+683,[6],G F
+684,[6],REE 
+685,[6],TIME 
+686,[6],ACI
+687,[6],<K:BS>TI
+688,[6],VITIES
+689,[6], IS THAT
+690,[6], YOUL
+691,[6],L AL
+692,[6],WAYS 
+693,[6],HAVE
+694,[6], SOMETHI
+695,[6],NG TO 
+696,[6],DO IN 
+697,[6],THAT FRE
+698,[6],E TIME
+699,[6],. SHIFTFP
+700,[6],<K:BS><K:BS>SHIFTP
+701,[6],ROBA
+702,[6],BLY SO
+703,[6],METHING 
+704,[6],THAT YO
+705,[6],ULL 
+706,[6],IN<K:BS><K:BS>E
+707,[6],NO<K:BS>
+708,[6],JOY.
+709,[6], SHIFTTHE 
 710,[6],
-711,[6],bene
-712,[6],fits 
-713,[6],of not 
-714,[6],making p
-715,[6],lans 
-716,[6],is that 
-717,[6],you ge
-718,[6],t to 
-719,[6],t[BACKSPACE]do 
-720,[6],whate
-721,[6],ver 
-722,[6],you w
-723,[6],ant in 
-724,[6],that fr
-725,[6],ee time
-726,[6],. [CLOSE BRACE]
-727,[6],t[BACKSPACE][CLOSE BRACE]t
-728,[6],he 
+711,[6],BENE
+712,[6],FITS 
+713,[6],OF NOT 
+714,[6],MAKING P
+715,[6],LANS 
+716,[6],IS THAT 
+717,[6],YOU GE
+718,[6],T TO 
+719,[6],T<K:BS>DO 
+720,[6],WHATE
+721,[6],VER 
+722,[6],YOU W
+723,[6],ANT IN 
+724,[6],THAT FR
+725,[6],EE TIME
+726,[6],. SHIFT
+727,[6],T<K:BS>SHIFTT
+728,[6],HE 
 729,[6],
 730,[6],
-731,[6],proble msi that yo
-732,[6],u might 
-733,[6],now 
-734,[6],[BACKSPACE][BACKSPACE]t al
-735,[6],ways 
-736,[6],have so
-737,[6],mething 
-738,[6],to do.
-739,[6], [CLOSE BRACE]
-740,[6],[CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE][CLOSE BRACE]for 
-741,[6],pla
-742,[6],"nning, "
-743,[6],you 
+731,[6],PROBLE MSI THAT YO
+732,[6],U MIGHT 
+733,[6],NOW 
+734,[6],<K:BS><K:BS>T AL
+735,[6],WAYS 
+736,[6],HAVE SO
+737,[6],METHING 
+738,[6],TO DO.
+739,[6], SHIFT
+740,[6],SHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTSHIFTFOR 
+741,[6],PLA
+742,[6],"NNING, "
+743,[6],YOU 
 744,[],
 745,[],

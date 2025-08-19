@@ -33,31 +33,96 @@ shift_patterns = re.compile("|".join(f"({re.escape(k)})" for k in shift_characte
 ############# FUNCTIONS ##################################################################
 ##########################################################################################
 
+def concat_duplicates(key_list):
+    nonprintable_keys = [    
+        '<K:S>', # shift
+        '<K:BS>', # backspace
+        '<K:CTRL>', # ctrl
+        '<K:ESC>', # escape
+        '<K:L>', # left arrow
+        '<K:R>', # right arrow
+        '<K:U>', # up arrow
+        '<K:D>' # down arrow
+    ]
+    
+    concatenated_keys = []
+    # iterate through the list of keystrokes
+    prev_key = ''
+    prev_key_count = 0
+    for i,key in enumerate(key_list):
+        
+        # if key doesn't equal prev key - 
+        # i.e. an incremented non-printable key that should be recorded or a new key
+        if key != prev_key:
+            
+            # if there's more than one occurrence
+            # format in special way
+            if prev_key_count > 1:
+                new_entry = f"{prev_key[:-1]} x={prev_key_count}>"
+                concatenated_keys.append(new_entry)
+            
+            # otherwise just append key
+            elif prev_key_count == 1:
+                concatenated_keys.append(prev_key)
+            
+            # reset variables
+            prev_key = ''
+            prev_key_count = 0
+        
+        # if it's just a regular key, append it to the output
+        # then reset variables
+        if key not in nonprintable_keys:
+            concatenated_keys.append(key.lower())
+            prev_key = ''
+            prev_key_count = 0
+            continue
+        
+        # if it's a non-printable key
+        else:
+            # increment if it's the same as previous key
+            if key == prev_key:
+                prev_key_count += 1
+            else: # if it's a new key, start sequence here
+                prev_key = key
+                prev_key_count = 1
+        
+        # if we reach the end of the list and have a nonempty entry, record it
+        if i == len(key_list) - 1 and prev_key_count > 0:
+            if prev_key_count == 1:
+                concatenated_keys.append(prev_key)
+            elif prev_key_count > 1:
+                new_entry = f"{prev_key[:-1]} x={prev_key_count}>"
+                concatenated_keys.append(new_entry)
+    
+    return concatenated_keys
+
 def process_keystrokes(ascii_keystrokes):
     
     # converting ascii into characters
-    keystroke_chars = [chr(asci).lower() for asci in ascii_keystrokes]
+    # keystroke_chars = [chr(asci).lower() for asci in ascii_keystrokes]
+    keystroke_chars = [chr(asci) for asci in ascii_keystrokes]
 
     # converting special ascii characters for things like enter and shift 
     converted_chars = [special_characters[char] if char in special_characters.keys() else char for char in keystroke_chars]
 
-    # maybe TODO: remove duplicates for shift, control, arrows
+    concatenated_chars = concat_duplicates(converted_chars)
+    return concatenated_chars
 
-    # combining keys using shift
-    converted_chars = str.join('', converted_chars)
+    # # combining keys using shift
+    # converted_chars = str.join('', converted_chars)
     
 
-    # combining shift terms and maybe TODO: remove shifts where nothing was written after
-    # need to do string matching 
-    def replacer(match):
-        for i,key in enumerate(shift_characters, start=1):
-            if match.group(i):
-                return shift_characters[key]
-        return match.group(0)
+    # # combining shift terms and maybe TODO: remove shifts where nothing was written after
+    # # need to do string matching 
+    # def replacer(match):
+    #     for i,key in enumerate(shift_characters, start=1):
+    #         if match.group(i):
+    #             return shift_characters[key]
+    #     return match.group(0)
     
-    # replace shift characters
-    shift_replaced = shift_patterns.sub(replacer, converted_chars)
-    return shift_replaced
+    # # replace shift characters
+    # shift_replaced = shift_patterns.sub(replacer, converted_chars)
+    # return shift_replaced
     
     
 def find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_timestamp, num_vols, tr):
@@ -242,7 +307,7 @@ def process_task(task, keydir, keyfiles):
 
         df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
         cleaned_keystrokes_df.to_csv(df_outpath, index=False)
-        # break
+        break
 
 # The purpose of the main function is to iterate through each participants' keystroke files
 # and figure out what keys were pressed during what volumes of the fMRI scan
@@ -254,7 +319,7 @@ def main():
     keyfiles = os.listdir(keydir)
 
     process_task('code', keydir, keyfiles)
-    process_task('prose', keydir, keyfiles)           
+    # process_task('prose', keydir, keyfiles)           
     
 if __name__ == "__main__":
     main()
