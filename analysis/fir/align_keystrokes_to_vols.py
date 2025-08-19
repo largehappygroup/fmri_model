@@ -24,10 +24,10 @@ character_path = f"{bass_path}/fmri_model/midprocessing/special_character_symbol
 with open(character_path, 'rb') as f:
     special_characters = pickle.load(f)
 
-shift_chars_path = f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl"
-with open(shift_chars_path, 'rb') as f:
-    shift_characters = pickle.load(f)
-shift_patterns = re.compile("|".join(f"({re.escape(k)})" for k in shift_characters))
+# shift_chars_path = f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl"
+# with open(shift_chars_path, 'rb') as f:
+#     shift_characters = pickle.load(f)
+# shift_patterns = re.compile("|".join(f"({re.escape(k)})" for k in shift_characters))
 
 ##########################################################################################
 ############# FUNCTIONS ##################################################################
@@ -107,22 +107,6 @@ def process_keystrokes(ascii_keystrokes):
 
     concatenated_chars = concat_duplicates(converted_chars)
     return concatenated_chars
-
-    # # combining keys using shift
-    # converted_chars = str.join('', converted_chars)
-    
-
-    # # combining shift terms and maybe TODO: remove shifts where nothing was written after
-    # # need to do string matching 
-    # def replacer(match):
-    #     for i,key in enumerate(shift_characters, start=1):
-    #         if match.group(i):
-    #             return shift_characters[key]
-    #     return match.group(0)
-    
-    # # replace shift characters
-    # shift_replaced = shift_patterns.sub(replacer, converted_chars)
-    # return shift_replaced
     
     
 def find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_timestamp, num_vols, tr):
@@ -260,7 +244,8 @@ def process_task(task, keydir, keyfiles):
         keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-{task_num}.txt"
 
         person_output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}"
-        os.system(f"mkdir {person_output_path}")
+        if not os.path.isdir(person_output_path):
+            os.system(f"mkdir {person_output_path}")
         
         #########################################
         ### Loading files for participant #######
@@ -307,7 +292,7 @@ def process_task(task, keydir, keyfiles):
 
         df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
         cleaned_keystrokes_df.to_csv(df_outpath, index=False)
-        break
+        # break
 
 # The purpose of the main function is to iterate through each participants' keystroke files
 # and figure out what keys were pressed during what volumes of the fMRI scan
@@ -319,7 +304,7 @@ def main():
     keyfiles = os.listdir(keydir)
 
     process_task('code', keydir, keyfiles)
-    # process_task('prose', keydir, keyfiles)           
+    process_task('prose', keydir, keyfiles)           
     
 if __name__ == "__main__":
     main()

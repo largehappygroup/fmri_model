@@ -1,6 +1,8 @@
 import os
 import re
+import ast
 import math
+import pickle
 import argparse
 # import numpy as np
 import pandas as pd
@@ -15,17 +17,18 @@ if args.computer == 'mymac':
 elif args.computer == 'cumberland':
     bass_path = "/home/zachkaras/fmri"
 
+with open(f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl", 'rb') as f:
+    shift_chars = pickle.load(f)
+
 
 # Goal is to make discrete prompts for an LLM based on participants' keystrokes
 
 # Need some way of concetanating keystrokes into meaningful chunks
 
 # TODO use real characters for printable keys
-# TODO use angle-bracket tags for non-printable actions: <KEY:BACKSPACE x=3>
-# TODO compress repeats (the x=3 part)
 # TODO use newline for enter \t for tab, etc.
 
-
+'''
 # should start with prompt, then add on successive characters and try processing the answer
 def injest_vol_text(vol_text):
     patterns = [
@@ -71,6 +74,48 @@ def injest_vol_text(vol_text):
             i += 1
     
     return results
+'''
+
+def fill_in_the_middle(text, prefix, suffix):
+    
+    # prefix should be the question text and the keystrokes so far
+    # wrap in <PRE><SUF><MID>
+    # each model has their own conventions, but I'll replace those at the time of prompting
+    
+    
+    # suffix should be the remainder of current token ('ate' for isDuplic(ate) )
+    
+    
+    
+    # 
+    
+    pass
+
+
+def combine_shift_sequences(vol_text):
+    combined_text = []
+    
+    shifted = False
+    for i,t in enumerate(vol_text):
+        if shifted:
+            shifted = False
+            continue
+        if re.search("<K:S", t):
+            if i < (len(vol_text)-1):
+                next_key = vol_text[i+1]
+                try:
+                    shifted_char = shift_chars[next_key]
+                except:
+                    print(f"No entry for {next_key}, {ascii(next_key)}")
+                    continue
+                combined_text.append(shifted_char)
+                shifted = True
+            else:
+                combined_text.append(t)       
+        else:
+            combined_text.append(t)
+
+    return combined_text
 
 
 def process_participant(task, person, participant_path):
@@ -84,42 +129,53 @@ def process_participant(task, person, participant_path):
     
     # TODO need a greedy algorithm for ingesting characters
 
-    special = ['[CONTROL]', '[BACKSPACE]']
+    # special = ['[CONTROL]', '[BACKSPACE]']
     answer = ''
-    prev_question = '[]'
-    #prev_token = ''
+    # prev_question = '[]'
+    # #prev_token = ''
     for i,row in vol_keystroke_df.iterrows():
         question_num = row['question_num']
         # print(question_num, question_num == '[]')
        
 
-        if row['question_num'] != prev_question:
-            answer += '\n\n'
-            prev_question = row['question_num']
+        # if row['question_num'] != prev_question:
+        #     answer += '\n\n'
+        #     prev_question = row['question_num']
         #if question_num != '[4]' or question_num or '[]' or question_num or '[8]':
         #    break
         
-        vol_text = row['keystrokes']
-
-        if isinstance(vol_text, float):
+        vol_text = ast.literal_eval(row['keystrokes'])
+        
+        if len(vol_text) == 0:
             continue
         
-        text = injest_vol_text(vol_text)
-        # print(text, type(text))
-        #print("NEW ROW", text)
+        # combining shift sequences
+        shift_combined = combine_shift_sequences(vol_text)
+        print(vol_text, shift_combined)
         
-        # could combine text across rows
-        # until we hit a special character?
-        prev_token = ''
-        for s in text:
-            print(s)
-            if s in special and s == prev_token:
-                continue
-            else:
-                prev_token = s
-            #print(s)
-            answer += s
-    print(answer)
+        # TODO - Fill in the middle
+        formatted = fill_in_the_middle(question_num, text=shift_combined)
+
+        # if isinstance(vol_text, float):
+        #     continue
+        # print(type(vol_text), vol_text)
+        
+        # text = injest_vol_text(vol_text)
+        # # print(text, type(text))
+        # #print("NEW ROW", text)
+        
+        # # could combine text across rows
+        # # until we hit a special character?
+        # prev_token = ''
+        # for s in text:
+        #     print(s)
+        #     if s in special and s == prev_token:
+        #         continue
+        #     else:
+        #         prev_token = s
+        #     #print(s)
+        #     answer += s
+    # print(answer)
         # print(type(text), text)
         # len_prev = 0
         # for s in text:
@@ -145,7 +201,7 @@ def main():
         participant_path = f"{datapath}/{person}"
 
         process_participant('code', person, participant_path)
-        # process_participant('prose', participant_path)
+        # process_participant('prose', person, participant_path)
         break
 
 if __name__ == "__main__":
