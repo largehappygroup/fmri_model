@@ -21,14 +21,50 @@ elif args.computer == 'cumberland':
 # Need some way of concetanating keystrokes into meaningful chunks
 
 # should start with prompt, then add on successive characters and try processing the answer
+def injest_vol_text(vol_text):
+    patterns = [
+        '[OPEN BRACKET]',
+        '[CLOSE BRACKET]',
+        '[CONTROL]',
+        '[BACKSPACE]',
+        '[ENTER]',
+        '[SHIFT]',
+        '[ESCAPE]',
+        '[OPEN PARENTHESIS]', 
+        '[CLOSE PARENTHESIS]', 
+        '[SINGLE QUOTE]', 
+        '[OPEN BRACE]', 
+        '[OPEN BRACE]', 
+        '[CLOSE BRACE]', 
+        '[CLOSE BRACE]', 
+        '[CLOSE BRACE]',
+        '[TAB]',
+        '[BACKSLASH]',  
+        '[LEFT ARROW]',
+        '[RIGHT ARROW]',
+        '[UP ARROW]',
+        '[DOWN ARROW]' 
+    ]
 
-answer = ''
-                
-# durations.append(diff)
-# timestamps = []
-# break
-# ts = float(asci[0])
-# timestamps.append(ts)
+    # s = "size[CLOSE BRACE]9"
+    #s = "abcxxyz"
+    i = 0
+    results = []
+
+    while i < len(vol_text):
+        match = None
+        for p in patterns:
+            if vol_text.startswith(p, i):
+                match = p
+                break
+        if match:
+            results.append(match)
+            i += len(match)
+        else:
+            results.append(vol_text[i])
+            i += 1
+    
+    return results
 
 
 def process_participant(task, person, participant_path):
@@ -41,24 +77,56 @@ def process_participant(task, person, participant_path):
         return
     
     # TODO need a greedy algorithm for ingesting characters
-    
+
+    special = ['[CONTROL]', '[BACKSPACE]']
     answer = ''
+    prev_question = '[]'
+    #prev_token = ''
     for i,row in vol_keystroke_df.iterrows():
-        asci_chr = row['keystrokes']
-        # print(type(asci_chr))
-        if isinstance(asci_chr, float):
+        question_num = row['question_num']
+        # print(question_num, question_num == '[]')
+       
+
+        if row['question_num'] != prev_question:
+            answer += '\n\n'
+            prev_question = row['question_num']
+        #if question_num != '[4]' or question_num or '[]' or question_num or '[8]':
+        #    break
+        
+        vol_text = row['keystrokes']
+
+        if isinstance(vol_text, float):
             continue
         
-        # if '[BACKSPACE]' in asci_chr:
-        #     print("hullo", asci_chr)
-        test = re.search(r"\[BACKSPACE\]", asci_chr)
-        print(type(asci_chr), test, asci_chr)
-        # if re.search(asci_chr, "[BACKSPACE]"):
-        #     print("hello")
-        # elif asci_chr == "ENTER":
-        #     answer += '\n'
-        # else:
-        #     answer += asci_chr
+        text = injest_vol_text(vol_text)
+        # print(text, type(text))
+        #print("NEW ROW", text)
+        
+        # could combine text across rows
+        # until we hit a special character?
+        prev_token = ''
+        for s in text:
+            print(s)
+            if s in special and s == prev_token:
+                continue
+            else:
+                prev_token = s
+            #print(s)
+            answer += s
+    print(answer)
+        # print(type(text), text)
+        # len_prev = 0
+        # for s in text:
+            
+        #     if s == '[BACKSPACE]':
+        #         test = answer
+        #         answer = answer[:-len_prev] # if s == '[BACKSPACE]' else answer
+        #         print(f"len_prev: {len_prev} before: {test}, {s}, after: {answer}")
+        #     else:
+        #         len_prev = len(s)
+        #         answer += s
+        #     print(answer)
+        # print(answer)
 
 
 def main():
@@ -67,6 +135,7 @@ def main():
     participants = os.listdir(datapath)
 
     for person in participants:
+        print(person)
         participant_path = f"{datapath}/{person}"
 
         process_participant('code', person, participant_path)
