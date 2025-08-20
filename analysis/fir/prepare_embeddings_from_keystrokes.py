@@ -4,7 +4,7 @@ import ast
 import math
 import pickle
 import argparse
-# import numpy as np
+import numpy as np
 import pandas as pd
 
 parser = argparse.ArgumentParser(description="Script to concatenate keystrokes into discrete chunks that are more interpretable.")
@@ -19,6 +19,12 @@ elif args.computer == 'cumberland':
 
 with open(f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl", 'rb') as f:
     shift_chars = pickle.load(f)
+    
+code_questions = "/home/zachkaras/fmri/fmri_model/midprocessing/code_writing_prompts.csv"
+code_question_df = pd.read_csv(code_questions)
+
+prose_question = "/home/zachkaras/fmri/fmri_model/midprocessing/prose_writing_prompts.csv"
+prose_question_df = pd.read_csv(prose_question)
 
 
 # Goal is to make discrete prompts for an LLM based on participants' keystrokes
@@ -27,54 +33,6 @@ with open(f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl", 'rb') as f:
 
 # TODO use real characters for printable keys
 # TODO use newline for enter \t for tab, etc.
-
-'''
-# should start with prompt, then add on successive characters and try processing the answer
-def injest_vol_text(vol_text):
-    patterns = [
-        '[OPEN BRACKET]',
-        '[CLOSE BRACKET]',
-        '[CONTROL]',
-        '[BACKSPACE]',
-        '[ENTER]',
-        '[SHIFT]',
-        '[ESCAPE]',
-        '[OPEN PARENTHESIS]', 
-        '[CLOSE PARENTHESIS]', 
-        '[SINGLE QUOTE]', 
-        '[OPEN BRACE]', 
-        '[OPEN BRACE]', 
-        '[CLOSE BRACE]', 
-        '[CLOSE BRACE]', 
-        '[CLOSE BRACE]',
-        '[TAB]',
-        '[BACKSLASH]',  
-        '[LEFT ARROW]',
-        '[RIGHT ARROW]',
-        '[UP ARROW]',
-        '[DOWN ARROW]' 
-    ]
-
-    # s = "size[CLOSE BRACE]9"
-    #s = "abcxxyz"
-    i = 0
-    results = []
-
-    while i < len(vol_text):
-        match = None
-        for p in patterns:
-            if vol_text.startswith(p, i):
-                match = p
-                break
-        if match:
-            results.append(match)
-            i += len(match)
-        else:
-            results.append(vol_text[i])
-            i += 1
-    
-    return results
-'''
 
 def fill_in_the_middle(text, prefix, suffix):
     
@@ -117,6 +75,29 @@ def combine_shift_sequences(vol_text):
 
     return combined_text
 
+def find_next_sequence(i, keystroke_df):
+    sequence = ''
+    while i < len(keystroke_df):
+        row_text = keystroke_df.loc[i, 'keystrokes']
+        print(row_text)
+        for ch in row_text:
+            if ch == ' ':
+                return sequence
+            else:
+                sequence += ch
+        i += 1
+
+
+def get_question_text(task, question_num):
+    question_df = code_question_df if task == 'code' else prose_question_df
+    
+    # print(type(question_df.loc[4, 'stim_id']), question_df.loc[4, 'stim_id'] )
+    
+    question_idx = np.where(question_df['stim_id'] == question_num)
+    question_text = question_df.loc[question_idx, 'text']
+    
+    return question_text
+
 
 def process_participant(task, person, participant_path):
 
@@ -127,69 +108,34 @@ def process_participant(task, person, participant_path):
         print(f"No file for participant {person} for {task}")
         return
     
-    # TODO need a greedy algorithm for ingesting characters
-
-    # special = ['[CONTROL]', '[BACKSPACE]']
     answer = ''
-    # prev_question = '[]'
+    prev_question = -1
     # #prev_token = ''
     for i,row in vol_keystroke_df.iterrows():
-        question_num = row['question_num']
-        # print(question_num, question_num == '[]')
-       
+        curr_question = ast.literal_eval(row['question_num'])
 
-        # if row['question_num'] != prev_question:
-        #     answer += '\n\n'
-        #     prev_question = row['question_num']
-        #if question_num != '[4]' or question_num or '[]' or question_num or '[8]':
-        #    break
+        if curr_question != prev_question and curr_question != []:
+            # answer += '\n\n'
+            prev_question = curr_question
+            question_num = curr_question[0]
+            question_text = get_question_text(task, question_num)
+            
+        next_text = find_next_sequence(i, vol_keystroke_df)
         
         vol_text = ast.literal_eval(row['keystrokes'])
         
-        if len(vol_text) == 0:
-            continue
-        
         # combining shift sequences
         shift_combined = combine_shift_sequences(vol_text)
-        print(vol_text, shift_combined)
         
         # TODO - Fill in the middle
-        formatted = fill_in_the_middle(question_num, text=shift_combined)
-
-        # if isinstance(vol_text, float):
-        #     continue
-        # print(type(vol_text), vol_text)
+            # send in question number
+            # text so far <PRE>
+            # look ahead to find next keystrokes belonging to the same token <SUF>
+            # current keystrokes to integrate <MID>
+        prefix = ''
+        suffix = ''
         
-        # text = injest_vol_text(vol_text)
-        # # print(text, type(text))
-        # #print("NEW ROW", text)
-        
-        # # could combine text across rows
-        # # until we hit a special character?
-        # prev_token = ''
-        # for s in text:
-        #     print(s)
-        #     if s in special and s == prev_token:
-        #         continue
-        #     else:
-        #         prev_token = s
-        #     #print(s)
-        #     answer += s
-    # print(answer)
-        # print(type(text), text)
-        # len_prev = 0
-        # for s in text:
-            
-        #     if s == '[BACKSPACE]':
-        #         test = answer
-        #         answer = answer[:-len_prev] # if s == '[BACKSPACE]' else answer
-        #         print(f"len_prev: {len_prev} before: {test}, {s}, after: {answer}")
-        #     else:
-        #         len_prev = len(s)
-        #         answer += s
-        #     print(answer)
-        # print(answer)
-
+        formatted = fill_in_the_middle(shift_combined, prefix, suffix)
 
 def main():
 

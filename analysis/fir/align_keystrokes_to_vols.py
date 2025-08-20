@@ -23,12 +23,7 @@ elif args.computer == 'cumberland':
 character_path = f"{bass_path}/fmri_model/midprocessing/special_character_symbols.pkl"
 with open(character_path, 'rb') as f:
     special_characters = pickle.load(f)
-
-# shift_chars_path = f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl"
-# with open(shift_chars_path, 'rb') as f:
-#     shift_characters = pickle.load(f)
-# shift_patterns = re.compile("|".join(f"({re.escape(k)})" for k in shift_characters))
-
+    
 ##########################################################################################
 ############# FUNCTIONS ##################################################################
 ##########################################################################################
@@ -99,7 +94,6 @@ def concat_duplicates(key_list):
 def process_keystrokes(ascii_keystrokes):
     
     # converting ascii into characters
-    # keystroke_chars = [chr(asci).lower() for asci in ascii_keystrokes]
     keystroke_chars = [chr(asci) for asci in ascii_keystrokes]
 
     # converting special ascii characters for things like enter and shift 
