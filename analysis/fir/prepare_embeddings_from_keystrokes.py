@@ -29,36 +29,76 @@ prose_question_df = pd.read_csv(prose_question)
 separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';', '=', '<=', '>=', '==', '']
 
 
-# Goal is to make discrete prompts for an LLM based on participants' keystrokes
-
-# Need some way of concetanating keystrokes into meaningful chunks
-
-# TODO use real characters for printable keys
-# TODO use newline for enter \t for tab, etc.
-
-
-def process_backspaces(text_pieces):
-    updated_text = []
-    for token in text_pieces:
-        # print(updated_text)
-        match = re.match(r'^<K:BS x=([1-9]+)>$', token)
+# TODO as input, I should take in the text that's been written so far, then the new text to be added
+# def process_backspaces(text_pieces):
+def process_backspaces(text_so_far, new_text):
+    # updated_text = []
+    
+    # the text so far should be a string, then the tokens to be added should be in a list
+    
+    updated_text = ''
+    # print(f"INPUT: {text_pieces}")
+    print(type(new_text), new_text)
+    for token in new_text:
+        one_match = re.search('<K:BS>', token)
+        many_match = re.search(r'<K:BS x=([1-9]+)>', token)
         
-        if re.search(r'<K:BS>', token):
-            updated_text.pop()
-        elif match:
-            # print("matched")
-            bs_count = int(match.group(1))
-            # print("mutltiple backspaces", token, match.group(1))
-            for i in range(bs_count, 2,-1):
-                if len(updated_text) == 1: # if we're just left with the question_text, leave that as is
-                    break                
-                
-                updated_text.pop()
-                # print(f"popped: {i}, {updated_text}")
+        
+        if one_match:
+            print("one backspace ", token)
+        elif many_match:
+            print("many backspaces ", token)
         else:
-            updated_text.append(token)
-    return updated_text
-            # count = 
+            print("regular token ", token)
+    
+    '''
+    for token in new_text:
+        # print(f"NEW TOKEN: {token}")
+        print(token)
+        
+        # try:
+        #     many_start,many_end = many_match.span()
+        # except:
+        #     y = 0
+                        
+        
+        # try:
+        #     one_start, one_end = one_match.span()
+        # except:
+        #     y=0
+            
+        # print(match)
+        
+        if one_match:
+            # updated_text += token[one_start:]
+            # print("Found a BS, popping", token)
+            updated_text = updated_text[:-1]
+            # updated_text += token[:one_end]
+            # updated_text.pop()
+        elif many_match:
+            # updated_text += token[many_start:]
+            bs_count = int(many_match.group(1))
+            updated_text = updated_text[:-bs_count]
+            # updated_text += token[:many_end]
+            
+            # print(f"Found multiple BS's, popping {bs_count}, BEFORE: {updated_text}")
+            # for i in range(bs_count, -1, -1):
+            #     print("hello")
+            # # for i in range(bs_count, 2,-1):
+            #     # if len(updated_text) == 1: # if we're just left with the question_text, leave that as is
+            #     #     break                
+                
+            #     updated_text.pop()
+            #     print(f"AFTER: {updated_text}")
+        else:
+            updated_text += token
+        print(updated_text)
+        # print(token)
+            # updated_text.append(token)
+    return [updated_text]
+    '''
+
+
 
 def fill_in_the_middle(text, prefix, suffix):
     
@@ -70,6 +110,8 @@ def fill_in_the_middle(text, prefix, suffix):
     
     # suffix should be the remainder of current token ('ate' for isDuplic(ate) )
     return formatted_text
+
+
     
 
 def find_next_sequence(i, keystroke_df):
@@ -81,13 +123,13 @@ def find_next_sequence(i, keystroke_df):
     volumes_ahead_limit = math.floor(time_limit/tr)
     vol_i = 0
     j = i + 1
+    
     while j < len(keystroke_df):
         row_text = ast.literal_eval(keystroke_df.loc[j, 'keystrokes'])
-        
-        
+                
         for ch in row_text:
-            # print(ch)
-            if ch in separators: # TODO - split by space, return, tab, braces/brackets, other punctuation
+
+            if ch in separators:
                 return sequence
             else:
                 sequence += ch
@@ -121,14 +163,13 @@ def combine_shift_sequences(vol_text):
         else:
             combined_text.append(t)
 
-    return str.join('', combined_text)
+    # return str.join('', combined_text)
+    return combined_text
 
 
 
 def get_question_text(task, question_num):
     question_df = code_question_df if task == 'code' else prose_question_df
-    
-    # print(type(question_df.loc[4, 'stim_id']), question_df.loc[4, 'stim_id'] )
     
     question_idx = np.where(question_df['stim_id'] == question_num)
     question_text = (list(question_df.loc[question_idx, 'text']))[0]
@@ -149,17 +190,17 @@ def process_participant(task, person, participant_path):
     prev_question = -1
     question_parts = []
     question_text = ''
-    # #prev_token = ''
+
     for i,row in vol_keystroke_df.iterrows():
         curr_question = ast.literal_eval(row['question_num'])
 
         if curr_question != prev_question and curr_question != []:
             # answer += '\n\n'
-            # print("IF", i)
             prev_question = curr_question
             question_num = curr_question[0]
             question_text = get_question_text(task, question_num)
-            question_parts = [question_text]
+            question_parts = []
+            # question_parts = [question_text]
             
         
         vol_text = ast.literal_eval(row['keystrokes'])
@@ -175,23 +216,19 @@ def process_participant(task, person, participant_path):
         else:
             next_text = ''
         
-        # print(f"CURRENT: {shift_combined} NEXT: {next_text}")
-        
         # TODO - Fill in the middle
             # send in question number
             # text so far <PRE>
             # look ahead to find next keystrokes belonging to the same token <SUF>
             # current keystrokes to integrate <MID>
-        # prefix = ''
-        # suffix = ''
         
         formatted = fill_in_the_middle(shift_combined, question_text, next_text)
-        # print("FORMATTED", formatted)
-        # print(type(shift_combined), shift_combined, question_text)
-        # print("PARTS", question_parts)
-        question_parts.append(shift_combined)
-        question_parts = process_backspaces(question_parts)
-        print(f"{str.join('', question_parts)}") # NEW TEXT: {shift_combined} THEN 
+
+        # question_parts.append(shift_combined)
+        
+        question_parts = process_backspaces(question_parts, shift_combined)
+        # print(question_parts)
+        # print(f"{str.join('', question_parts)}") # NEW TEXT: {shift_combined} THEN 
 
 def main():
 
