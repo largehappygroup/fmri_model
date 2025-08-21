@@ -32,72 +32,28 @@ separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';',
 # TODO as input, I should take in the text that's been written so far, then the new text to be added
 # def process_backspaces(text_pieces):
 def process_backspaces(text_so_far, new_text):
-    # updated_text = []
-    
-    # the text so far should be a string, then the tokens to be added should be in a list
-    
-    updated_text = ''
-    # print(f"INPUT: {text_pieces}")
-    print(type(new_text), new_text)
+
     for token in new_text:
         one_match = re.search('<K:BS>', token)
         many_match = re.search(r'<K:BS x=([1-9]+)>', token)
+        ctrl_match = re.search('<K:CTRL', token)
         
+        # TODO - figure out why arrow keys are messing with output
+        if re.search(r'(<K:L)|(<K:R)|(<K:U)|(<K:D)', token):
+            print('ARROW KEY', token)
         
-        if one_match:
-            print("one backspace ", token)
-        elif many_match:
-            print("many backspaces ", token)
-        else:
-            print("regular token ", token)
-    
-    '''
-    for token in new_text:
-        # print(f"NEW TOKEN: {token}")
-        print(token)
-        
-        # try:
-        #     many_start,many_end = many_match.span()
-        # except:
-        #     y = 0
-                        
-        
-        # try:
-        #     one_start, one_end = one_match.span()
-        # except:
-        #     y=0
-            
-        # print(match)
+        if ctrl_match:
+            continue
         
         if one_match:
-            # updated_text += token[one_start:]
-            # print("Found a BS, popping", token)
-            updated_text = updated_text[:-1]
-            # updated_text += token[:one_end]
-            # updated_text.pop()
+            text_so_far = text_so_far[:-1]
         elif many_match:
-            # updated_text += token[many_start:]
-            bs_count = int(many_match.group(1))
-            updated_text = updated_text[:-bs_count]
-            # updated_text += token[:many_end]
-            
-            # print(f"Found multiple BS's, popping {bs_count}, BEFORE: {updated_text}")
-            # for i in range(bs_count, -1, -1):
-            #     print("hello")
-            # # for i in range(bs_count, 2,-1):
-            #     # if len(updated_text) == 1: # if we're just left with the question_text, leave that as is
-            #     #     break                
-                
-            #     updated_text.pop()
-            #     print(f"AFTER: {updated_text}")
+            del_count = int(many_match.group(1))
+            text_so_far = text_so_far[:-del_count]
         else:
-            updated_text += token
-        print(updated_text)
-        # print(token)
-            # updated_text.append(token)
-    return [updated_text]
-    '''
+            text_so_far += token
 
+    return text_so_far
 
 
 def fill_in_the_middle(text, prefix, suffix):
@@ -186,21 +142,17 @@ def process_participant(task, person, participant_path):
         print(f"No file for participant {person} for {task}")
         return
     
-    answer = []
     prev_question = -1
-    question_parts = []
-    question_text = ''
+    accumulated_answer = ''
 
     for i,row in vol_keystroke_df.iterrows():
         curr_question = ast.literal_eval(row['question_num'])
 
         if curr_question != prev_question and curr_question != []:
-            # answer += '\n\n'
             prev_question = curr_question
             question_num = curr_question[0]
             question_text = get_question_text(task, question_num)
-            question_parts = []
-            # question_parts = [question_text]
+            accumulated_answer = ''
             
         
         vol_text = ast.literal_eval(row['keystrokes'])
@@ -211,10 +163,10 @@ def process_participant(task, person, participant_path):
         # combining shift sequences
         shift_combined = combine_shift_sequences(vol_text)
         
-        if shift_combined[-1] not in separators:    
-            next_text = find_next_sequence(i, vol_keystroke_df)
-        else:
+        if shift_combined[-1] in separators:    
             next_text = ''
+        else:
+            next_text = find_next_sequence(i, vol_keystroke_df)
         
         # TODO - Fill in the middle
             # send in question number
@@ -222,13 +174,15 @@ def process_participant(task, person, participant_path):
             # look ahead to find next keystrokes belonging to the same token <SUF>
             # current keystrokes to integrate <MID>
         
-        formatted = fill_in_the_middle(shift_combined, question_text, next_text)
-
-        # question_parts.append(shift_combined)
+        formatted_text = fill_in_the_middle(str.join('', shift_combined), accumulated_answer, next_text)
+        # print(formatted_text)
         
-        question_parts = process_backspaces(question_parts, shift_combined)
-        # print(question_parts)
-        # print(f"{str.join('', question_parts)}") # NEW TEXT: {shift_combined} THEN 
+        integrated_text = process_backspaces(accumulated_answer, shift_combined)
+        
+        # print(f"CURRENT STRING: {accumulated_answer} OUTPUT: {processed_answer}")
+        accumulated_answer = integrated_text
+        
+        # current text, prefix, suffix
 
 def main():
 
