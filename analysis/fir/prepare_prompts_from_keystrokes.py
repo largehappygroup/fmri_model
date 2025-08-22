@@ -31,18 +31,20 @@ separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';',
 
 # TODO as input, I should take in the text that's been written so far, then the new text to be added
 # def process_backspaces(text_pieces):
-def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_number, cursor_index):
+def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_number, cursor_index, shifted):
 
-    for token in new_text:
+    for i,token in enumerate(new_text):
         one_match   = re.search('<K:BS>', token)
-        many_match  = re.search(r'<K:BS x=([1-9]+)>', token)
+        many_match  = re.search(r'<K:BS x=([0-9]+)>', token)
         ctrl_match  = re.search('<K:CTRL', token)
+        shift_match = re.search('<K:S', token)
         
-        left_match  = re.search(r'(<K:L>)|(<K:L x=([1-9]+))', token)
-        right_match = re.search(r'(<K:R>)|(<K:R x=([1-9]+))', token)
-        up_match    = re.search(r'(<K:U>)|(<K:U x=([1-9]+))', token)
-        down_match  = re.search(r'(<K:D>)|(<K:D x=([1-9]+))', token)
+        left_match  = re.search(r'(<K:L>)|(<K:L x=([0-9]+))', token)
+        right_match = re.search(r'(<K:R>)|(<K:R x=([0-9]+))', token)
+        up_match    = re.search(r'(<K:U>)|(<K:U x=([0-9]+))', token)
+        down_match  = re.search(r'(<K:D>)|(<K:D x=([0-9]+))', token)
         
+        # TODO - set up dictionary for line_number and text
         
         if re.search(r'\r', token):
             total_lines += 1
@@ -60,6 +62,7 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             
         elif re.search(r'<K:R', token):
             right_shift = 1 if not right_match.group(3) else int(right_match.group(3))
+            
             # If I'm as far right as I can go, then I should stop
             # otherwise, increment character index and shift characters from right string to left string
             print(f"RIGHT: ", token, right_shift)
@@ -78,7 +81,10 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             
             print(f"DOWN: ", token, down_shift)
         
-        if ctrl_match:
+        if ctrl_match or shift_match:
+            # if ctrl_match:
+            if i == len(new_text)-1 and shift_match: # if the last token is a shift key
+                shifted = True
             continue
         
         # TODO check if I go onto previous line
@@ -86,11 +92,21 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             text_so_far = text_so_far[:-1]
         elif many_match:
             del_count = int(many_match.group(1))
+            # print(i, "deleted:", text_so_far[-del_count:], token)
             text_so_far = text_so_far[:-del_count]
+        elif shifted:
+            try:
+                shifted_token = shift_chars[token]
+            except:
+                # print(f"Token {token} cannot be shifted")
+                text_so_far += token
+                continue
+            text_so_far += shifted_token
+            shifted = False
         else:
             text_so_far += token
 
-    return text_so_far, line_number, cursor_index
+    return text_so_far, line_number, cursor_index, shifted
 
 
 def fill_in_the_middle(text, prefix, suffix):
@@ -178,6 +194,11 @@ def process_keystrokes(vol_keystroke_df, task):
     line_number = 1 # 1-indexed
     cursor_index = 0
     total_lines = 1 # 1-indexed
+    shifted = False
+    
+    # TODO - uptodate answer should be a dictionary where keys are line numbers and values are lines of text
+    # I might need the values to be two lists
+    processed_answer = {}
     
     
     for i,row in vol_keystroke_df.iterrows():
@@ -191,6 +212,8 @@ def process_keystrokes(vol_keystroke_df, task):
             uptodate_answer = ''
             line_number = 0
             cursor_index = 0
+            
+            processed_answer = {}
         
         vol_text = ast.literal_eval(row['keystrokes'])
         
@@ -214,10 +237,10 @@ def process_keystrokes(vol_keystroke_df, task):
         formatted_text = fill_in_the_middle(str.join('', shift_combined), prefix, next_text)
         # print(formatted_text)
         
-        updated_text, new_line, new_cursor = update_text_and_cursor_position(uptodate_answer, shift_combined, total_lines, line_number, cursor_index)
+        updated_text, new_line, new_cursor, shifted = update_text_and_cursor_position(uptodate_answer, shift_combined, total_lines, line_number, cursor_index, shifted)
         line_number = new_line
         cursor_index = new_cursor
-        # print(integrated_text)
+        print(updated_text)
         # print(f"CURRENT STRING: {accumulated_answer} OUTPUT: {processed_answer}")
         uptodate_answer = updated_text
 
