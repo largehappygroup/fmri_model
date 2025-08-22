@@ -31,20 +31,57 @@ separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';',
 
 # TODO as input, I should take in the text that's been written so far, then the new text to be added
 # def process_backspaces(text_pieces):
-def process_backspaces(text_so_far, new_text):
+def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_number, cursor_index):
 
     for token in new_text:
-        one_match = re.search('<K:BS>', token)
-        many_match = re.search(r'<K:BS x=([1-9]+)>', token)
-        ctrl_match = re.search('<K:CTRL', token)
+        one_match   = re.search('<K:BS>', token)
+        many_match  = re.search(r'<K:BS x=([1-9]+)>', token)
+        ctrl_match  = re.search('<K:CTRL', token)
         
-        # TODO - figure out why arrow keys are messing with output
-        if re.search(r'(<K:L)|(<K:R)|(<K:U)|(<K:D)', token):
-            print('ARROW KEY', token)
+        left_match  = re.search(r'(<K:L>)|(<K:L x=([1-9]+))', token)
+        right_match = re.search(r'(<K:R>)|(<K:R x=([1-9]+))', token)
+        up_match    = re.search(r'(<K:U>)|(<K:U x=([1-9]+))', token)
+        down_match  = re.search(r'(<K:D>)|(<K:D x=([1-9]+))', token)
+        
+        
+        if re.search(r'\r', token):
+            total_lines += 1
+            line_number += 1
+            # any text to the right should also go onto the next line
+            
+            print("RETURN", token)
+            
+        if left_match:
+            left_shift  = -1*(1 if not left_match.group(3) else int(left_match.group(3)))
+            # for left shifts, I need to pop characters off the end of the string and saved the popped characters
+            # they can be the left and right strings
+            # If I'm at the 1st index (as far left as I go), I need to go to the end of the previous line (decrement line number)
+            print(f"LEFT: ", token, left_shift)
+            
+        elif re.search(r'<K:R', token):
+            right_shift = 1 if not right_match.group(3) else int(right_match.group(3))
+            # If I'm as far right as I can go, then I should stop
+            # otherwise, increment character index and shift characters from right string to left string
+            print(f"RIGHT: ", token, right_shift)
+            
+        elif re.search(r'<K:U', token):
+            up_shift    = -1*(1 if not up_match.group(3) else int(up_match.group(3)))
+            # If I'm at the top of the file, don't do anything
+            # else, decrement the line_number and change line of text - maybe I should use a dictionary to represent text?
+            
+            print(f"UP: ", token, up_shift)
+            
+        elif re.search(r'<K:D', token):
+            down_shift  = 1 if not down_match.group(3) else int(down_match.group(3))
+            # If I'm at the bottom of the file, do nothing
+            # else, increment line number and change line of text to corresponding line
+            
+            print(f"DOWN: ", token, down_shift)
         
         if ctrl_match:
             continue
         
+        # TODO check if I go onto previous line
         if one_match:
             text_so_far = text_so_far[:-1]
         elif many_match:
@@ -53,7 +90,7 @@ def process_backspaces(text_so_far, new_text):
         else:
             text_so_far += token
 
-    return text_so_far
+    return text_so_far, line_number, cursor_index
 
 
 def fill_in_the_middle(text, prefix, suffix):
@@ -132,28 +169,28 @@ def get_question_text(task, question_num):
     
     return question_text
 
-
-def process_participant(task, person, participant_path):
-
-    df_path = f"{participant_path}/{task}_keystrokes_by_volume.csv"
-    try:
-        vol_keystroke_df = pd.read_csv(df_path)
-    except:
-        print(f"No file for participant {person} for {task}")
-        return
+def process_keystrokes(vol_keystroke_df, task):
     
     prev_question = -1
-    accumulated_answer = ''
-
+    
+    # TODO - I probably need a left and right answer to keep track of cursor
+    uptodate_answer = ''
+    line_number = 1 # 1-indexed
+    cursor_index = 0
+    total_lines = 1 # 1-indexed
+    
+    
     for i,row in vol_keystroke_df.iterrows():
         curr_question = ast.literal_eval(row['question_num'])
 
+        # line number and cursor_index should reset with each question
         if curr_question != prev_question and curr_question != []:
             prev_question = curr_question
             question_num = curr_question[0]
             question_text = get_question_text(task, question_num)
-            accumulated_answer = ''
-            
+            uptodate_answer = ''
+            line_number = 0
+            cursor_index = 0
         
         vol_text = ast.literal_eval(row['keystrokes'])
         
@@ -173,16 +210,30 @@ def process_participant(task, person, participant_path):
             # text so far <PRE>
             # look ahead to find next keystrokes belonging to the same token <SUF>
             # current keystrokes to integrate <MID>
-        
-        formatted_text = fill_in_the_middle(str.join('', shift_combined), accumulated_answer, next_text)
+        prefix = f"{question_text} {uptodate_answer}"
+        formatted_text = fill_in_the_middle(str.join('', shift_combined), prefix, next_text)
         # print(formatted_text)
         
-        integrated_text = process_backspaces(accumulated_answer, shift_combined)
-        
+        updated_text, new_line, new_cursor = update_text_and_cursor_position(uptodate_answer, shift_combined, total_lines, line_number, cursor_index)
+        line_number = new_line
+        cursor_index = new_cursor
+        # print(integrated_text)
         # print(f"CURRENT STRING: {accumulated_answer} OUTPUT: {processed_answer}")
-        accumulated_answer = integrated_text
+        uptodate_answer = updated_text
+
+
+def process_participant(task, person, participant_path):
+
+    df_path = f"{participant_path}/{task}_keystrokes_by_volume.csv"
+    try:
+        vol_keystroke_df = pd.read_csv(df_path)
+    except:
+        print(f"No file for participant {person} for {task}")
+        return
+    
+    process_keystrokes(vol_keystroke_df, task)
         
-        # current text, prefix, suffix
+    # current text, prefix, suffix
 
 def main():
 
