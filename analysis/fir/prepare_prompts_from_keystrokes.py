@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
+# argument that changes path names if I'm using my local computer
 parser = argparse.ArgumentParser(description="Script to concatenate keystrokes into discrete chunks that are more interpretable.")
 parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
 
@@ -17,6 +18,7 @@ if args.computer == 'mymac':
 elif args.computer == 'cumberland':
     bass_path = "/home/zachkaras/fmri"
 
+# shifted alternatives of characters (s --> S, = --> +)
 with open(f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl", 'rb') as f:
     shift_chars = pickle.load(f)
     
@@ -32,16 +34,20 @@ separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';',
 class Text:
     """
     Editable multi-line text with a single cursor.
-    - lines: internal list of list[str] (per-line characters)
-    - line: current line index (1-based externally, 0-based internally)
-    - col: cursor index within line (0-based)
+    - text: dictionary of strings for each line that get updated by keystrokes
+    - line: current line index (0-indexed)
+    - col: cursor index within line (0-indexed)
+    - total_lines: total number of lines in participant's response
+    - shifted: boolean indicating if the last keystroke from previous timepoint was shift (i.e., need to shift current token)
+    - question_text: original question prompting participants to write code
+    
     """
     def __init__(self, initial_text: str = ""):
         self.text: dict = { 0 : ''}
         self.line: int = 0 
         self.col: int = 0
-        self.shifted: bool = False
         self.total_lines: int = 1
+        self.shifted: bool = False
         self.question_text: str = ''
 
     @property
@@ -59,24 +65,29 @@ class Text:
     def to_string(self) -> str:
         return '\n'.join(''.join(line) for line in self.text.values())
     
+    # when a line is added (after pressing enter), need to shift all the following line numbers down
     def shift_line_numbers_down(self):
         for i in range(len(self.text.keys())-1, self.line, -1):
-            print(i)
             self.text[i+1] = self.text[i]
 
+    # when a line is deleted, need to shift all the following line numbers up
     def shift_line_numbers_up(self):
         for i in range(self.line, len(self.text.keys())-1):
             self.text[i] = self.text[i+1]
             
+    # when participant presses enter, need to increment the line count 
+    # and move all the text to the right of the cursor down to the following line
     def process_enter_key(self):
         right_string = (self.text[self.line])[self.col:]
+        # all the text to the right is no longer on the current line
         self.text[self.line] = (self.text[self.line])[:self.col]
         self.shift_line_numbers_down()
         self.line += 1
         self.col = 0
         self.total_lines += 1
         self.text[self.line] = right_string
-        
+    
+    # when left arrow keys are pressed, moving the cursor to the left, and potentially to the line above if it exists
     def process_left_arrows(self, left_shift):
         new_col_num = self.col - left_shift
         if new_col_num < 0:
@@ -89,6 +100,7 @@ class Text:
         else:
             self.col = new_col_num
     
+    # when right arrow keys are pressed, moving cursor to the right, and potentially to the line below if it exists
     def process_right_arrows(self, right_shift):
         new_col_num = self.col + right_shift
         curr_line_length = len(self.text[self.line])
@@ -106,6 +118,7 @@ class Text:
         else:
             self.col = new_col_num
     
+    # moving cursor up if there are lines above
     def process_up_arrows(self, up_shift):
         new_line_num = self.line - up_shift 
         
@@ -114,7 +127,7 @@ class Text:
         else:
             self.line = new_line_num
             
-    
+    # moving cursor down if there are lines below
     def process_down_arrows(self, down_shift):
         new_line_num = self.line + down_shift
         
@@ -123,9 +136,16 @@ class Text:
         else:
             self.line = new_line_num
     
+    # processing delete key
     def process_one_backspace(self):
+        
+        # deleting character to the left of the cursor
         left_string = (self.text[self.line])[:self.col-1]
+        
+        # keeping track of characters to the right of cursor
         right_string = (self.text[self.line])[self.col:]
+        
+        # concatenating new string
         self.text[self.line] = left_string + right_string
         
         curr_line_length = len(self.text[self.line])
@@ -144,7 +164,8 @@ class Text:
 
         else:
             self.col -= 1
-            
+    
+    # decrementing text, line numbers, and cursor position for each occurrence of backspace key
     def process_multiple_backspaces(self, del_count):
         while del_count > 0:
             if self.col == 0:
@@ -161,11 +182,13 @@ class Text:
             del_count -= 1
             self.col -= 1
     
+    # replacing a token with shifted version
     def shift_token(self, shifted_token):
         self.text[self.line] += shifted_token
         self.col += len(shifted_token)
         self.shifted = False
     
+    # if it's just a normal token, append it to current cursor position
     def append_token(self, token):
         left_string = (self.text[self.line])[:self.col] + token
         right_string = (self.text[self.line])[self.col:]
