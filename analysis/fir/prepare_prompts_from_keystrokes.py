@@ -63,13 +63,25 @@ class Text:
         return self.col  # 0-based
 
 
-def shift_line_numbers(answer):
-    line = answer.line
+def shift_line_numbers_down(answer):
+    # line = answer.line
     print("SHIFTING ", len(answer.text.keys()), answer.line)
     for i in range(len(answer.text.keys())-1, answer.line, -1):
         print(i)
         answer.text[i+1] = answer.text[i]
         print(f"shifting line number {i} down to {i+1}")
+
+def shift_line_numbers_up(answer):
+    line = answer.line
+    print("SHIFTING ", len(answer.text.keys()), answer.line)
+    for i in range(answer.line, len(answer.text.keys())-1):
+        answer.text[i] = answer.text[i+1]
+    
+    # for i in range(len(answer.text.keys())-1, answer.line, -1):
+    
+    #     print(i)
+    #     answer.text[i+1] = answer.text[i]
+    #     print(f"shifting line number {i} down to {i+1}")
 
 def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_number, cursor_index, shifted, answer):
 
@@ -86,11 +98,16 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
         curr_line_length = len(answer.text[answer.line])
         # TODO - set up dictionary for line_number and text
         
+        if re.search(r'\t', token):
+            answer.col += 4
+            answer.text[answer.line] += '    '
+            continue
+        
         if re.search(r'\r', token):
-            print("RETURN", token)
+            # print("RETURN", token)
             total_lines += 1
             line_number += 1
-            shift_line_numbers(answer)
+            shift_line_numbers_down(answer)
             answer.line += 1
             answer.col = 0
             answer.total_lines += 1
@@ -117,10 +134,10 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             # for left shifts, I need to pop characters off the end of the string and saved the popped characters
             # they can be the left and right strings
             # If I'm at the 1st index (as far left as I go), I need to go to the end of the previous line (decrement line number)
-            print(f"LEFT: ", token, left_shift)
+            # print(f"LEFT: ", token, left_shift)
             continue
             
-        elif re.search(r'<K:R', token):
+        elif right_match:
             # continue
             right_shift = 1 if not right_match.group(3) else int(right_match.group(3))
             new_col_num = answer.col + right_shift
@@ -141,10 +158,10 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             
             # If I'm as far right as I can go, then I should stop
             # otherwise, increment character index and shift characters from right string to left string
-            print(f"RIGHT: ", token, right_shift)
+            # print(f"RIGHT: ", token, right_shift)
             continue
             
-        elif re.search(r'<K:U', token):
+        elif up_match:
             up_shift = 1 if not up_match.group(3) else int(up_match.group(3))
             new_line_num = answer.line - up_shift 
             
@@ -156,10 +173,10 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             # If I'm at the top of the file, don't do anything
             # else, decrement the line_number and change line of text - maybe I should use a dictionary to represent text?
             
-            print(f"UP: ", token, up_shift, answer.line, new_line_num, answer.total_lines, answer.text)
+            # print(f"UP: ", token, up_shift, answer.line, new_line_num, answer.total_lines, answer.text)
             continue
             
-        elif re.search(r'<K:D', token):
+        elif down_match:
             down_shift  = 1 if not down_match.group(3) else int(down_match.group(3))
             new_line_num = answer.line + down_shift
             
@@ -170,7 +187,7 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             # If I'm at the bottom of the file, do nothing
             # else, increment line number and change line of text to corresponding line
             
-            print(f"DOWN: ", token, down_shift, new_line_num, answer.total_lines)
+            # print(f"DOWN: ", token, down_shift, new_line_num, answer.total_lines)
             continue
         
         if ctrl_match or shift_match:
@@ -181,6 +198,7 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             continue
         
         # TODO check if I go onto previous line
+        # print(shifted, answer.shifted)
         if one_match:
             text_so_far = text_so_far[:-1]
             left_string = (answer.text[answer.line])[:answer.col-1]
@@ -191,7 +209,7 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             if answer.col == 0:
                 if curr_line_length == 0:
                     # put cursor at end of line above
-                    print(f"ZERO: curr_line_length {curr_line_length}, col: {answer.col}, total_lines: {answer.total_lines}, curr_line: {answer.line}, text: {answer.text}")
+                    # print(f"ZERO: curr_line_length {curr_line_length}, col: {answer.col}, total_lines: {answer.total_lines}, curr_line: {answer.line}, text: {answer.text}")
                     prev_line_length = 0 if answer.line == 0 else len(answer.text[answer.line-1])
                     if answer.line == 0:
                         combined_text = answer.text[answer.line]
@@ -200,12 +218,13 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
                         combined_text = answer.text[answer.line-1] + answer.text[answer.line]
                         answer.text[answer.line-1] = combined_text
                     answer.col = prev_line_length - 1 if prev_line_length > 0 else 0
-                    answer.total_lines -= 1 if answer.total_lines >= 0 else 0
+                    answer.total_lines = max(1, answer.total_lines - 1)
+                    # answer.total_lines -= 1 if answer.total_lines > 1 else 1
                     answer.line -= 1 if answer.line > 0 else 0
                     # change column to length of previous line - 1
                     # decrement total lines
                     # decrement current line
-                    print(f"ZERO AFTER: curr_line_length {curr_line_length}, col: {answer.col}, total: {answer.total_lines}, curr line: {answer.line}, text: {answer.text}, combined: {combined_text}")
+                    # print(f"ZERO AFTER: curr_line_length {curr_line_length}, col: {answer.col}, total: {answer.total_lines}, curr line: {answer.line}, text: {answer.text}, combined: {combined_text}")
                 # else:
                 # curr_line_lengthx
                 # if answer.text[answer.line]
@@ -215,10 +234,23 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             
         elif many_match:
             del_count = int(many_match.group(1))
-            # while del_count > 0:
-                
-            #     pass
+            while del_count > 0:
+                if answer.col == 0:
+                    if answer.line == 0:
+                        break
+                    else:
+                        if len(answer.text[answer.line]) == 0:
+                            shift_line_numbers_up(answer)
+                        answer.line -= 1
+                        answer.col = len(answer.text[answer.line])-1
+                new_left_string = (answer.text[answer.line])[:answer.col-1]
+                right_string = (answer.text[answer.line])[answer.col:]
+                answer.text[answer.line] = new_left_string + right_string
+                del_count -= 1
+                answer.col -= 1
+            
             text_so_far = text_so_far[:-del_count]
+            '''
             if del_count > curr_line_length:
                 del_remainder = del_count 
             
@@ -229,8 +261,10 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
                 print(f"ZERO MANY: curr_line_length {curr_line_length}")
                 pass
             answer.col -= del_count
-        
+            '''
+       
         elif shifted:
+            # print(shifted, shift_chars['9'], type(token), token)
             try:
                 shifted_token = shift_chars[token]
             except:
@@ -242,9 +276,9 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
                 
                 continue
             text_so_far += shifted_token
-            answer.text[answer.line] += token
+            answer.text[answer.line] += shifted_token
             answer.col += len(shifted_token)
-            
+            # print(f"newly shifted: {answer.text[answer.line]} and {shifted_token}")
             
             shifted = False
             answer.shifted = False
@@ -347,22 +381,24 @@ def process_keystrokes(vol_keystroke_df, task):
     cursor_index = 0
     total_lines = 1 # 1-indexed
     shifted = False
+    question_text = ''
     
-    # TODO - uptodate answer should be a dictionary where keys are line numbers and values are lines of text
-    # I might need the values to be two lists
     answer = Text()
     # print("OBJECT", answer.col, answer.shifted)
     
     
     for i,row in vol_keystroke_df.iterrows():
         curr_question = ast.literal_eval(row['question_num'])
+        # print(f"CURRENT QUESTION: ", curr_question)
 
         # line number and cursor_index should reset with each question
         if curr_question != prev_question and curr_question != []:
             prev_question = curr_question
             question_num = curr_question[0]
+            
             question_text = get_question_text(task, question_num)
             answer.question_text = get_question_text(task, question_num)
+                
             
             uptodate_answer = ''
             line_number = 0
@@ -370,7 +406,7 @@ def process_keystrokes(vol_keystroke_df, task):
             
             # answer = {}
             answer = Text()
-            print("OBJECT", answer.col, answer.shifted)
+            print("OBJECT", answer.col, answer.shifted, question_num)
         
         vol_text = ast.literal_eval(row['keystrokes'])
         
