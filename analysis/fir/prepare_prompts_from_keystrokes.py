@@ -61,29 +61,16 @@ class Text:
     @property
     def cursor_index(self) -> int:
         return self.col  # 0-based
-    
-    # @property
-    # def shifted(self) -> bool:
-    #     return self.shifted
-    pass
 
 
 def shift_line_numbers(answer):
     line = answer.line
+    print("SHIFTING ", len(answer.text.keys()), answer.line)
     for i in range(len(answer.text.keys())-1, answer.line, -1):
+        print(i)
         answer.text[i+1] = answer.text[i]
-    # for i in range(answer.line, len(answer.text.keys())):
-    #     temp = answer.text[i+1]
-    #     answer.text[i+1] = answer.text[i]
-        
-        
-
-    #     temp = answer.text[i]
         print(f"shifting line number {i} down to {i+1}")
 
-
-# TODO as input, I should take in the text that's been written so far, then the new text to be added
-# def process_backspaces(text_pieces):
 def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_number, cursor_index, shifted, answer):
 
     for i,token in enumerate(new_text):
@@ -100,19 +87,19 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
         # TODO - set up dictionary for line_number and text
         
         if re.search(r'\r', token):
+            print("RETURN", token)
             total_lines += 1
             line_number += 1
+            shift_line_numbers(answer)
             answer.line += 1
             answer.col = 0
             answer.total_lines += 1
             # TODO shift all the keys, values down below current line
-            shift_line_numbers(answer)
             answer.text[answer.line] = ''
             continue
             
             # any text to the right should also go onto the next line
             
-            print("RETURN", token)
             
         if left_match:
             left_shift  = 1 if not left_match.group(3) else int(left_match.group(3))
@@ -183,7 +170,7 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
             # If I'm at the bottom of the file, do nothing
             # else, increment line number and change line of text to corresponding line
             
-            print(f"DOWN: ", token, down_shift)
+            print(f"DOWN: ", token, down_shift, new_line_num, answer.total_lines)
             continue
         
         if ctrl_match or shift_match:
@@ -205,9 +192,13 @@ def update_text_and_cursor_position(text_so_far, new_text, total_lines, line_num
                 if curr_line_length == 0:
                     # put cursor at end of line above
                     print(f"ZERO: curr_line_length {curr_line_length}, col: {answer.col}, total_lines: {answer.total_lines}, curr_line: {answer.line}, text: {answer.text}")
-                    prev_line_length = len(answer.text[answer.line-1])
-                    combined_text = answer.text[answer.line-1] + answer.text[answer.line]
-                    answer.text[answer.line-1] = combined_text
+                    prev_line_length = 0 if answer.line == 0 else len(answer.text[answer.line-1])
+                    if answer.line == 0:
+                        combined_text = answer.text[answer.line]
+                        answer.text[0] = combined_text
+                    else:
+                        combined_text = answer.text[answer.line-1] + answer.text[answer.line]
+                        answer.text[answer.line-1] = combined_text
                     answer.col = prev_line_length - 1 if prev_line_length > 0 else 0
                     answer.total_lines -= 1 if answer.total_lines >= 0 else 0
                     answer.line -= 1 if answer.line > 0 else 0
@@ -406,7 +397,7 @@ def process_keystrokes(vol_keystroke_df, task):
         updated_text, new_line, new_cursor, shifted = update_text_and_cursor_position(uptodate_answer, shift_combined, total_lines, line_number, cursor_index, shifted, answer)
         
         
-        print(f"OBJECT UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}")
+        print(f"OBJECT UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
         line_number = new_line
         cursor_index = new_cursor
         # print(updated_text)
@@ -438,7 +429,7 @@ def main():
 
         process_participant('code', person, participant_path)
         # process_participant('prose', person, participant_path)
-        break
+        # break
 
 if __name__ == "__main__":
     main()
