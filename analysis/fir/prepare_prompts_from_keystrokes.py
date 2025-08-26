@@ -359,6 +359,8 @@ def process_keystrokes(vol_keystroke_df, task, person):
         vol_text = ast.literal_eval(row['keystrokes'])
         
         if len(vol_text) == 0:
+            if row['question_num'] != '[]':
+                output[i] = answer.question_text
             continue
         
         # combining shift sequences
@@ -372,14 +374,15 @@ def process_keystrokes(vol_keystroke_df, task, person):
         prefix = f"{answer.question_text}\n{answer.to_string()}"
         formatted_text = fill_in_the_middle(''.join(shift_combined), prefix, next_text)
         output[i] = formatted_text
-        print(formatted_text)
+        
+        # print(formatted_text)
         
         update_text_and_cursor_position(shift_combined, answer)
     
         # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
     output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_formatted_keystrokes.pkl"
-    # with open(output_path, 'wb') as f:
-    #     pickle.dump(output, f)
+    with open(output_path, 'wb') as f:
+        pickle.dump(output, f)
 
 def process_participant(task, person, participant_path):
 
