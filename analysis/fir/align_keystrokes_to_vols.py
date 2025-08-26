@@ -110,7 +110,7 @@ def find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_tim
 
     keystrokes_by_volume = []
 
-    for v in range(num_vols-1, 0,-1):
+    for v in range(num_vols-1, -1,-1):
         # 
         start_window = end_window - timestep
 

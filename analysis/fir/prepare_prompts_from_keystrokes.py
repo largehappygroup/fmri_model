@@ -30,6 +30,9 @@ prose_question_df = pd.read_csv(prose_question)
 
 separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';', '=', '<=', '>=', '==', '']
 
+###################################################################################
+################### TEXT CLASS ####################################################
+###################################################################################
 
 class Text:
     """
@@ -197,6 +200,10 @@ class Text:
         self.col += len(token)
                 
 
+##############################################################################
+####################### FUNCTIONS ############################################
+##############################################################################
+
 def update_text_and_cursor_position(new_text, answer):
 
     for i,token in enumerate(new_text):
@@ -311,7 +318,7 @@ def combine_shift_sequences(vol_text):
                 try:
                     shifted_char = shift_chars[next_key]
                 except:
-                    print(f"No entry for {next_key}, {ascii(next_key)}")
+                    # print(f"No entry for {next_key}, {ascii(next_key)}")
                     continue
                 combined_text.append(shifted_char)
                 shifted = True
@@ -330,7 +337,9 @@ def get_question_text(task, question_num):
     
     return question_text
 
-def process_keystrokes(vol_keystroke_df, task):
+def process_keystrokes(vol_keystroke_df, task, person):
+    
+    output = {i : '' for i in range(len(vol_keystroke_df))}
     
     prev_question = -1
     answer = Text()
@@ -362,11 +371,15 @@ def process_keystrokes(vol_keystroke_df, task):
         
         prefix = f"{answer.question_text}\n{answer.to_string()}"
         formatted_text = fill_in_the_middle(''.join(shift_combined), prefix, next_text)
-        # print(formatted_text)
+        output[i] = formatted_text
+        print(formatted_text)
         
         update_text_and_cursor_position(shift_combined, answer)
-        
-        print(f"OBJECT UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
+    
+        # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
+    output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_formatted_keystrokes.pkl"
+    # with open(output_path, 'wb') as f:
+    #     pickle.dump(output, f)
 
 def process_participant(task, person, participant_path):
 
@@ -377,7 +390,7 @@ def process_participant(task, person, participant_path):
         print(f"No file for participant {person} for {task}")
         return
     
-    process_keystrokes(vol_keystroke_df, task)
+    process_keystrokes(vol_keystroke_df, task, person)
 
 def main():
 
