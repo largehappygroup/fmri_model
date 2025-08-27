@@ -360,7 +360,7 @@ def process_keystrokes(vol_keystroke_df, task, person):
         
         if len(vol_text) == 0:
             if row['question_num'] != '[]':
-                output[i] = answer.question_text
+                output[i] = f"{answer.question_text}\n{answer.to_string()}"
             continue
         
         # combining shift sequences
@@ -405,7 +405,7 @@ def main():
         participant_path = f"{datapath}/{person}"
 
         process_participant('code', person, participant_path)
-        # process_participant('prose', person, participant_path)
+        process_participant('prose', person, participant_path)
         # break
 
 if __name__ == "__main__":
