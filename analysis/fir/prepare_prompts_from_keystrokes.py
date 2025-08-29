@@ -379,10 +379,10 @@ def process_keystrokes(vol_keystroke_df, task, person):
         
         update_text_and_cursor_position(shift_combined, answer)
     
-        # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
+        print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
     output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_formatted_keystrokes.pkl"
-    with open(output_path, 'wb') as f:
-        pickle.dump(output, f)
+    # with open(output_path, 'wb') as f:
+    #     pickle.dump(output, f)
 
 def process_participant(task, person, participant_path):
 
@@ -405,7 +405,7 @@ def main():
         participant_path = f"{datapath}/{person}"
 
         process_participant('code', person, participant_path)
-        process_participant('prose', person, participant_path)
+        # process_participant('prose', person, participant_path)
         # break
 
 if __name__ == "__main__":
