@@ -3,6 +3,42 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
+def make_delayed(stim, delays, circpad=False):
+    """Creates non-interpolated concatenated delayed versions of [stim] with the given [delays] 
+    (in samples).
+    
+    If [circpad], instead of being padded with zeros, [stim] will be circularly shifted.
+    """
+    nt,ndim = stim.shape
+    dstims = []
+    for di,d in enumerate(delays):
+        print(f"iteration {di}")
+        dstim = np.zeros((nt, ndim))
+        if d<0: ## negative delay
+            dstim[:d,:] = stim[-d:,:]
+            if circpad:
+                dstim[d:,:] = stim[:-d,:]
+        elif d>0:
+            dstim[d:,:] = stim[:-d,:]
+            if circpad:
+                dstim[:d,:] = stim[-d:,:]
+        else: ## d==0
+            dstim = stim.copy()
+        dstims.append(dstim)
+    return np.hstack(dstims)
+
+# def add_time_delays(signal, delays):
+    
+#     nt,ndim = signal.shape
+#     dstims = []
+#     for i,d in enumerate(delays):
+#         dstim = np.zeros((nt,ndim))
+#         if d < 0:
+#             dstim[]
+#         pass
+#     pass
+
+
 def organize_individual_layers(layers, keystroke_dict, embedding_dict):
 
     signal = { l : [] for l in layers }
@@ -40,6 +76,8 @@ def run_participants(model_path, task):
     
     # run os listdir on model path to get participants
     participants = os.listdir(model_path)
+    ndelays = 4
+    delays = range(1,ndelays+1)
 
     for p in participants:
         print(p)
@@ -48,7 +86,8 @@ def run_participants(model_path, task):
         try:
             with open(emb_datapath, 'rb') as f:
                 embedding_dict = pickle.load(f)
-        except:
+        except Exception as e:
+            print(f"can't open embedding: {e}")
             continue    
             
         keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_formatted_keystrokes.pkl"
@@ -61,16 +100,22 @@ def run_participants(model_path, task):
         layers = find_layer_labels(keystroke_dict, embedding_dict)
 
         # make a stack for each layer
+        # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
         signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
         
-        # TODO downsample signal based on TR times using Lanczos filter
-        # try using original code from Huth Tutorial
+        # TODO - add time delays for FIR
         
-        # Do I need to downsample? The volumes and keystrokes should already line up
+        for l,sig in signal.items():
+            print("hello")
+            delayed_sig = make_delayed(sig, delays)
+            
+            with open("test.pkl", 'wb') as f:
+                pickle.dump(delayed_sig, f)
+            break
         
-        # Can I just directly run FIR?
         
-        # after I downsample 
+        # maybe TODO - reduce dimensionality of embeddings
+        
         break
 
 
