@@ -12,8 +12,9 @@ def make_delayed(stim, delays, circpad=False):
     nt,ndim = stim.shape
     dstims = []
     for di,d in enumerate(delays):
-        print(f"iteration {di}")
         dstim = np.zeros((nt, ndim))
+        print(f"iteration {d}", dstim.shape)
+        
         if d<0: ## negative delay
             dstim[:d,:] = stim[-d:,:]
             if circpad:
@@ -80,8 +81,8 @@ def run_participants(model_path, task):
     delays = range(1,ndelays+1)
 
     for p in participants:
+        p = 133
         print(p)
-        
         emb_datapath = f"{model_path}/{p}/{task}_keystroke_embeddings.pkl"
         try:
             with open(emb_datapath, 'rb') as f:
@@ -128,6 +129,7 @@ def main():
     models = os.listdir(all_models)
     
     for m in models:
+        print(m)
         model_path = f"{all_models}/{m}"
         run_participants(model_path, 'code')
         #run_participants(model_path, 'prose')
