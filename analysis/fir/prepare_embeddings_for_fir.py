@@ -73,7 +73,7 @@ def find_layer_labels(keystroke_dict, embedding_dict):
             layer_labels = list((embedding_dict[v]).keys())
             return layer_labels
 
-def run_participants(model_path, task):
+def run_participants(model_path, model, task):
     
     # run os listdir on model path to get participants
     participants = os.listdir(model_path)
@@ -107,10 +107,9 @@ def run_participants(model_path, task):
         # TODO - add time delays for FIR
         
         for l,sig in signal.items():
-            print("hello")
             delayed_sig = make_delayed(sig, delays)
             
-            with open("test.pkl", 'wb') as f:
+            with open(f"/home/zachkaras/fmri/fmri_model/{model}_code_fir_embeddings.pkl", 'wb') as f:
                 pickle.dump(delayed_sig, f)
             break
         
@@ -131,7 +130,7 @@ def main():
     for m in models:
         print(m)
         model_path = f"{all_models}/{m}"
-        run_participants(model_path, 'code')
+        run_participants(model_path, m, 'code')
         #run_participants(model_path, 'prose')
         break
     # iterate through participants
