@@ -13,7 +13,7 @@ def make_delayed(stim, delays, circpad=False):
     dstims = []
     for di,d in enumerate(delays):
         dstim = np.zeros((nt, ndim))
-        print(f"iteration {d}", dstim.shape)
+        # print(f"iteration {d}", dstim.shape)
         
         if d<0: ## negative delay
             dstim[:d,:] = stim[-d:,:]
@@ -48,7 +48,6 @@ def organize_individual_layers(layers, keystroke_dict, embedding_dict):
         
         if keys == '':
             vols_without_keystrokes.add(vol)
-            # TODO record and remove volumes without any keystroke data
             continue
         
         layers = embedding_dict[keys]
@@ -104,7 +103,8 @@ def run_participants(model_path, model, task):
         # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
         signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
         
-        # TODO - add time delays for FIR
+        with open(f"/home/zachkaras/fmri/{p}_vols_to_skip.pkl", 'wb') as f:
+            pickle.dump(vols_to_skip, f)
         
         for l,sig in signal.items():
             delayed_sig = make_delayed(sig, delays)
