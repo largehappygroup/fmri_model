@@ -40,18 +40,31 @@ def make_delayed(stim, delays, circpad=False):
 #     pass
 
 
-# TODO - keep track of duplicated layers and condense that into one
+# keep track of duplicated layers and condense that into one 
 # save volume numbers to get rid of that data in fMRI files
+# UPDATE - I tried this but it gets rid of a lot of data and performance seems to drop a lot
+
 def organize_individual_layers(layers, keystroke_dict, embedding_dict):
 
     signal = { l : [] for l in layers }
     vols_without_keystrokes = set()
+    # repeated_keystroke_volumes = set()
+    # prev="ENTRYPOINT"
     for vol,keys in keystroke_dict.items():
         
         if keys == '':
             vols_without_keystrokes.add(vol)
             continue
         
+        # if keys == prev:
+        #     # repeated_keystroke_volumes.add(vol)
+        #     # vols_to_skip.add(vol)
+        #     vols_without_keystrokes.add(vol)
+        #     # print(f"Previous: {prev}\nCurrent: {keys}")
+        #     continue
+        # else:
+        #     prev = keys
+            
         layers = embedding_dict[keys]
         for l, emb in layers.items():
             signal[l].append(emb)
@@ -59,6 +72,10 @@ def organize_individual_layers(layers, keystroke_dict, embedding_dict):
     signal = { l : np.vstack(v) for l,v in signal.items()} 
     vols_to_skip = list(vols_without_keystrokes)
     vols_to_skip.sort()
+    
+    # repeated_keystroke_volumes = list(repeated_keystroke_volumes)
+    # repeated_keystroke_volumes.sort()
+    # print(len(repeated_keystroke_volumes), repeated_keystroke_volumes)
     return signal, vols_to_skip
     
 
@@ -105,19 +122,18 @@ def run_participants(model_path, model, task):
         # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
         signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
         
-        with open(f"/home/zachkaras/fmri/{p}_vols_to_skip.pkl", 'wb') as f:
+        with open(f"/storage1/fmri_model_data/{p}_vols_to_skip.pkl", 'wb') as f:
             pickle.dump(vols_to_skip, f)
         
         for l,sig in signal.items():
             delayed_sig = make_delayed(sig, delays)
             
-            with open(f"/home/zachkaras/fmri/fmri_model/{model}_code_fir_embeddings.pkl", 'wb') as f:
+            with open(f"/storage1/fmri_model_data/fir_vectors/test/{model}_code_fir_embedding_{l}.pkl", 'wb') as f:
                 pickle.dump(delayed_sig, f)
-            break
+            # break
         
         
         # maybe TODO - reduce dimensionality of embeddings
-        # TODO - save the different layers
         
         break
 
@@ -125,7 +141,7 @@ def run_participants(model_path, model, task):
 
 def main():
     # iterate through models
-    all_models = f"/home/zachkaras/fmri/fmri_model_data/fir_embeddings"
+    all_models = f"/storage1/fmri_model_data/fir_embeddings"
     models = os.listdir(all_models)
     
     for m in models:
