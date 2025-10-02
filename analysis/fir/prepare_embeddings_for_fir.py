@@ -39,7 +39,8 @@ def make_delayed(stim, delays, circpad=False):
 #         pass
 #     pass
 
-
+# TODO - keep track of duplicated layers and condense that into one
+# save volume numbers to get rid of that data in fMRI files
 def organize_individual_layers(layers, keystroke_dict, embedding_dict):
 
     signal = { l : [] for l in layers }
@@ -115,6 +116,7 @@ def run_participants(model_path, model, task):
         
         
         # maybe TODO - reduce dimensionality of embeddings
+        # TODO - save the different layers
         
         break
 
