@@ -28,22 +28,10 @@ def make_delayed(stim, delays, circpad=False):
         dstims.append(dstim)
     return np.hstack(dstims)
 
-# def add_time_delays(signal, delays):
-    
-#     nt,ndim = signal.shape
-#     dstims = []
-#     for i,d in enumerate(delays):
-#         dstim = np.zeros((nt,ndim))
-#         if d < 0:
-#             dstim[]
-#         pass
-#     pass
-
 
 # keep track of duplicated layers and condense that into one 
 # save volume numbers to get rid of that data in fMRI files
 # UPDATE - I tried this but it gets rid of a lot of data and performance seems to drop a lot
-
 def organize_individual_layers(layers, keystroke_dict, embedding_dict):
 
     signal = { l : [] for l in layers }
@@ -126,9 +114,11 @@ def run_participants(model_path, model, task):
             pickle.dump(vols_to_skip, f)
         
         for l,sig in signal.items():
-            delayed_sig = make_delayed(sig, delays)
+            # delayed_sig = make_delayed(sig, delays)
+            delayed_sig = [np.array(s) for s in sig]
+            print(type(delayed_sig), len(delayed_sig), type(delayed_sig[0]))
             
-            with open(f"/storage1/fmri_model_data/fir_vectors/test/{model}_code_fir_embedding_{l}.pkl", 'wb') as f:
+            with open(f"/storage1/fmri_model_data/fir_vectors/test/{model}_code_fir_embedding_{l}_undelayed.pkl", 'wb') as f:
                 pickle.dump(delayed_sig, f)
             # break
         
@@ -148,7 +138,7 @@ def main():
         print(m)
         model_path = f"{all_models}/{m}"
         run_participants(model_path, m, 'code')
-        #run_participants(model_path, 'prose')
+        # run_participants(model_path, 'prose')
         break
     # iterate through participants
     
