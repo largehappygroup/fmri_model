@@ -87,7 +87,7 @@ def run_participants(model_path, model, task):
     delays = range(1,ndelays+1)
 
     for p in participants:
-        p = 133
+        # p = 133
         print(p)
         emb_datapath = f"{model_path}/{p}/{task}_keystroke_embeddings.pkl"
         try:
@@ -110,23 +110,24 @@ def run_participants(model_path, model, task):
         # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
         signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
         
-        with open(f"/storage1/fmri_model_data/{p}_vols_to_skip.pkl", 'wb') as f:
+        with open(f"/storage1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
             pickle.dump(vols_to_skip, f)
         
         for l,sig in signal.items():
-            # delayed_sig = make_delayed(sig, delays)
-            delayed_sig = [np.array(s) for s in sig]
-            print(type(delayed_sig), len(delayed_sig), type(delayed_sig[0]))
+            delayed_sig = make_delayed(sig, delays)
+            # delayed_sig = [np.array(s) for s in sig]
+            # print(type(delayed_sig), len(delayed_sig), type(delayed_sig[0]))
+            outputdir = f"/storage1/fmri_model_data/fir_vectors/{p}"
             
-            with open(f"/storage1/fmri_model_data/fir_vectors/test/{model}_code_fir_embedding_{l}_undelayed.pkl", 'wb') as f:
+            if not os.path.exists(outputdir):
+                os.mkdir(outputdir)
+            
+            with open(f"{outputdir}/{model}-{task}-fir_embedding-{l}.pkl", 'wb') as f:
                 pickle.dump(delayed_sig, f)
             # break
         
-        
         # maybe TODO - reduce dimensionality of embeddings
-        
-        break
-
+        # break
 
 
 def main():
@@ -138,8 +139,8 @@ def main():
         print(m)
         model_path = f"{all_models}/{m}"
         run_participants(model_path, m, 'code')
-        # run_participants(model_path, 'prose')
-        break
+        run_participants(model_path, m, 'prose')
+        # break
     # iterate through participants
     
 

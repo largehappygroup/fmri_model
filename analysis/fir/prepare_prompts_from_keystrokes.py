@@ -340,6 +340,7 @@ def get_question_text(task, question_num):
 def process_keystrokes(vol_keystroke_df, task, person):
     
     output = {i : '' for i in range(len(vol_keystroke_df))}
+    only_new_keystrokes = {i : '' for i in range(len(vol_keystroke_df))}
     
     prev_question = -1
     answer = Text()
@@ -374,15 +375,19 @@ def process_keystrokes(vol_keystroke_df, task, person):
         prefix = f"{answer.question_text}\n{answer.to_string()}"
         formatted_text = fill_in_the_middle(''.join(shift_combined), prefix, next_text)
         output[i] = formatted_text
+        only_new_keystrokes[i] = f"{''.join(shift_combined)}{next_text}" 
         
         # print(formatted_text)
         
         update_text_and_cursor_position(shift_combined, answer)
     
-        print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
+        # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
     output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_formatted_keystrokes.pkl"
+    new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_new_keystrokes.pkl"
     # with open(output_path, 'wb') as f:
     #     pickle.dump(output, f)
+    with open(new_keystroke_outpath, 'wb') as f:
+        pickle.dump(only_new_keystrokes, f)
 
 def process_participant(task, person, participant_path):
 
@@ -405,7 +410,7 @@ def main():
         participant_path = f"{datapath}/{person}"
 
         process_participant('code', person, participant_path)
-        # process_participant('prose', person, participant_path)
+        process_participant('prose', person, participant_path)
         # break
 
 if __name__ == "__main__":
