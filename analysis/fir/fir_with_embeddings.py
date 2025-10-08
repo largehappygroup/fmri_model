@@ -1,11 +1,15 @@
 import os
 import re
 import math
+import json
 import pickle
 import numpy as np
 import nibabel as nib
+from npp import zscore
 import matplotlib.pyplot as plt
 from ridge import bootstrap_ridge
+from collections import defaultdict
+from matplotlib.pyplot import figure, cm
 
 #############################################################################
 ############## Loading Atlases ##############################################
@@ -27,18 +31,14 @@ cortex = np.where(atlas_only_brain != 0)[0]
 # Making empty templates to save output
 empty_schaefer = np.zeros(atlas_only_brain.shape)
 empty_mni = np.zeros(atlas_vec.shape)
-
-# with open("midprocess/133/code_formatted_keystrokes.pkl", 'rb') as f:
-#     keystrokes = pickle.load(f)
-
     
-def create_histogram(voxcorrs):
-    f = plt.figure(figsize=(8,8))
-    ax = f.add_subplot(1,1,1)
-    ax.hist(voxcorrs, 100) # histogram correlations with 100 bins
-    ax.set_xlabel("Correlation")
-    ax.set_ylabel("Num. voxels");
-    plt.savefig() # TODO
+# def create_histogram(voxcorrs):
+#     f = plt.figure(figsize=(8,8))
+#     ax = f.add_subplot(1,1,1)
+#     ax.hist(voxcorrs, 100) # histogram correlations with 100 bins
+#     ax.set_xlabel("Correlation")
+#     ax.set_ylabel("Num. voxels");
+#     plt.savefig() # TODO
 
 def save_correlation_coefficients_as_nifti(voxcorrs):
     # working backwards to save correlation values as voxels in MNI space
@@ -50,6 +50,49 @@ def save_correlation_coefficients_as_nifti(voxcorrs):
     nifti_result = nib.Nifti1Image(result_brain, affine=atlas.affine, header=atlas.header)
     nib.save(nifti_result, "layer_0_clean.nii.gz")
     
+def find_top_voxels(corrs):
+    max_corrs = corrs.copy()
+    max_corrs.sort()
+    max_corrs = max_corrs[-5:]
+    top_inds = [int(np.where(corrs == c)[0][0]) for c in max_corrs]
+    
+    return top_inds
+    
+def make_and_save_plots(outpath, bscorrs, fmri_test, corrs, weights, emb_test, keys_test):
+    
+    # Plotting training performance
+    f = figure()
+    ax = f.add_subplot(1,1,1)
+    ax.semilogx( np.logspace(1,4,12), bscorrs.mean(2).mean(1), 'o-')
+    plt.savefig(f"{outpath}/training_performance.png", dpi=150)
+    
+    top_voxels = find_top_voxels(corrs)
+    pred = np.dot(emb_test, weights)
+    
+    f = figure(figsize=(15,15))
+    
+    for i in range(1,6):
+        
+        ax = f.add_subplot(5,1,i)
+        selvox = top_voxels[i-1]
+
+        realresp = ax.plot(fmri_test[:,selvox], 'k')[0]
+        predresp = ax.plot(zscore(pred[:,selvox]), 'r')[0]
+        ax.set_ylabel(f"Voxel {selvox}")
+
+        ax.set_xlim(0, len(keys_test))
+        ax.set_xlabel(f"Time (fMRI time points)")
+        ax.legend()
+        x_labels = list(keys_test.values())
+
+        ax.set_xticks(range(len(x_labels)))
+        ax.set_xticklabels(x_labels, rotation=90)
+
+        ax.legend((realresp, predresp), ("Actual response", "Predicted response (scaled)"));
+    plt.savefig(f"{outpath}/top_5_voxels.png", dpi=150)
+
+
+    
 def run_ridge_regression(delRstim, zRresp, delPstim, zPresp):
     alphas = np.logspace(1, 3, 10) # Equally log-spaced alphas between 10 and 1000. The third number is the number of alphas to test.
     nboots = 1 # Number of cross-validation runs.
@@ -60,20 +103,10 @@ def run_ridge_regression(delRstim, zRresp, delPstim, zPresp):
                                                         alphas, nboots, chunklen, nchunks,
                                                         singcutoff=1e-10, single_alpha=True)
     
-    # predicted timecourses
-    pred = np.dot(delPstim, wt)
-    
-    # # calculating correlation coefficient between predicted and actual timecourse
-    # voxcorrs = np.zeros((zPresp.shape[1],)) # create zero-filled array to hold correlations
-    # for vi in range(zPresp.shape[1]):
-    #     voxcorrs[vi] = np.corrcoef(zPresp[:,vi], pred[:,vi])[0,1]
-    
-    return wt, corr
+    return wt, corr, bscorrs
     
 def load_and_split_embeddings(embedding_path, split_point):
-    # embedding_path = '/home/zachkaras/fmri/starcoder2_7b_code_fir_embeddings.pkl'
-    # embedding_path = '/storage1/fmri_model_data/fir_vectors/test/starcoder2_7b_code_fir_embedding_layer_0.pkl'
-
+    
     with open(embedding_path, 'rb') as f:
         embedding = pickle.load(f)
         
@@ -103,7 +136,6 @@ def fmri_train_test_split(reshaped_scan):
     return zRresp, zPresp, split_point
     
 def load_and_reshape_fmri_data(fmripath, vols_to_skip):
-    # participant_data_path = "/home/zachkaras/fmri/fmri_model_data/midprocess/133/filtered_func_data_clean.nii.gz"
     fmri_data = nib.load(fmripath)
     scan = fmri_data.get_fdata()
 
@@ -127,8 +159,6 @@ def load_and_reshape_fmri_data(fmripath, vols_to_skip):
     scan_2d_schaefer_filtered = scan_2d_schaefer[np.where(vol_nums == 1)]
     
     return scan_2d_schaefer_filtered, vol_nums
-    
-# def iterate_through_participants(participants, task):
 
 def load_task_specific_data(p, task):
     participant_fmri_path = f"/storage1/fmri_model_data/clean_{task}/{p}.nii.gz"
@@ -146,78 +176,78 @@ def load_task_specific_data(p, task):
     
     keys_train,keys_test = load_keystrokes(participant_keystroke_path, split_point, vol_nums)
         
-    return fmri_train, fmri_test, keys_train, keys_test, vol_nums, split_point
-    
-        
-        
+    return fmri_train, fmri_test, keys_train, keys_test, vol_nums, split_point 
         
     
 def main():
     participant_path = f"/storage1/fmri_model_data/fir_vectors"
     participants = os.listdir(participant_path)
     
-    # iterate_through_participants(participants, 'code')
-    # iterate_through_participants(participants, 'prose')
+    def nested_dict():
+        return defaultdict(nested_dict)
+      
+    all_corr_means = nested_dict()
+    all_corr_stds = nested_dict()
     
-    
-    # TODO - keep track of stats here
-    # for each model, average correlation coefficient, standard deviation of correlation values
-    
-    # make plots for predicted voxel activity and the corresponding 
-    # can choose voxels with the 5 highest correlation values
-    for p in participants:
-        # participant_fmri_path = f"/storage1/fmri_model_data/clean_code/{p}.nii.gz"
-        
+    num_participants = len(participants)
+    for i,p in enumerate(participants):     
         # task specific - fMRI, keystrokes, vols_to_skip
-        code_fmri, code_keystrokes, code_vols_to_skip, code_split_point = load_task_specific_data(p, 'code')
-        prose_fmri, prose_keystrokes, prose_vols_to_skip, prose_split_point = load_task_specific_data(p, 'prose')
+        code_fmri_train, code_fmri_test, code_keys_train, code_keys_test, code_split_point = load_task_specific_data(p, 'code')
+        prose_fmri_train, prose_fmri_test, prose_keys_train, prose_keys_test, prose_split_point = load_task_specific_data(p, 'prose')
         
         participant_embedding_base_path = f"/storage1/fmri_model_data/fir_vectors/{p}"
         embeddings = os.listdir(participant_embedding_base_path)
-        
-        # participant_fmri_path = f"/storage1/fmri_model_data/clean_{task}/{p}.nii.gz"
-        
-        # participant_keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_new_keystrokes.pkl"
-        # vols_to_skip_path = f"/storage1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl"
-        
-        # with open(vols_to_skip_path, 'rb') as f:
-        #     vols_to_skip = pickle.load(f)
-        
-        # atlas_voxels_2d_code,code_vol_nums = load_and_reshape_fmri_data(participant_code_fmri_path, vols_to_skip)
-        # fmri_train,fmri_test,split_point = fmri_train_test_split(atlas_voxels_2d)
-        
-        # keys_train,keys_test = load_keystrokes(participant_keystroke_path, split_point, vol_nums)
-        
-        
-        
-        for emb in embeddings:
-            embedding_path = f"{participant_embedding_base_path}/{emb}"
-            emb_train, emb_test = load_and_split_embeddings(embedding_path)
-            
+        num_embeddings = len(embeddings)
+        for ii,emb in enumerate(embeddings):
             meta_data = re.split('-', emb)
             model_name = meta_data[0]
             task = meta_data[1]
-            layer = meta_data[2]
+            layer = (meta_data[3])[:-4]
             
-            print(model_name, task, layer)
+            split_point = code_split_point if task == 'code' else prose_split_point
+            fmri_train = code_fmri_train if task == 'code' else prose_fmri_train
+            fmri_test = code_fmri_test if task == 'code' else prose_fmri_test
+            keys_test = code_keys_test if task == 'code' else prose_keys_test
             
-            # weights,corrs = run_ridge_regression(fmri_train, emb_train)
+            embedding_path = f"{participant_embedding_base_path}/{emb}"
+            emb_train, emb_test = load_and_split_embeddings(embedding_path, split_point) # TODO task specific split point
             
-            # there are multiple models
-            # and multiple layers within each participant's directory
-            # what am I trying to do with the embeddings for each?
-            # No matter what the embeddings are, I'll be running ridge regression, 
-            # then saving the model weights, corrs
+            print(f"Participant {p} ({i+1}/{num_participants}) Ridge Regression for {model_name}, {layer} ({ii+1}/{num_embeddings})")            
+            weights,corrs, bscorrs = run_ridge_regression(fmri_train, emb_train)
             
-            # Is there a way to separate out navigation from logic from syntax?
-            # can make a regressor for keypresses
-            # 
-            pass
-    # load in files
-    # process fMRI
-    # load in embeddings
-    # iterate through everything
-    # save output
+            
+            base_outpath = f"/storage1/fmri_model_data/ridge_regression_models/{p}"
+            weights_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-model_weights.pkl" # saving for specific model, layer, and task
+            corr_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-correlations.pkl"
+            
+            make_and_save_plots(base_outpath, bscorrs, fmri_test, corrs, weights, emb_test, keys_test)
+            
+            # Saving model weights and correlation values between predicted and actual timecourses as output
+            if not os.path.exists(base_outpath):
+                os.mkdir(base_outpath)
+            
+            with open(weights_outfile, 'wb') as f:
+                pickle.dump(weights, f)
+            
+            with open(corr_outfile, 'wb') as f:
+                pickle.dump(corrs, f)
+                
+            # Saving summary statistics from training performance
+            corrs_mean = np.mean(corrs)
+            corrs_std = np.std(corrs)
+            
+            all_corr_means[p][task][model_name][layer] = corrs_mean
+            all_corr_stds[p][task][model_name][layer] = corrs_std
+    
+    # converting from default dictionaries to regular dictionaries
+    all_corr_means = json.loads(json.dumps(all_corr_means))
+    all_corr_stds  = json.loads(json.dumps(all_corr_stds))
+    
+    with open("results/all_corr_means.pkl", 'wb') as f:
+        pickle.dump(all_corr_means, f)
+    
+    with open(f"results/all_corr_standard_deviations.pkl", 'wb') as f:
+        pickle.dump(all_corr_stds, f)
 
 if __name__ == "__main__":
     main()
