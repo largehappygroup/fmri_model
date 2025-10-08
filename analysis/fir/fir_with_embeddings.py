@@ -58,13 +58,16 @@ def find_top_voxels(corrs):
     
     return top_inds
     
-def make_and_save_plots(outpath, bscorrs, fmri_test, corrs, weights, emb_test, keys_test):
+def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, weights, emb_test, keys_test):
+    model_name = meta_data[0]
+    task = meta_data[1]
+    layer = (meta_data[3])[:-4]
     
     # Plotting training performance
     f = figure()
     ax = f.add_subplot(1,1,1)
     ax.semilogx( np.logspace(1,4,12), bscorrs.mean(2).mean(1), 'o-')
-    plt.savefig(f"{outpath}/training_performance.png", dpi=150)
+    plt.savefig(f"{outpath}/{model_name}-{layer}-{task}-training_performance.png", dpi=150)
     
     top_voxels = find_top_voxels(corrs)
     pred = np.dot(emb_test, weights)
@@ -83,23 +86,27 @@ def make_and_save_plots(outpath, bscorrs, fmri_test, corrs, weights, emb_test, k
         ax.set_xlim(0, len(keys_test))
         ax.set_xlabel(f"Time (fMRI time points)")
         ax.legend()
-        x_labels = list(keys_test.values())
-
-        ax.set_xticks(range(len(x_labels)))
-        ax.set_xticklabels(x_labels, rotation=90)
+        if i == 5:
+            x_labels = list(keys_test.values())
+            ax.set_xticks(range(len(x_labels)))
+            ax.set_xticklabels(x_labels, rotation=90)
 
         ax.legend((realresp, predresp), ("Actual response", "Predicted response (scaled)"));
-    plt.savefig(f"{outpath}/top_5_voxels.png", dpi=150)
+    plt.savefig(f"{outpath}/{model_name}-{layer}-{task}-top_5_voxels.png", dpi=150)
 
 
-    
-def run_ridge_regression(delRstim, zRresp, delPstim, zPresp):
-    alphas = np.logspace(1, 3, 10) # Equally log-spaced alphas between 10 and 1000. The third number is the number of alphas to test.
+# emb_train, fmri_train, emb_test, fmri_test
+def run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test):
+    alphas = np.logspace(1, 4, 12) # Equally log-spaced alphas between 10 and 1000. The third number is the number of alphas to test.
     nboots = 1 # Number of cross-validation runs.
     chunklen = 40 # 
     nchunks = 20
 
-    wt, corr, alphas, bscorrs, valinds = bootstrap_ridge(delRstim, zRresp, delPstim, zPresp,
+    # wt, corr, alphas, bscorrs, valinds = bootstrap_ridge(delRstim, zRresp, delPstim, zPresp,
+    #                                                     alphas, nboots, chunklen, nchunks,
+    #                                                     singcutoff=1e-10, single_alpha=True)
+    
+    wt, corr, alphas, bscorrs, valinds = bootstrap_ridge(emb_train, fmri_train, emb_test, fmri_test,
                                                         alphas, nboots, chunklen, nchunks,
                                                         singcutoff=1e-10, single_alpha=True)
     
@@ -176,7 +183,7 @@ def load_task_specific_data(p, task):
     
     keys_train,keys_test = load_keystrokes(participant_keystroke_path, split_point, vol_nums)
         
-    return fmri_train, fmri_test, keys_train, keys_test, vol_nums, split_point 
+    return fmri_train, fmri_test, keys_train, keys_test, split_point 
         
     
 def main():
@@ -191,7 +198,7 @@ def main():
     
     num_participants = len(participants)
     for i,p in enumerate(participants):     
-        # task specific - fMRI, keystrokes, vols_to_skip
+        print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
         code_fmri_train, code_fmri_test, code_keys_train, code_keys_test, code_split_point = load_task_specific_data(p, 'code')
         prose_fmri_train, prose_fmri_test, prose_keys_train, prose_keys_test, prose_split_point = load_task_specific_data(p, 'prose')
         
@@ -213,18 +220,18 @@ def main():
             emb_train, emb_test = load_and_split_embeddings(embedding_path, split_point) # TODO task specific split point
             
             print(f"Participant {p} ({i+1}/{num_participants}) Ridge Regression for {model_name}, {layer} ({ii+1}/{num_embeddings})")            
-            weights,corrs, bscorrs = run_ridge_regression(fmri_train, emb_train)
+            weights,corrs, bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
             
             
             base_outpath = f"/storage1/fmri_model_data/ridge_regression_models/{p}"
             weights_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-model_weights.pkl" # saving for specific model, layer, and task
             corr_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-correlations.pkl"
             
-            make_and_save_plots(base_outpath, bscorrs, fmri_test, corrs, weights, emb_test, keys_test)
-            
             # Saving model weights and correlation values between predicted and actual timecourses as output
             if not os.path.exists(base_outpath):
                 os.mkdir(base_outpath)
+            
+            make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, weights, emb_test, keys_test)
             
             with open(weights_outfile, 'wb') as f:
                 pickle.dump(weights, f)
