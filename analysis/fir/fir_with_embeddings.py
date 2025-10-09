@@ -4,6 +4,7 @@ import gc
 import math
 import json
 import pickle
+import warnings
 import numpy as np
 import nibabel as nib
 from npp import zscore
@@ -60,6 +61,10 @@ def find_top_voxels(corrs):
     return top_inds
     
 def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test):
+    
+    warnings.filterwarnings("ignore", message="No artists with labels found")
+    warnings.filterwarnings("ignore", message="Glyph.*missing from font")
+    
     model_name = meta_data[0]
     task = meta_data[1]
     layer = (meta_data[3])[:-4]
@@ -94,6 +99,8 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted
 
         ax.legend((realresp, predresp), ("Actual response", "Predicted response (scaled)"));
     plt.savefig(f"{outpath}/{model_name}-{layer}-{task}-top_5_voxels.png", dpi=150)
+    plt.close('all')
+    gc.collect()
 
 
 # emb_train, fmri_train, emb_test, fmri_test
