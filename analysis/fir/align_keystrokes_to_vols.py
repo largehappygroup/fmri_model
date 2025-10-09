@@ -119,6 +119,7 @@ def find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_tim
         idx_keystrokes_in_window = (np.where((keystroke_df['end_timestamp'] >= start_window) & (keystroke_df['end_timestamp'] < end_window)))[0]
         ascii_keystrokes = list(keystroke_df.loc[idx_keystrokes_in_window, 'ascii_code'])
         cleaned_keystrokes = process_keystrokes(ascii_keystrokes)
+        print(f"Start {start_window} | End {end_window} | Keys {cleaned_keystrokes}")
         
         curr_row = question_nums_by_volume_df.loc[v]
         question_num = (np.where(curr_row == 1))[0]
@@ -223,6 +224,7 @@ def process_task(task, keydir, keyfiles):
 
     # Iterate through each participant's data
     for person in keyfiles:
+        person = 119
         print(person)
 
         # different filepaths
@@ -230,9 +232,11 @@ def process_task(task, keydir, keyfiles):
         info_file = f"{keydir}/{person}/processed-answers-{person}-{task_num}.txt"
         
         if task == 'code':
-            fmri_file = f"{bass_path}/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+            # fmri_file = f"{bass_path}/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+            fmri_file = f"/storage1/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
         elif task == 'prose':
-            fmri_file = f"{bass_path}/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
+            # fmri_file = f"{bass_path}/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
+            fmri_file = f"/storage1/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
         tr = 0.8 # in seconds
 
         keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-{task_num}.txt"
@@ -254,6 +258,7 @@ def process_task(task, keydir, keyfiles):
 
         # adding information about question number
         keystroke_df = create_keystroke_dataframe(keystrokes_file, onset_df)
+        keystroke_df.to_csv("test_df.csv")
         
         if keystroke_df.empty:
             print("keytroke file doesn't exist")
@@ -285,8 +290,9 @@ def process_task(task, keydir, keyfiles):
         cleaned_keystrokes_df = find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_timestamp, num_vols, tr)
 
         df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
-        cleaned_keystrokes_df.to_csv(df_outpath, index=False)
+        # cleaned_keystrokes_df.to_csv(df_outpath, index=False)
         # break
+        return
 
 # The purpose of the main function is to iterate through each participants' keystroke files
 # and figure out what keys were pressed during what volumes of the fMRI scan
@@ -297,7 +303,7 @@ def main():
     keydir = f"{bass_path}/fmri_model/data"
     keyfiles = os.listdir(keydir)
 
-    process_task('code', keydir, keyfiles)
+    # process_task('code', keydir, keyfiles)
     process_task('prose', keydir, keyfiles)           
     
 if __name__ == "__main__":

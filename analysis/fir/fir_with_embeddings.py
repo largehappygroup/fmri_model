@@ -1,5 +1,6 @@
 import os
 import re
+import gc
 import math
 import json
 import pickle
@@ -58,7 +59,7 @@ def find_top_voxels(corrs):
     
     return top_inds
     
-def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, weights, emb_test, keys_test):
+def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test):
     model_name = meta_data[0]
     task = meta_data[1]
     layer = (meta_data[3])[:-4]
@@ -70,7 +71,7 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, weights, 
     plt.savefig(f"{outpath}/{model_name}-{layer}-{task}-training_performance.png", dpi=150)
     
     top_voxels = find_top_voxels(corrs)
-    pred = np.dot(emb_test, weights)
+    # pred = np.dot(emb_test, weights)
     
     f = figure(figsize=(15,15))
     
@@ -220,18 +221,19 @@ def main():
             emb_train, emb_test = load_and_split_embeddings(embedding_path, split_point) # TODO task specific split point
             
             print(f"Participant {p} ({i+1}/{num_participants}) Ridge Regression for {model_name}, {layer} ({ii+1}/{num_embeddings})")            
-            weights,corrs, bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
-            
+            weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
+            predicted_signal = np.dot(emb_test, weights)
             
             base_outpath = f"/storage1/fmri_model_data/ridge_regression_models/{p}"
-            weights_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-model_weights.pkl" # saving for specific model, layer, and task
+            # weights_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-model_weights.pkl" # saving for specific model, layer, and task
             corr_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-correlations.pkl"
             
             # Saving model weights and correlation values between predicted and actual timecourses as output
+            # UPDATE - not saving model weights for now because the files are huge
             if not os.path.exists(base_outpath):
                 os.mkdir(base_outpath)
             
-            make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, weights, emb_test, keys_test)
+            make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test)
             
             ### Not saving model weights for now because each file as float64 takes up 18GB
             ###   Each participant has 60 embedding files to test and there are 25 participants
@@ -247,6 +249,10 @@ def main():
             
             all_corr_means[p][task][model_name][layer] = corrs_mean
             all_corr_stds[p][task][model_name][layer] = corrs_std
+            
+            # Trying to free up space
+            del weights, corrs, bscorrs, emb_train, emb_test, fmri_train, fmri_test
+            gc.collect()
     
     # converting from default dictionaries to regular dictionaries
     all_corr_means = json.loads(json.dumps(all_corr_means))

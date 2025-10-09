@@ -113,7 +113,17 @@ def run_participants(model_path, model, task):
         with open(f"/storage1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
             pickle.dump(vols_to_skip, f)
         
+        num_keys_regressor_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_num_keystrokes_regressor.pkl"
+        
+        with open(num_keys_regressor_path, 'rb') as f:
+            num_keys_regressor = pickle.load(f)
+        num_keys_regressor = np.array([n for i,n in enumerate(num_keys_regressor) if i not in vols_to_skip])
+        num_keys_regressor = np.expand_dims(num_keys_regressor, axis=1)
+        
+        
         for l,sig in signal.items():
+            sig = np.hstack((num_keys_regressor, sig))
+            
             delayed_sig = make_delayed(sig, delays)
             # delayed_sig = [np.array(s) for s in sig]
             # print(type(delayed_sig), len(delayed_sig), type(delayed_sig[0]))

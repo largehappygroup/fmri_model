@@ -314,7 +314,7 @@ def count_keystrokes(keys_list):
             sum += int(num_presses)
         else:
             sum += 1
-    print(sum, keys_list)
+    # print(sum, keys_list)
     return sum
 
 def combine_shift_sequences(vol_text):
@@ -354,7 +354,7 @@ def process_keystrokes(vol_keystroke_df, task, person):
     
     output = {i : '' for i in range(len(vol_keystroke_df))}
     only_new_keystrokes = {i : '' for i in range(len(vol_keystroke_df))}
-    num_kestrokes = {i : '' for i in range(len(vol_keystroke_df))}
+    num_keystrokes = {i : 0 for i in range(len(vol_keystroke_df))}
     
     prev_question = -1
     answer = Text()
@@ -380,7 +380,10 @@ def process_keystrokes(vol_keystroke_df, task, person):
         
         # combining shift sequences
         shift_combined = combine_shift_sequences(vol_text)
-        num_keystrokes = count_keystrokes(shift_combined)
+        num_keys_pressed = count_keystrokes(shift_combined)
+        num_keystrokes[i] = num_keys_pressed
+        # print(f"{num_keystrokes} {shift_combined}")
+        # print(f"")
         
         if shift_combined[-1] in separators:    
             next_text = ''
@@ -398,6 +401,11 @@ def process_keystrokes(vol_keystroke_df, task, person):
         # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
     output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_formatted_keystrokes.pkl"
     new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_new_keystrokes.pkl"
+    num_keystrokes_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_num_keystrokes_regressor.pkl"
+    num_keystrokes = np.array(list(num_keystrokes.values()))
+    
+    with open(num_keystrokes_outpath, 'wb') as f:
+        pickle.dump(num_keystrokes, f)
     # with open(output_path, 'wb') as f:
     #     pickle.dump(output, f)
     # with open(new_keystroke_outpath, 'wb') as f:
@@ -423,9 +431,9 @@ def main():
         print(f"\n{person}")
         participant_path = f"{datapath}/{person}"
 
-        print("code----------")
+        # print("code----------")
         process_participant('code', person, participant_path)
-        print(f"prose---------")
+        # print(f"prose---------")
         process_participant('prose', person, participant_path)
         # break
 
