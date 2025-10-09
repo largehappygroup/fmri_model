@@ -303,6 +303,19 @@ def find_next_sequence(i, keystroke_df):
         
         if vol_i == volumes_ahead_limit:
             return sequence
+        
+def count_keystrokes(keys_list):
+    sum = 0
+    for key in keys_list:
+        if key == '':
+            continue
+        elif re.search('[0-9]+>', key) and not re.search(r'^<K:S|^<K:CTRL', key):
+            num_presses = (re.search(r'([0-9]+)|>', key))[0]
+            sum += int(num_presses)
+        else:
+            sum += 1
+    print(sum, keys_list)
+    return sum
 
 def combine_shift_sequences(vol_text):
     combined_text = []
@@ -341,6 +354,7 @@ def process_keystrokes(vol_keystroke_df, task, person):
     
     output = {i : '' for i in range(len(vol_keystroke_df))}
     only_new_keystrokes = {i : '' for i in range(len(vol_keystroke_df))}
+    num_kestrokes = {i : '' for i in range(len(vol_keystroke_df))}
     
     prev_question = -1
     answer = Text()
@@ -366,6 +380,7 @@ def process_keystrokes(vol_keystroke_df, task, person):
         
         # combining shift sequences
         shift_combined = combine_shift_sequences(vol_text)
+        num_keystrokes = count_keystrokes(shift_combined)
         
         if shift_combined[-1] in separators:    
             next_text = ''
@@ -378,7 +393,6 @@ def process_keystrokes(vol_keystroke_df, task, person):
         only_new_keystrokes[i] = f"{''.join(shift_combined)}{next_text}" 
         
         # print(formatted_text)
-        
         update_text_and_cursor_position(shift_combined, answer)
     
         # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
@@ -386,8 +400,8 @@ def process_keystrokes(vol_keystroke_df, task, person):
     new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_new_keystrokes.pkl"
     # with open(output_path, 'wb') as f:
     #     pickle.dump(output, f)
-    with open(new_keystroke_outpath, 'wb') as f:
-        pickle.dump(only_new_keystrokes, f)
+    # with open(new_keystroke_outpath, 'wb') as f:
+    #     pickle.dump(only_new_keystrokes, f)
 
 def process_participant(task, person, participant_path):
 
@@ -406,10 +420,12 @@ def main():
     participants = os.listdir(datapath)
 
     for person in participants:
-        print(person)
+        print(f"\n{person}")
         participant_path = f"{datapath}/{person}"
 
+        print("code----------")
         process_participant('code', person, participant_path)
+        print(f"prose---------")
         process_participant('prose', person, participant_path)
         # break
 

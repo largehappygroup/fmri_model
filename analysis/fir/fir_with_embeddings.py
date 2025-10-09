@@ -233,8 +233,10 @@ def main():
             
             make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, weights, emb_test, keys_test)
             
-            with open(weights_outfile, 'wb') as f:
-                pickle.dump(weights, f)
+            ### Not saving model weights for now because each file as float64 takes up 18GB
+            ###   Each participant has 60 embedding files to test and there are 25 participants
+            # with open(weights_outfile, 'wb') as f:
+            #     pickle.dump(weights, f)
             
             with open(corr_outfile, 'wb') as f:
                 pickle.dump(corrs, f)
