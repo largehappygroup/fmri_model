@@ -86,7 +86,7 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted
         selvox = top_voxels[i-1]
 
         realresp = ax.plot(fmri_test[:,selvox], 'k')[0]
-        predresp = ax.plot(zscore(pred[:,selvox]), 'r')[0]
+        predresp = ax.plot(zscore(predicted_signal[:,selvox]), 'r')[0]
         ax.set_ylabel(f"Voxel {selvox}")
 
         ax.set_xlim(0, len(keys_test))
@@ -182,8 +182,12 @@ def load_task_specific_data(p, task):
     participant_keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_new_keystrokes.pkl"
     vols_to_skip_path = f"/storage1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl"
     
+    # try:
     with open(vols_to_skip_path, 'rb') as f:
         vols_to_skip = pickle.load(f)
+    # except:
+    #     print(f"No data for participant {p}")
+    #     return
         
     atlas_voxels_2d,vol_nums = load_and_reshape_fmri_data(participant_fmri_path, vols_to_skip)
     
@@ -207,9 +211,16 @@ def main():
     num_participants = len(participants)
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
-        code_fmri_train, code_fmri_test, code_keys_train, code_keys_test, code_split_point = load_task_specific_data(p, 'code')
-        prose_fmri_train, prose_fmri_test, prose_keys_train, prose_keys_test, prose_split_point = load_task_specific_data(p, 'prose')
+        try:
+            code_fmri_train, code_fmri_test, code_keys_train, code_keys_test, code_split_point = load_task_specific_data(p, 'code')
+        except:
+            print(f"Could not find data for participant {p} on code")
         
+        try:
+            prose_fmri_train, prose_fmri_test, prose_keys_train, prose_keys_test, prose_split_point = load_task_specific_data(p, 'prose')
+        except:
+            print(f"Could not find date for participant {p} on prose")
+            
         participant_embedding_base_path = f"/storage1/fmri_model_data/fir_vectors/{p}"
         embeddings = os.listdir(participant_embedding_base_path)
         num_embeddings = len(embeddings)
@@ -227,7 +238,7 @@ def main():
             embedding_path = f"{participant_embedding_base_path}/{emb}"
             emb_train, emb_test = load_and_split_embeddings(embedding_path, split_point) # TODO task specific split point
             
-            print(f"Participant {p} ({i+1}/{num_participants}) Ridge Regression for {model_name}, {layer} ({ii+1}/{num_embeddings})")            
+            print(f"Participant {p} ({i+1}/{num_participants}) Ridge Regression for {model_name}, {task}, {layer} ({ii+1}/{num_embeddings})")            
             weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
             predicted_signal = np.dot(emb_test, weights)
             
