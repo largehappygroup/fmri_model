@@ -199,7 +199,8 @@ def load_task_specific_data(p, task):
         
     
 def main():
-    participant_path = f"/storage1/fmri_model_data/fir_vectors"
+    #participant_path = f"/storage1/fmri_model_data/fir_vectors"
+    participant_path = f"/storage1/fmri_model_data/fir_vectors_pca"
     participants = os.listdir(participant_path)
     
     def nested_dict():
@@ -221,7 +222,8 @@ def main():
         except:
             print(f"Could not find date for participant {p} on prose")
             
-        participant_embedding_base_path = f"/storage1/fmri_model_data/fir_vectors/{p}"
+        #participant_embedding_base_path = f"/storage1/fmri_model_data/fir_vectors/{p}"
+        participant_embedding_base_path = f"/storage1/fmri_model_data/fir_vectors_pca/{p}"
         embeddings = os.listdir(participant_embedding_base_path)
         num_embeddings = len(embeddings)
         for ii,emb in enumerate(embeddings):
@@ -242,7 +244,9 @@ def main():
             weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
             predicted_signal = np.dot(emb_test, weights)
             
-            base_outpath = f"/storage1/fmri_model_data/ridge_regression_models/{p}"
+            #base_outpath = f"/storage1/fmri_model_data/ridge_regression_models/{p}"
+            base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_models/{p}"
+
             # weights_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-model_weights.pkl" # saving for specific model, layer, and task
             corr_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-correlations.pkl"
             
@@ -276,11 +280,11 @@ def main():
     all_corr_means = json.loads(json.dumps(all_corr_means))
     all_corr_stds  = json.loads(json.dumps(all_corr_stds))
     
-    with open("results/all_corr_means.pkl", 'wb') as f:
-        pickle.dump(all_corr_means, f)
-    
-    with open(f"results/all_corr_standard_deviations.pkl", 'wb') as f:
-        pickle.dump(all_corr_stds, f)
+    #with open("results/all_corr_means.pkl", 'wb') as f:
+    #    pickle.dump(all_corr_means, f)
+    #
+    #with open(f"results/all_corr_standard_deviations.pkl", 'wb') as f:
+    #    pickle.dump(all_corr_stds, f)
 
 if __name__ == "__main__":
     main()
