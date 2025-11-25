@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from ridge import bootstrap_ridge
 from collections import defaultdict
 from matplotlib.pyplot import figure, cm
+from sklearn.metrics.pairwise import cosine_similarity
 
 #############################################################################
 ############## Loading Atlases ##############################################
@@ -42,15 +43,24 @@ empty_mni = np.zeros(atlas_vec.shape)
 #     ax.set_ylabel("Num. voxels");
 #     plt.savefig() # TODO
 
-def save_correlation_coefficients_as_nifti(voxcorrs):
+def save_stats_as_nifti(values):
     # working backwards to save correlation values as voxels in MNI space
-    empty_schaefer[cortex] = voxcorrs
+    empty_schaefer[cortex] = values
     empty_mni[brain_idx] = empty_schaefer
     result_brain = np.reshape(empty_mni, og_shape)
 
     # Saving results
     nifti_result = nib.Nifti1Image(result_brain, affine=atlas.affine, header=atlas.header)
     nib.save(nifti_result, "layer_0_clean.nii.gz")
+    
+def calculate_voxelwise_cosine_similarity(recorded, predicted):
+    similarities = []
+    for i in range(predicted.shape[1]):
+        rec = [recorded[:,i]]
+        pre = [predicted[:,i]]
+        cos = float((cosine_similarity(rec, pre))[0][0])
+        similarities.append(cos)
+    return similarities
     
 def find_top_voxels(corrs):
     max_corrs = corrs.copy()
@@ -76,7 +86,6 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted
     plt.savefig(f"{outpath}/{model_name}-{layer}-{task}-training_performance.png", dpi=150)
     
     top_voxels = find_top_voxels(corrs)
-    # pred = np.dot(emb_test, weights)
     
     f = figure(figsize=(15,15))
     
@@ -106,7 +115,7 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted
 # emb_train, fmri_train, emb_test, fmri_test
 def run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test):
     alphas = np.logspace(1, 4, 12) # Equally log-spaced alphas between 10 and 1000. The third number is the number of alphas to test.
-    nboots = 1 # Number of cross-validation runs.
+    nboots = 5 #1 # Number of cross-validation runs.
     chunklen = 40 # 
     nchunks = 20
 
@@ -205,9 +214,8 @@ def main():
     
     def nested_dict():
         return defaultdict(nested_dict)
-      
-    all_corr_means = nested_dict()
-    all_corr_stds = nested_dict()
+    
+    voxelwise_stats = nested_dict()
     
     num_participants = len(participants)
     for i,p in enumerate(participants):     
@@ -238,7 +246,7 @@ def main():
             keys_test = code_keys_test if task == 'code' else prose_keys_test
             
             embedding_path = f"{participant_embedding_base_path}/{emb}"
-            emb_train, emb_test = load_and_split_embeddings(embedding_path, split_point) # TODO task specific split point
+            emb_train, emb_test = load_and_split_embeddings(embedding_path, split_point)
             
             print(f"Participant {p} ({i+1}/{num_participants}) Ridge Regression for {model_name}, {task}, {layer} ({ii+1}/{num_embeddings})")            
             weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
@@ -249,13 +257,14 @@ def main():
 
             # weights_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-model_weights.pkl" # saving for specific model, layer, and task
             corr_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-correlations.pkl"
+            sim_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-cosine_similarities.pkl"
+            
+            cos_similarities = calculate_voxelwise_cosine_similarity(fmri_test, predicted_signal)
             
             # Saving model weights and correlation values between predicted and actual timecourses as output
             # UPDATE - not saving model weights for now because the files are huge
             if not os.path.exists(base_outpath):
                 os.mkdir(base_outpath)
-            
-            make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test)
             
             ### Not saving model weights for now because each file as float64 takes up 18GB
             ###   Each participant has 60 embedding files to test and there are 25 participants
@@ -265,12 +274,22 @@ def main():
             with open(corr_outfile, 'wb') as f:
                 pickle.dump(corrs, f)
                 
+            with open(sim_outfile, 'wb') as f:
+                pickle.dump(cos_similarities, f)
+                
+            make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test)
+            
             # Saving summary statistics from training performance
             corrs_mean = np.mean(corrs)
             corrs_std = np.std(corrs)
             
-            all_corr_means[p][task][model_name][layer] = corrs_mean
-            all_corr_stds[p][task][model_name][layer] = corrs_std
+            voxelwise_stats[p][task][model_name][layer]['correlation_mean'] = corrs_mean
+            voxelwise_stats[p][task][model_name][layer]['correlation_std'] = corrs_std
+            # voxelwise_stats[p][task][model_name][layer]['cosine_similarity'] = cos_sim
+
+            
+            # all_corr_means[p][task][model_name][layer] = corrs_mean
+            # all_corr_stds[p][task][model_name][layer] = corrs_std
             
             # Trying to free up space
             del weights, corrs, bscorrs, emb_train, emb_test, fmri_train, fmri_test
@@ -279,6 +298,9 @@ def main():
     # converting from default dictionaries to regular dictionaries
     all_corr_means = json.loads(json.dumps(all_corr_means))
     all_corr_stds  = json.loads(json.dumps(all_corr_stds))
+    
+    with open("results/voxelwise_stats.pkl", "wb") as f:
+        pickle.dump(voxelwise_stats, f)
     
     #with open("results/all_corr_means.pkl", 'wb') as f:
     #    pickle.dump(all_corr_means, f)
