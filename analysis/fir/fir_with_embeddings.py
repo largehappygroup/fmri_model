@@ -296,8 +296,9 @@ def main():
             gc.collect()
     
     # converting from default dictionaries to regular dictionaries
-    all_corr_means = json.loads(json.dumps(all_corr_means))
-    all_corr_stds  = json.loads(json.dumps(all_corr_stds))
+    # all_corr_means = json.loads(json.dumps(all_corr_means))
+    # all_corr_stds  = json.loads(json.dumps(all_corr_stds))
+    voxelwise_stats = json.loads(json.dumps(voxelwise_stats))
     
     with open("results/voxelwise_stats.pkl", "wb") as f:
         pickle.dump(voxelwise_stats, f)
