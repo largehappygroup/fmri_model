@@ -372,10 +372,13 @@ def process_keystrokes(vol_keystroke_df, task, person):
             answer.question_text = get_question_text(task, question_num)
         
         vol_text = ast.literal_eval(row['keystrokes'])
+        prefix = f"{answer.question_text}\n{answer.to_string()}"
         
         if len(vol_text) == 0:
             if row['question_num'] != '[]':
-                output[i] = f"{answer.question_text}\n{answer.to_string()}"
+                next_text = find_next_sequence(i, vol_keystroke_df)
+                formatted_text = fill_in_the_middle('', prefix, next_text)
+                output[i] = formatted_text
             continue
         
         # combining shift sequences
@@ -389,8 +392,7 @@ def process_keystrokes(vol_keystroke_df, task, person):
             next_text = ''
         else:
             next_text = find_next_sequence(i, vol_keystroke_df)
-        
-        prefix = f"{answer.question_text}\n{answer.to_string()}"
+            
         formatted_text = fill_in_the_middle(''.join(shift_combined), prefix, next_text)
         output[i] = formatted_text
         only_new_keystrokes[i] = f"{''.join(shift_combined)}{next_text}" 
@@ -406,10 +408,10 @@ def process_keystrokes(vol_keystroke_df, task, person):
     
     with open(num_keystrokes_outpath, 'wb') as f:
         pickle.dump(num_keystrokes, f)
-    # with open(output_path, 'wb') as f:
-    #     pickle.dump(output, f)
-    # with open(new_keystroke_outpath, 'wb') as f:
-    #     pickle.dump(only_new_keystrokes, f)
+    with open(output_path, 'wb') as f:
+        pickle.dump(output, f)
+    with open(new_keystroke_outpath, 'wb') as f:
+        pickle.dump(only_new_keystrokes, f)
 
 def process_participant(task, person, participant_path):
 

@@ -11,6 +11,8 @@ mask_functional(){
 register_functional(){
       echo "applying transformations to functional scan"
       fslsplit $1 temp_vol -t
+      # -r is reference image -- if we're doing subjects' native space, reference image should be reference.nii
+      # transformations shouldn't include 1Warp.nii
       ls temp_vol*.nii.gz | nice parallel "antsApplyTransforms -d 3 -i {} -r $2/Warped.nii.gz -o {}_warped.nii -t $2/1Warp.nii.gz -t $2/0GenericAffine.mat -t $2/epi_2_anat_0GenericAffine.mat"
       fslmerge -t "$2/raw_mc_epi2mni.nii" temp_vol*_warped.nii
       rm temp_vol*
