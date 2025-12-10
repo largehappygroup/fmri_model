@@ -1,21 +1,22 @@
 #!/bin/bash
 
 mask_functional(){
-      fslsplit "$1/st_mc.nii.gz" temp_vol -t
+      fslsplit "$1/st_mc.nii.gz" $1/temp_vol -t
       
-      ls temp_vol*.nii.gz | nice parallel "fslmaths {} -mas $1/resampled_anatomical_mask.nii.gz {}_brain"
-      fslmerge -t "$1/func_brain.nii.gz" temp_vol*_brain.nii.gz
-      rm temp_vol*.nii.gz
+      ls $1/temp_vol*.nii.gz | nice parallel "fslmaths {} -mas $1/resampled_anatomical_mask.nii.gz {}_brain"
+      fslmerge -t "$1/func_brain.nii.gz" $1/temp_vol*_brain.nii.gz
+      rm $1/temp_vol*.nii.gz
 }
 
 register_functional(){
       echo "applying transformations to functional scan"
-      fslsplit $1 temp_vol -t
+      fslsplit $1 $2/temp_vol -t
       # -r is reference image -- if we're doing subjects' native space, reference image should be reference.nii
       # transformations shouldn't include 1Warp.nii
-      ls temp_vol*.nii.gz | nice parallel "antsApplyTransforms -d 3 -i {} -r $2/Warped.nii.gz -o {}_warped.nii -t $2/1Warp.nii.gz -t $2/0GenericAffine.mat -t $2/epi_2_anat_0GenericAffine.mat"
-      fslmerge -t "$2/raw_mc_epi2mni.nii" temp_vol*_warped.nii
-      rm temp_vol*
+      # ls temp_vol*.nii.gz | nice parallel "antsApplyTransforms -d 3 -i {} -r $2/Warped.nii.gz -o {}_warped.nii -t $2/1Warp.nii.gz -t $2/0GenericAffine.mat -t $2/epi_2_anat_0GenericAffine.mat"
+      ls $2/temp_vol*.nii.gz | nice parallel "antsApplyTransforms -d 3 -i {} -r $2/reference.nii.gz -o {}_warped.nii -t $2/0GenericAffine.mat -t $2/epi_2_anat_0GenericAffine.mat --float"
+      fslmerge -t "$2/raw_mc_epi2mni.nii" $2/temp_vol*_warped.nii
+      rm $2/temp_vol*
 }
 
 preprocess(){       
@@ -70,9 +71,12 @@ preprocess(){
 # then sending functional and anatomical files into pipeline.
 # Preprocessed files (prior to Independent Component Analysis for physio correction)
 # are sent to the 'midprocess' folder
-datapath="/home/zachkaras/fmri/fmri_model_data"
-find "$datapath/raw_prose" -maxdepth 1 -type d | while read -r folder; do
-      foldername="${folder:47}"
+datapath="/storage1/fmri_model_data"
+#find "$datapath/raw_prose" -maxdepth 1 -type d | while read -r folder; do
+find "$datapath/raw" -maxdepth 1 -type d | while read -r folder; do
+      #foldername="${folder:36}"
+      foldername="${folder:30}"
+
       echo $foldername
       
       if [[ "$foldername" =~  ^[0-9]{3}$ ]]; then
@@ -83,7 +87,9 @@ find "$datapath/raw_prose" -maxdepth 1 -type d | while read -r folder; do
             #ANAT="/home/zachkaras/fmri/fmri_model_data/raw/130/ht1spgr_208sl.nii"
             #FUNC="/home/zachkaras/fmri/fmri_model_data/raw/130/utrun_01_clipped.nii.gz" # just for participant 130
 
-            outpath="$datapath/midprocess_prose/$foldername"
+            # outpath="$datapath/midprocess_prose/$foldername"
+            #outpath="$datapath/midprocess_no_reg_prose/$foldername"
+            outpath="$datapath/midprocess_no_reg/$foldername"
 
             mkdir "$outpath" 
 
