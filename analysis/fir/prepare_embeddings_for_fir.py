@@ -109,6 +109,10 @@ def find_layer_labels(keystroke_dict, embedding_dict):
 
 def run_participants(model_path, model, task):
     
+    # TODO - sensitivity analysis to different parameters
+    #           - ndelays
+    #           - keystroke formatting
+    #           - with/without PCA
     # run os listdir on model path to get participants
     participants = os.listdir(model_path)
     ndelays = 4
