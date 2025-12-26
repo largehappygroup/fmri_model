@@ -10,8 +10,10 @@ import pandas as pd
 # argument that changes path names if I'm using my local computer
 parser = argparse.ArgumentParser(description="Script to concatenate keystrokes into discrete chunks that are more interpretable.")
 parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
+parser.add_argument("--look_ahead", required=False, default=5, help="When preparing keystrokes, this argument indicates fow how many volumes to include as 'future keystrokes' that participant may be thinking about.")
 
 args = parser.parse_args()
+look_ahead_time = args.look_ahead
 
 if args.computer == 'mymac':
     bass_path = "/Users/zacharykaras/Desktop"
@@ -283,7 +285,8 @@ def find_next_sequence(i, keystroke_df):
     separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';', '=', '<=', '>=', '==', '']
     
     tr = 0.8
-    time_limit = 4 # 4 seconds
+    # time_limit = 4 # 4 seconds
+    time_limit = int(look_ahead_time) # Updated to be adjustable parameter on 12/26/2025
     volumes_ahead_limit = math.floor(time_limit/tr)
     vol_i = 0
     j = i + 1
@@ -377,6 +380,8 @@ def process_keystrokes(vol_keystroke_df, task, person):
         if len(vol_text) == 0:
             if row['question_num'] != '[]':
                 next_text = find_next_sequence(i, vol_keystroke_df)
+                if not next_text:
+                    next_text = ''
                 formatted_text = fill_in_the_middle('', prefix, next_text)
                 output[i] = formatted_text
             continue
@@ -392,6 +397,8 @@ def process_keystrokes(vol_keystroke_df, task, person):
             next_text = ''
         else:
             next_text = find_next_sequence(i, vol_keystroke_df)
+            if not next_text:
+                next_text = ''
             
         formatted_text = fill_in_the_middle(''.join(shift_combined), prefix, next_text)
         output[i] = formatted_text
@@ -401,9 +408,9 @@ def process_keystrokes(vol_keystroke_df, task, person):
         update_text_and_cursor_position(shift_combined, answer)
     
         # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
-    output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_formatted_keystrokes.pkl"
-    new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_new_keystrokes.pkl"
-    num_keystrokes_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}_num_keystrokes_regressor.pkl"
+    output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-formatted_keystrokes.pkl"
+    new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-new_keystrokes.pkl"
+    num_keystrokes_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-num_keystrokes_regressor.pkl"
     num_keystrokes = np.array(list(num_keystrokes.values()))
     
     with open(num_keystrokes_outpath, 'wb') as f:

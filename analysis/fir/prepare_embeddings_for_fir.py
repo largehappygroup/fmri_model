@@ -1,9 +1,14 @@
 import os
 import pickle
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+
+parser = argparse.ArgumentParser(description="Script to conduct FIR with embeddings from LLMs.")
+parser.add_argument("--ndelays", required=False, default=4, help="This indicates how many delayed copies of the embedding to include (i.e., for how long the keystrokes will influence neural activity)")
+args = parser.parse_args()
 
 def make_delayed(stim, delays, circpad=False):
     """Creates non-interpolated concatenated delayed versions of [stim] with the given [delays] 
@@ -115,7 +120,8 @@ def run_participants(model_path, model, task):
     #           - with/without PCA
     # run os listdir on model path to get participants
     participants = os.listdir(model_path)
-    ndelays = 4
+    # ndelays = 4
+    ndelays = args.ndelays # Updated to be a variable parameter on 12/26/2025
     delays = range(1,ndelays+1)
 
     for p in participants:
@@ -170,7 +176,7 @@ def run_participants(model_path, model, task):
             if not os.path.exists(outputdir):
                 os.mkdir(outputdir)
             
-            with open(f"{outputdir}/{model}-{task}-fir_embedding-{l}.pkl", 'wb') as f:
+            with open(f"{outputdir}/{model}-{task}-ndelays_{args.ndelays}-fir_embedding-{l}.pkl", 'wb') as f:
                 pickle.dump(delayed_sig, f)
             #break
         
