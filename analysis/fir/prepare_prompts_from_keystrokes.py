@@ -371,6 +371,7 @@ def process_keystrokes(vol_keystroke_df, task, person):
             question_num = curr_question[0]
             
             # creating new text object to contain participant's response to current question
+            # TODO - no question text
             answer = Text()
             answer.question_text = get_question_text(task, question_num)
         

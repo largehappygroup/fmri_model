@@ -1,14 +1,14 @@
 import os
 import pickle
-import argparse
+# import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-parser = argparse.ArgumentParser(description="Script to conduct FIR with embeddings from LLMs.")
-parser.add_argument("--ndelays", required=False, default=4, help="This indicates how many delayed copies of the embedding to include (i.e., for how long the keystrokes will influence neural activity)")
-args = parser.parse_args()
+# parser = argparse.ArgumentParser(description="Script to conduct FIR with embeddings from LLMs.")
+# parser.add_argument("--ndelays", required=False, default=4, help="This indicates how many delayed copies of the embedding to include (i.e., for how long the keystrokes will influence neural activity)")
+# args = parser.parse_args()
 
 def make_delayed(stim, delays, circpad=False):
     """Creates non-interpolated concatenated delayed versions of [stim] with the given [delays] 
@@ -121,71 +121,80 @@ def run_participants(model_path, model, task):
     # run os listdir on model path to get participants
     participants = os.listdir(model_path)
     # ndelays = 4
-    ndelays = args.ndelays # Updated to be a variable parameter on 12/26/2025
-    delays = range(1,ndelays+1)
+    # ndelays = args.ndelays # Updated to be a variable parameter on 12/26/2025
+    ndelays = [0, 4, 10, 16, 20]
+    
+    for d in ndelays:
+        delays = range(1,d+1)
+        for p in participants:
+            # p = 133
+            print(p)
+            look_ahead_by = [0, 1, 3, 5, 10]
+            
+            for t in look_ahead_by:
+                # emb_datapath = f"{model_path}/{p}/{task}_keystroke_embeddings.pkl"
+                emb_datapath = f"{model_path}/{p}/{task}_look_ahead_by_{t}-keystroke_embeddings.pkl"
+                try:
+                    with open(emb_datapath, 'rb') as f:
+                        embedding_dict = pickle.load(f)
+                except Exception as e:
+                    print(f"can't open embedding: {e}")
+                    continue    
+                    
+                # keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_formatted_keystrokes.pkl"
+                keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
+                try:
+                    with open(keystroke_path, 'rb') as f:
+                        keystroke_dict = pickle.load(f)
+                except:
+                    continue    
+                
+                # For PCA, can use vector sizes of 985 from semantic tiling, 768 from continuous language, 50 from intracranial EEG
+                # I found that the feature vectors need to be smaller than the other dimensions, so 768 and 985 are too big
+                # 50 feels too small, so I'm trying 256 for now 10/14/2025
+                # print(f"Embedding length for {model}: {len((embedding_dict[list(embedding_dict.keys())[0]])['layer_0'])}")
+                layers = find_layer_labels(keystroke_dict, embedding_dict)
 
-    for p in participants:
-        # p = 133
-        print(p)
-        emb_datapath = f"{model_path}/{p}/{task}_keystroke_embeddings.pkl"
-        try:
-            with open(emb_datapath, 'rb') as f:
-                embedding_dict = pickle.load(f)
-        except Exception as e:
-            print(f"can't open embedding: {e}")
-            continue    
-            
-        keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_formatted_keystrokes.pkl"
-        try:
-            with open(keystroke_path, 'rb') as f:
-                keystroke_dict = pickle.load(f)
-        except:
-            continue    
-        
-        # For PCA, can use vector sizes of 985 from semantic tiling, 768 from continuous language, 50 from intracranial EEG
-        # I found that the feature vectors need to be smaller than the other dimensions, so 768 and 985 are too big
-        # 50 feels too small, so I'm trying 256 for now 10/14/2025
-        # print(f"Embedding length for {model}: {len((embedding_dict[list(embedding_dict.keys())[0]])['layer_0'])}")
-        layers = find_layer_labels(keystroke_dict, embedding_dict)
-
-        # make a stack for each layer
-        # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
-        signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
-        
-        # signal_pca = reduce_dimensionality(signal)
-        
-        with open(f"/storage1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
-            pickle.dump(vols_to_skip, f)
-        
-        regressor = prepare_regressor(p, task, vols_to_skip)
-        
-        for l,sig in signal.items():
-            sig = np.hstack((regressor, sig))
-            sig_pca = reduce_dimensionality(sig)
-            # print("After PCA", sig_pca.shape)
-            # with open("test_regressor.pkl", 'wb') as f:
-            #     pickle.dump(sig, f)
-            
-            # delayed_sig = make_delayed(sig, delays)
-            delayed_sig = make_delayed(sig_pca, delays)
-            # delayed_sig = [np.array(s) for s in sig]
-            # print(type(delayed_sig), len(delayed_sig), type(delayed_sig[0]))
-            # outputdir = f"/storage1/fmri_model_data/fir_vectors/{p}"
-            outputdir = f"/storage1/fmri_model_data/fir_vectors_pca/{p}"
-            
-            if not os.path.exists(outputdir):
-                os.mkdir(outputdir)
-            
-            with open(f"{outputdir}/{model}-{task}-ndelays_{args.ndelays}-fir_embedding-{l}.pkl", 'wb') as f:
-                pickle.dump(delayed_sig, f)
-            #break
-        
-        #break
+                # make a stack for each layer
+                # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
+                signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
+                
+                # signal_pca = reduce_dimensionality(signal)
+                
+                with open(f"/storage1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
+                    pickle.dump(vols_to_skip, f)
+                
+                regressor = prepare_regressor(p, task, vols_to_skip)
+                
+                for l,sig in signal.items():
+                    sig = np.hstack((regressor, sig))
+                    sig_pca = reduce_dimensionality(sig)
+                    # print("After PCA", sig_pca.shape)
+                    # with open("test_regressor.pkl", 'wb') as f:
+                    #     pickle.dump(sig, f)
+                    
+                    # delayed_sig = make_delayed(sig, delays)
+                    delayed_sig = make_delayed(sig_pca, delays)
+                    # delayed_sig = [np.array(s) for s in sig]
+                    # print(type(delayed_sig), len(delayed_sig), type(delayed_sig[0]))
+                    # outputdir = f"/storage1/fmri_model_data/fir_vectors/{p}"
+                    # outputdir = f"/storage1/fmri_model_data/fir_vectors_pca/{p}"
+                    outputdir = f"/storage1/fmri_model_data/fir_vectors_pca_params/{p}"
+                    
+                    if not os.path.exists(outputdir):
+                        os.mkdir(outputdir)
+                    
+                    with open(f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}.pkl", 'wb') as f:
+                        pickle.dump(delayed_sig, f)
+                    #break
+                
+                #break
 
 
 def main():
     # iterate through models
-    all_models = f"/storage1/fmri_model_data/fir_embeddings"
+    # all_models = f"/storage1/fmri_model_data/fir_embeddings"
+    all_models = f"/storage1/fmri_model_data/fir_embeddings_params"
     models = os.listdir(all_models)
     
     for m in models:
