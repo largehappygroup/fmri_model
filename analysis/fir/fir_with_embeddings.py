@@ -217,6 +217,10 @@ def main():
     
     voxelwise_stats = nested_dict()
     
+    # TODO - adjust for new parameters (look ahead by and number of delays)
+    # should save stats periodically
+    # and also parallelize so that the computation doesn't take forever
+
     num_participants = len(participants)
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")

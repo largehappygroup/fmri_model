@@ -174,7 +174,7 @@ def run_participants(model_path, model, task):
                     #     pickle.dump(sig, f)
                     
                     # delayed_sig = make_delayed(sig, delays)
-                    delayed_sig = make_delayed(sig_pca, delays)
+                    delayed_sig = make_delayed(sig_pca, delays) if d > 0 else sig_pca
                     # delayed_sig = [np.array(s) for s in sig]
                     # print(type(delayed_sig), len(delayed_sig), type(delayed_sig[0]))
                     # outputdir = f"/storage1/fmri_model_data/fir_vectors/{p}"

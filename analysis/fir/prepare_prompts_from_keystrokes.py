@@ -296,10 +296,13 @@ def find_next_sequence(i, keystroke_df):
                 
         for ch in row_text:
 
-            if ch in separators:
-                return sequence
-            else:
-                sequence += ch
+            # Commented out on 12/29/2025
+            # If we're parameterizing this, it's a bit disingenuous to cut the look ahead short
+            
+            # if ch in separators:
+            #     return sequence
+            # else:
+            sequence += ch
         
         j += 1
         vol_i += 1
