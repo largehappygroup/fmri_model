@@ -19,6 +19,8 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 ############## Loading Atlases ##############################################
 #############################################################################
 
+# make sure things svae, load, and plot properly
+
 atlas_base_path = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases"
 
 # read in 2d mni mask
@@ -68,13 +70,15 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted
     
     model_name = meta_data[0]
     task = meta_data[1]
-    layer = (meta_data[3])[:-4]
+    look = meta_data[2]
+    delays = meta_data[3]
+    layer = (meta_data[5])[:-4]
     
     # Plotting training performance
     f = figure()
     ax = f.add_subplot(1,1,1)
     ax.semilogx( np.logspace(1,4,12), bscorrs.mean(2).mean(1), 'o-')
-    plt.savefig(f"{outpath}/{model_name}-{layer}-{task}-training_performance.png", dpi=150)
+    plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-training_performance.png", dpi=150)
     
     # Plotting top 5 timecourses along with keystrokes
     top_voxels = find_top_voxels(corrs)
@@ -98,7 +102,7 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted
             ax.set_xticklabels(x_labels, rotation=90)
 
         ax.legend((realresp, predresp), ("Actual response", "Predicted response (scaled)"));
-    plt.savefig(f"{outpath}/{model_name}-{layer}-{task}-top_5_voxels.png", dpi=150)
+    plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-top_5_voxels.png", dpi=150)
     plt.close('all')
     gc.collect()
 
@@ -126,7 +130,11 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     meta_data = re.split('-', emb)
     model_name = meta_data[0]
     task = meta_data[1]
-    layer = (meta_data[3])[:-4]
+    look = meta_data[2]
+    delays = meta_data[3]
+    layer = (meta_data[5])[:-4]
+    # task = meta_data[1]
+    # layer = (meta_data[3])[:-4]
     # look_ahead = meta_data[2]
     # ndelays = meta_data[3]
     
@@ -140,7 +148,7 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     emb_train, emb_test = load_and_split_embeddings(embedding_path, split_point)
     
     # Running ridge regression here
-    print(f"Participant {participant} Ridge Regression for {model_name}, {task}, {layer}")
+    print(f"Participant {participant} Ridge Regression for {model_name}, {task}, {layer}, {look}, {delays}")
     weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
     predicted_signal = np.dot(emb_test, weights)
     
@@ -149,8 +157,8 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     
     # base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_models/{participant}"
     base_outpath = f"/storage1/fmri_model_data/test/{participant}"
-    corr_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-correlations.pkl"
-    sim_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-cosine_similarities.pkl"
+    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-correlations.pkl"
+    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-cosine_similarities.pkl"
     # std_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-stds.pkl"
     
     
@@ -255,10 +263,10 @@ def load_task_specific_data(p, task):
         
     
 def main():
-    participant_path = f"/storage1/fmri_model_data/fir_vectors_pca"
+    # participant_path = f"/storage1/fmri_model_data/fir_vectors_pca"
+    participant_path = f"/storage1/fmri_model_data/fir_vectors_pca_params"
     participants = os.listdir(participant_path)
     
-
     num_participants = len(participants)
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
@@ -272,12 +280,11 @@ def main():
         except:
             print(f"Could not find date for participant {p} on prose")
             
-        participant_embedding_base_path = f"/storage1/fmri_model_data/fir_vectors_pca/{p}"
+        participant_embedding_base_path = f"/storage1/fmri_model_data/fir_vectors_pca_params/{p}"
         embeddings = os.listdir(participant_embedding_base_path)
         num_embeddings = len(embeddings)
 
-        # base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_models/{p}"
-        base_outpath = f"/storage1/fmri_model_data/test/{p}"
+        base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_params/{p}"
 
         n_workers = 32
         # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
@@ -309,7 +316,8 @@ def main():
 
                 except Exception as e:
                     print(f"Error for {emb} (participant {p}): {e}")
-        break
+                # break
+        # break
 
 if __name__ == "__main__":
     main()
