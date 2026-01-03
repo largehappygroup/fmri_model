@@ -63,7 +63,7 @@ def find_top_voxels(corrs):
     return top_inds
     
 # Making plots for correlations and predicted vs. actual signal
-def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test):
+def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, stat, predicted_signal, emb_test, keys_test, stat_used):
     
     warnings.filterwarnings("ignore", message="No artists with labels found")
     warnings.filterwarnings("ignore", message="Glyph.*missing from font")
@@ -81,7 +81,7 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted
     plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-training_performance.png", dpi=150)
     
     # Plotting top 5 timecourses along with keystrokes
-    top_voxels = find_top_voxels(corrs)
+    top_voxels = find_top_voxels(stat)
     f = figure(figsize=(15,15))
     
     for i in range(1,6):
@@ -102,7 +102,7 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, corrs, predicted
             ax.set_xticklabels(x_labels, rotation=90)
 
         ax.legend((realresp, predresp), ("Actual response", "Predicted response (scaled)"));
-    plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-top_5_voxels.png", dpi=150)
+    plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
     plt.close('all')
     gc.collect()
 
@@ -156,7 +156,7 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     cos_similarities = calculate_voxelwise_cosine_similarity(fmri_test, predicted_signal)
     
     # base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_models/{participant}"
-    base_outpath = f"/storage1/fmri_model_data/test/{participant}"
+    # base_outpath = f"/storage1/fmri_model_data/test/{participant}"
     corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-correlations.pkl"
     sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-cosine_similarities.pkl"
     # std_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-stds.pkl"
@@ -178,7 +178,8 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     with open(sim_outfile, 'wb') as f:
         pickle.dump(cos_similarities, f)
         
-    make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test)
+    make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test, 'correlation')
+    make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, cos_similarities, predicted_signal, emb_test, keys_test, 'cosine_similarity')
     
     # Trying to free up space
     del weights, corrs, bscorrs, emb_train, emb_test, fmri_train, fmri_test
@@ -270,6 +271,12 @@ def main():
     num_participants = len(participants)
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
+        base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_params/{p}"
+        
+        if os.path.isdir(base_outpath):
+            print(f"Participant output already exists. Skipping")
+            continue
+        
         try:
             code_fmri_train, code_fmri_test, code_keys_train, code_keys_test, code_split_point = load_task_specific_data(p, 'code')
         except:
@@ -286,7 +293,7 @@ def main():
 
         base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_params/{p}"
 
-        n_workers = 32
+        n_workers = 36
         # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
 
         print(f"Participant {p} ({i+1}/{num_participants}): "
