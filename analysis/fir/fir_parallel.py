@@ -15,6 +15,8 @@ from matplotlib.pyplot import figure, cm
 from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
+ALLOWED_CORES = 36
+
 #############################################################################
 ############## Loading Atlases ##############################################
 #############################################################################
@@ -179,7 +181,7 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
         pickle.dump(cos_similarities, f)
         
     make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test, 'correlation')
-    make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, cos_similarities, predicted_signal, emb_test, keys_test, 'cosine_similarity')
+    # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, cos_similarities, predicted_signal, emb_test, keys_test, 'cosine_similarity')
     
     # Trying to free up space
     del weights, corrs, bscorrs, emb_train, emb_test, fmri_train, fmri_test
@@ -261,6 +263,9 @@ def load_task_specific_data(p, task):
     keys_train,keys_test = load_keystrokes(participant_keystroke_path, split_point, vol_nums)
         
     return fmri_train, fmri_test, keys_train, keys_test, split_point 
+
+def init_worker():
+    os.sched_setaffinity(0,ALLOWED_CORES)
         
     
 def main():
@@ -293,13 +298,12 @@ def main():
 
         base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_params/{p}"
 
-        n_workers = 36
         # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
 
         print(f"Participant {p} ({i+1}/{num_participants}): "
-            f"processing {num_embeddings} embeddings with {n_workers} workers")
+            f"processing {num_embeddings} embeddings with {ALLOWED_CORES} workers")
 
-        with ProcessPoolExecutor(max_workers=n_workers) as ex:
+        with ProcessPoolExecutor(max_workers=ALLOWED_CORES, initializer=init_worker) as ex:
             futures = {
                 ex.submit(
                     ridge_regression_wrapper, 
