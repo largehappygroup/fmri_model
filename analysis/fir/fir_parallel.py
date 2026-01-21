@@ -15,7 +15,7 @@ from matplotlib.pyplot import figure, cm
 from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-ALLOWED_CORES = 36
+ALLOWED_CORES = list(range(0,40))
 
 #############################################################################
 ############## Loading Atlases ##############################################
@@ -301,9 +301,9 @@ def main():
         # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
 
         print(f"Participant {p} ({i+1}/{num_participants}): "
-            f"processing {num_embeddings} embeddings with {ALLOWED_CORES} workers")
+            f"processing {num_embeddings} embeddings with {len(ALLOWED_CORES)} workers")
 
-        with ProcessPoolExecutor(max_workers=ALLOWED_CORES, initializer=init_worker) as ex:
+        with ProcessPoolExecutor(max_workers=len(ALLOWED_CORES), initializer=init_worker) as ex:
             futures = {
                 ex.submit(
                     ridge_regression_wrapper, 

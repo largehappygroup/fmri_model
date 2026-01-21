@@ -161361,3 +161361,410 @@ Participant 204 Ridge Regression for codegemma_7b, code, layer_12, look_ahead_by
 /home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
   zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
 Participant 204 Ridge Regression for deepseek_2b, prose, layer_15, look_ahead_by_1, ndelays_0
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+Participant 204 Ridge Regression for codegemma_2b, prose, layer_12, look_ahead_by_10, ndelays_20
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+Participant 204 Ridge Regression for deepseek_6b, code, layer_16, look_ahead_by_0, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+Participant 204 Ridge Regression for starcoder2_3b, code, layer_16, look_ahead_by_3, ndelays_10
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+Participant 204 Ridge Regression for deepseek_2b, prose, layer_12, look_ahead_by_1, ndelays_0
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 204 Ridge Regression for deepseek_6b, prose, layer_24, look_ahead_by_0, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+/home/zachkaras/fmri/fmri_model/analysis/fir/fir_parallel.py:105: UserWarning: Glyph 13 () missing from current font.
+  plt.savefig(f"{outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{stat_used}-top_5_voxels.png", dpi=150)
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+Participant 117 (10/25): Loading fMRI data
+Participant 117 (10/25): processing 2650 embeddings with 36 workers
+Participant 117 Ridge Regression for codegemma_2b, prose, layer_0, look_ahead_by_1, ndelays_4
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for deepseek_6b, code, layer_16, look_ahead_by_1, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_3b, prose, layer_28, look_ahead_by_1, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for deepseek_6b, prose, layer_24, look_ahead_by_1, ndelays_4
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, code, layer_10, look_ahead_by_1, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for deepseek_2b, code, layer_24, look_ahead_by_5, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_3b, code, layer_4, look_ahead_by_5, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, prose, layer_6, look_ahead_by_10, ndelays_0
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_7b, prose, layer_20, look_ahead_by_1, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for deepseek_6b, prose, layer_28, look_ahead_by_1, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_7b, prose, layer_4, look_ahead_by_0, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_7b, prose, layer_0, look_ahead_by_1, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for deepseek_2b, prose, layer_3, look_ahead_by_10, ndelays_4
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_3b, prose, layer_0, look_ahead_by_0, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, prose, layer_18, look_ahead_by_5, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for deepseek_6b, code, layer_12, look_ahead_by_5, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, prose, layer_10, look_ahead_by_10, ndelays_16
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_7b, prose, layer_20, look_ahead_by_10, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, prose, layer_4, look_ahead_by_10, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_7b, prose, layer_4, look_ahead_by_10, ndelays_0
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_3b, prose, layer_28, look_ahead_by_10, ndelays_4
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_7b, code, layer_24, look_ahead_by_5, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, code, layer_6, look_ahead_by_10, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for deepseek_2b, prose, layer_3, look_ahead_by_10, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_7b, prose, layer_4, look_ahead_by_5, ndelays_4
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_7b, code, layer_0, look_ahead_by_0, ndelays_0
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_7b, prose, layer_28, look_ahead_by_1, ndelays_16
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, code, layer_0, look_ahead_by_5, ndelays_20
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, code, layer_0, look_ahead_by_1, ndelays_4
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+/home/zachkaras/fsl/lib/python3.11/site-packages/numpy/lib/function_base.py:2897: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+Participant 117 Ridge Regression for deepseek_6b, prose, layer_28, look_ahead_by_10, ndelays_16
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for codegemma_2b, code, layer_16, look_ahead_by_1, ndelays_16
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_7b, code, layer_16, look_ahead_by_5, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for deepseek_6b, prose, layer_4, look_ahead_by_10, ndelays_10
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
+Participant 117 Ridge Regression for starcoder2_3b, code, layer_8, look_ahead_by_5, ndelays_0
+/home/zachkaras/fmri/fmri_model/analysis/fir/ridge.py:9: RuntimeWarning: invalid value encountered in divide
+  zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
