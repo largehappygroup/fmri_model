@@ -15,7 +15,8 @@ from matplotlib.pyplot import figure, cm
 from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-ALLOWED_CORES = list(range(0,40))
+# ALLOWED_CORES = list(range(0,40))
+ALLOWED_CORES = list(range(1,2))
 
 #############################################################################
 ############## Loading Atlases ##############################################
@@ -157,10 +158,11 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     # calculating cosine similarity as a performance metric
     cos_similarities = calculate_voxelwise_cosine_similarity(fmri_test, predicted_signal)
     
-    # base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_models/{participant}"
-    # base_outpath = f"/storage1/fmri_model_data/test/{participant}"
-    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-correlations.pkl"
-    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-cosine_similarities.pkl"
+    # base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_models/{participant}"
+    # base_outpath = f"/s1/fmri_model_data/test/{participant}"
+    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-correlations2.pkl"
+    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-cosine_similarities2.pkl"
+    weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
     # std_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-stds.pkl"
     
     
@@ -171,8 +173,8 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     
     ### Not saving model weights for now because each file as float64 takes up 18GB
     ###   Each participant has 60 embedding files to test and there are 25 participants
-    # with open(weights_outfile, 'wb') as f:
-    #     pickle.dump(weights, f)
+    with open(weights_outfile, 'wb') as f:
+        pickle.dump(weights, f)
 
     with open(corr_outfile, 'wb') as f:
         pickle.dump(corrs, f)
@@ -180,7 +182,7 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     with open(sim_outfile, 'wb') as f:
         pickle.dump(cos_similarities, f)
         
-    make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test, 'correlation')
+    # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test, 'correlation')
     # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, cos_similarities, predicted_signal, emb_test, keys_test, 'cosine_similarity')
     
     # Trying to free up space
@@ -245,9 +247,9 @@ def load_and_reshape_fmri_data(fmripath, vols_to_skip):
     return scan_2d_schaefer_filtered, vol_nums
 
 def load_task_specific_data(p, task):
-    participant_fmri_path = f"/storage1/fmri_model_data/clean_{task}/{p}.nii.gz"
+    participant_fmri_path = f"/s1/fmri_model_data/clean_{task}/{p}.nii.gz"
     participant_keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_new_keystrokes.pkl"
-    vols_to_skip_path = f"/storage1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl"
+    vols_to_skip_path = f"/s1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl"
     
     # try:
     with open(vols_to_skip_path, 'rb') as f:
@@ -269,18 +271,18 @@ def init_worker():
         
     
 def main():
-    # participant_path = f"/storage1/fmri_model_data/fir_vectors_pca"
-    participant_path = f"/storage1/fmri_model_data/fir_vectors_pca_params"
+    # participant_path = f"/s1/fmri_model_data/fir_vectors_pca"
+    participant_path = f"/s1/fmri_model_data/fir_vectors_pca_params"
     participants = os.listdir(participant_path)
     
     num_participants = len(participants)
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
-        base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_params/{p}"
+        base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_params/{p}"
         
         if os.path.isdir(base_outpath):
             print(f"Participant output already exists. Skipping")
-            continue
+            # continue
         
         try:
             code_fmri_train, code_fmri_test, code_keys_train, code_keys_test, code_split_point = load_task_specific_data(p, 'code')
@@ -292,11 +294,11 @@ def main():
         except:
             print(f"Could not find date for participant {p} on prose")
             
-        participant_embedding_base_path = f"/storage1/fmri_model_data/fir_vectors_pca_params/{p}"
+        participant_embedding_base_path = f"/s1/fmri_model_data/fir_vectors_pca_params/{p}"
         embeddings = os.listdir(participant_embedding_base_path)
         num_embeddings = len(embeddings)
 
-        base_outpath = f"/storage1/fmri_model_data/ridge_regression_pca_params/{p}"
+        base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_params/{p}"
 
         # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
 

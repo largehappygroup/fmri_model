@@ -111,16 +111,64 @@ def find_layer_labels(keystroke_dict, embedding_dict):
             # 'keystrokes' : {'layer_num' : [embeddings] , ...} 
             layer_labels = list((embedding_dict[v]).keys())
             return layer_labels
+        
+def run_parameters(model_path, model, task, params):
+    participants = os.listdir(model_path)
+    
+    for p in participants:
+        for combo in params:
+            delay = combo['delays']
+            delays = range(1,delay+1)
+            look_ahead = combo['look_ahead']
+            best_layer = combo['layer']
+            emb_datapath = f"{model_path}/{p}/{task}_look_ahead_by_{look_ahead}-keystroke_embeddings.pkl"
+            try:
+                with open(emb_datapath, 'rb') as f:
+                    embedding_dict = pickle.load(f)
+            except Exception as e:
+                print(f"can't open embedding: {e}")
+                continue  
+            
+            keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}-look_ahead_by_{look_ahead}-formatted_keystrokes.pkl"
+            try:
+                with open(keystroke_path, 'rb') as f:
+                    keystroke_dict = pickle.load(f)
+            except:
+                continue 
+            
+            layers = find_layer_labels(keystroke_dict, embedding_dict)
 
+            # make a stack for each layer
+            # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
+            signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
+            # signal = signal[f"layer_{best_layer}"]
+            
+            regressor = prepare_regressor(p, task, vols_to_skip)
+            
+            sig = signal[f'layer_{best_layer}']
+            
+            # for l,sig in signal.items():
+            sig_pca = reduce_dimensionality(sig)
+            sig_pca = np.hstack((regressor, sig_pca))
+            
+            delayed_sig = make_delayed(sig_pca, delays) if delay > 0 else sig_pca
+            outputdir = f"/s1/fmri_model_data/fir_vectors_pca_params/{p}"
+            
+            if not os.path.exists(outputdir):
+                os.mkdir(outputdir)
+            
+            with open(f"{outputdir}/{model}-{task}-look_ahead_by_{look_ahead}-ndelays_{delay}-fir_embedding-{best_layer}.pkl", 'wb') as f:
+                pickle.dump(delayed_sig, f)
+            
+    # pass
+
+
+'''
 def run_participants(model_path, model, task):
     
     participants = os.listdir(model_path)
     # ndelays = 4
     # ndelays = args.ndelays # Updated to be a variable parameter on 12/26/2025
-    
-    # need codegemma 7b, code, 4 delays, look ahead by 10
-    # codegemma 7b, code, 16 delays, look ahead by 0
-    # codegemma 7b, prose, 10 delays, look ahead by 5
     ndelays = [0, 4, 10, 16, 20]
     
     for d in ndelays:
@@ -188,19 +236,28 @@ def run_participants(model_path, model, task):
                     #break
                 
                 #break
-
+'''
 
 def main():
     # iterate through models
     # all_models = f"/storage1/fmri_model_data/fir_embeddings"
-    all_models = f"/storage1/fmri_model_data/fir_embeddings_params"
-    models = os.listdir(all_models)
+    # model_basepath = f"/s1/fmri_model_data/fir_embeddings_params"
+    model = 'codegemma_7b'
+    model_path = f"/s1/fmri_model_data/fir_embeddings_params/{model}"
+    # models = os.listdir(all_models)
     
-    for m in models:
-        print(m)
-        model_path = f"{all_models}/{m}"
-        run_participants(model_path, m, 'code')
-        run_participants(model_path, m, 'prose')
+    code_params = [{ 'look_ahead': 10, 'delays' :  4, 'layer' : 20}, 
+                   { 'look_ahead':  0, 'delays' : 16, 'layer' : 20}]
+    prose_params = [{'look_ahead':  5, 'delays' : 10, 'layer' : 20}]
+    
+    run_parameters(model_path, model, 'code', code_params)
+    run_parameters(model_path, model, 'prose', prose_params)
+    
+    # for m in models:
+    #     print(m)
+    #     model_path = f"{all_models}/{m}"
+    #     run_participants(model_path, m, 'code')
+    #     run_participants(model_path, m, 'prose')
         # break
     # iterate through participants
     
