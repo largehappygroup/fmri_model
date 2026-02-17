@@ -10,6 +10,8 @@ from sklearn.preprocessing import StandardScaler
 # parser.add_argument("--ndelays", required=False, default=4, help="This indicates how many delayed copies of the embedding to include (i.e., for how long the keystrokes will influence neural activity)")
 # args = parser.parse_args()
 
+# TODO - check 
+
 def make_delayed(stim, delays, circpad=False):
     """Creates non-interpolated concatenated delayed versions of [stim] with the given [delays] 
     (in samples).
@@ -36,17 +38,18 @@ def make_delayed(stim, delays, circpad=False):
     return np.hstack(dstims)
 
 def reduce_dimensionality(X):
-    # X_t = X.T
+    
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    pca = PCA(n_components=256)
-    # X_pca = pca.fit_transform(X_scaled)
-    # return X_pca.T
-    return pca.fit_transform(X_scaled)
+    # pca = PCA(n_components=256)
+    pca = PCA(n_components=0.99) # adjusted to 99% variance on 2/16/2026
+    X_reduced = pca.fit_transform(X_scaled)
+    
+    return X_reduced
 
 
 def prepare_regressor(participant, task, vols_to_skip):
-    num_keys_regressor_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{participant}/{task}_num_keystrokes_regressor.pkl"
+    num_keys_regressor_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{participant}/{task}_num_keystrokes_regressor.pkl"
         
     with open(num_keys_regressor_path, 'rb') as f:
         num_keys_regressor = pickle.load(f)
@@ -69,22 +72,11 @@ def organize_individual_layers(layers, keystroke_dict, embedding_dict):
 
     signal = { l : [] for l in layers }
     vols_without_keystrokes = set()
-    # repeated_keystroke_volumes = set()
-    # prev="ENTRYPOINT"
     for vol,keys in keystroke_dict.items():
         
         if keys == '':
             vols_without_keystrokes.add(vol)
             continue
-        
-        # if keys == prev:
-        #     # repeated_keystroke_volumes.add(vol)
-        #     # vols_to_skip.add(vol)
-        #     vols_without_keystrokes.add(vol)
-        #     # print(f"Previous: {prev}\nCurrent: {keys}")
-        #     continue
-        # else:
-        #     prev = keys
             
         layers = embedding_dict[keys]
         for l, emb in layers.items():
@@ -94,9 +86,6 @@ def organize_individual_layers(layers, keystroke_dict, embedding_dict):
     vols_to_skip = list(vols_without_keystrokes)
     vols_to_skip.sort()
     
-    # repeated_keystroke_volumes = list(repeated_keystroke_volumes)
-    # repeated_keystroke_volumes.sort()
-    # print(len(repeated_keystroke_volumes), repeated_keystroke_volumes)
     return signal, vols_to_skip
     
 
@@ -115,8 +104,6 @@ def find_layer_labels(keystroke_dict, embedding_dict):
 def run_participants(model_path, model, task):
     
     participants = os.listdir(model_path)
-    # ndelays = 4
-    # ndelays = args.ndelays # Updated to be a variable parameter on 12/26/2025
     
     # need codegemma 7b, code, 4 delays, look ahead by 10
     # codegemma 7b, code, 16 delays, look ahead by 0
@@ -126,12 +113,11 @@ def run_participants(model_path, model, task):
     for d in ndelays:
         delays = range(1,d+1)
         for p in participants:
-            # p = 133
+            
             print(p)
             look_ahead_by = [0, 1, 3, 5, 10]
             
             for t in look_ahead_by:
-                # emb_datapath = f"{model_path}/{p}/{task}_keystroke_embeddings.pkl"
                 emb_datapath = f"{model_path}/{p}/{task}_look_ahead_by_{t}-keystroke_embeddings.pkl"
                 try:
                     with open(emb_datapath, 'rb') as f:
@@ -140,8 +126,7 @@ def run_participants(model_path, model, task):
                     print(f"can't open embedding: {e}")
                     continue    
                     
-                # keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_formatted_keystrokes.pkl"
-                keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
+                keystroke_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{p}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
                 try:
                     with open(keystroke_path, 'rb') as f:
                         keystroke_dict = pickle.load(f)
@@ -158,27 +143,25 @@ def run_participants(model_path, model, task):
                 # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
                 signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
                 
-                # signal_pca = reduce_dimensionality(signal)
-                
-                with open(f"/storage1/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
+                with open(f"/data/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
                     pickle.dump(vols_to_skip, f)
                 
                 regressor = prepare_regressor(p, task, vols_to_skip)
                 
                 for l,sig in signal.items():
-                    sig = np.hstack((regressor, sig))
+
                     sig_pca = reduce_dimensionality(sig)
+
+                    # TODO - try with and without nuisance regressor
+                    sig = np.hstack((regressor, sig_pca))
                     # print("After PCA", sig_pca.shape)
                     # with open("test_regressor.pkl", 'wb') as f:
                     #     pickle.dump(sig, f)
                     
                     # delayed_sig = make_delayed(sig, delays)
                     delayed_sig = make_delayed(sig_pca, delays) if d > 0 else sig_pca
-                    # delayed_sig = [np.array(s) for s in sig]
-                    # print(type(delayed_sig), len(delayed_sig), type(delayed_sig[0]))
-                    # outputdir = f"/storage1/fmri_model_data/fir_vectors/{p}"
-                    # outputdir = f"/storage1/fmri_model_data/fir_vectors_pca/{p}"
-                    outputdir = f"/storage1/fmri_model_data/fir_vectors_pca_params/{p}"
+ 
+                    outputdir = f"/data/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
                     
                     if not os.path.exists(outputdir):
                         os.mkdir(outputdir)
@@ -192,8 +175,7 @@ def run_participants(model_path, model, task):
 
 def main():
     # iterate through models
-    # all_models = f"/storage1/fmri_model_data/fir_embeddings"
-    all_models = f"/storage1/fmri_model_data/fir_embeddings_params"
+    all_models = f"/data/zachkaras/fmri_model_data/fir_embeddings_params"
     models = os.listdir(all_models)
     
     for m in models:
@@ -201,8 +183,6 @@ def main():
         model_path = f"{all_models}/{m}"
         run_participants(model_path, m, 'code')
         run_participants(model_path, m, 'prose')
-        # break
-    # iterate through participants
     
 
 if __name__=="__main__":

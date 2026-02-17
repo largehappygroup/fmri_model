@@ -1,0 +1,157 @@
+
+import os
+import pickle
+import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
+
+def reduce_dimensionality(X):
+    
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    pca = PCA(n_components=256)
+    pca95 = PCA(n_components=0.95)
+    pca99 = PCA(n_components=0.99)
+
+    X_95 = pca95.fit_transform(X_scaled)
+    X_99 = pca99.fit_transform(X_scaled)
+
+    X_vanilla = pca.fit_transform(X_scaled)
+
+    print(f"95% explained variance: {pca95.n_components_}\n99% explained variance: {pca99.n_components_}\nRegular PCA explained variance: {sum(pca.explained_variance_ratio_)}")
+    
+    # return X_reduced, pca
+
+def prepare_regressor(participant, task, vols_to_skip):
+    num_keys_regressor_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{participant}/{task}_num_keystrokes_regressor.pkl"
+        
+    with open(num_keys_regressor_path, 'rb') as f:
+        num_keys_regressor = pickle.load(f)
+        
+    
+    mean = np.mean(num_keys_regressor) 
+    std = np.std(num_keys_regressor)
+
+    num_keys_regressor = [(n - mean)/std for n in num_keys_regressor]
+    num_keys_regressor = [n for i,n in enumerate(num_keys_regressor) if i not in vols_to_skip]
+    num_keys_regressor = np.expand_dims(np.array(num_keys_regressor), axis=1)
+    
+    return num_keys_regressor
+
+
+def find_layer_labels(keystroke_dict, embedding_dict):
+    for k,v in keystroke_dict.items():
+        if v != '':
+            # the keystroke dictionary structure is vol_number : 'keystrokes'
+            # the keystrokes are used as keys for the embedding dict
+            # so we find the first non-empty string keystrokes
+            # and use that as a key for the embedding dictionary
+            # the dicitonary structure of the embedding dictionary is 
+            # 'keystrokes' : {'layer_num' : [embeddings] , ...} 
+            layer_labels = list((embedding_dict[v]).keys())
+            return layer_labels
+
+def organize_individual_layers(layers, keystroke_dict, embedding_dict):
+
+    signal = { l : [] for l in layers }
+    vols_without_keystrokes = set()
+    # repeated_keystroke_volumes = set()
+    # prev="ENTRYPOINT"
+    for vol,keys in keystroke_dict.items():
+        
+        if keys == '':
+            vols_without_keystrokes.add(vol)
+            continue
+            
+        layers = embedding_dict[keys]
+        for l, emb in layers.items():
+            signal[l].append(emb)
+
+    signal = { l : np.vstack(v) for l,v in signal.items()} 
+    vols_to_skip = list(vols_without_keystrokes)
+    vols_to_skip.sort()
+    
+    # repeated_keystroke_volumes = list(repeated_keystroke_volumes)
+    # repeated_keystroke_volumes.sort()
+    # print(len(repeated_keystroke_volumes), repeated_keystroke_volumes)
+    return signal, vols_to_skip
+
+
+def run_participants(model_path, model, task):
+    print(task)
+    participants = os.listdir(model_path)
+    # ndelays = 4
+    # ndelays = args.ndelays # Updated to be a variable parameter on 12/26/2025
+    
+    # need codegemma 7b, code, 4 delays, look ahead by 10
+    # codegemma 7b, code, 16 delays, look ahead by 0
+    # codegemma 7b, prose, 10 delays, look ahead by 5
+    # ndelays = [0, 4, 10, 16, 20]
+    
+    # for d in ndelays:
+    #     delays = range(1,d+1)
+    for p in participants:
+        # p = 133
+        print(p)
+        look_ahead_by = [0, 1, 3, 5, 10]
+        
+        for i,t in enumerate(look_ahead_by):
+            emb_datapath = f"{model_path}/{p}/{task}_look_ahead_by_{t}-keystroke_embeddings.pkl"
+            
+            try:
+                with open(emb_datapath, 'rb') as f:
+                    embedding_dict = pickle.load(f)
+            except Exception as e:
+                print(f"can't open embedding: {e}")
+                continue    
+                
+            # keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_formatted_keystrokes.pkl"
+            keystroke_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{p}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
+            try:
+                with open(keystroke_path, 'rb') as f:
+                    keystroke_dict = pickle.load(f)
+            except:
+                continue    
+            
+            # For PCA, can use vector sizes of 985 from semantic tiling, 768 from continuous language, 50 from intracranial EEG
+            # I found that the feature vectors need to be smaller than the other dimensions, so 768 and 985 are too big
+            # 50 feels too small, so I'm trying 256 for now 10/14/2025
+            # print(f"Embedding length for {model}: {len((embedding_dict[list(embedding_dict.keys())[0]])['layer_0'])}")
+            layers = find_layer_labels(keystroke_dict, embedding_dict)
+
+            # make a stack for each layer
+            # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
+            signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
+            
+            with open(f"/data/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
+                pickle.dump(vols_to_skip, f)
+            
+            regressor = prepare_regressor(p, task, vols_to_skip)
+            
+            for l,sig in signal.items():
+
+                # TODO - check variance explained by PCA
+                reduce_dimensionality(sig)
+
+
+                break
+            break
+        break
+
+
+def main():
+    # iterate through models
+    # all_models = f"/storage1/fmri_model_data/fir_embeddings"
+    all_models = f"/data/zachkaras/fmri_model_data/fir_embeddings_params"
+    models = os.listdir(all_models)
+    
+    for m in models:
+        print(m)
+        model_path = f"{all_models}/{m}"
+        run_participants(model_path, m, 'code')
+        run_participants(model_path, m, 'prose')
+
+if __name__=="__main__":
+    main()
+                    

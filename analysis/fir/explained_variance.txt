@@ -1,0 +1,66 @@
+deepseek_2b
+code
+111
+95% explained variance: 237
+99% explained variance: 339
+Regular PCA explained variance: 0.9597157718722523
+prose
+111
+95% explained variance: 343
+99% explained variance: 478
+Regular PCA explained variance: 0.8974005082568778
+starcoder2_7b
+code
+111
+95% explained variance: 247
+99% explained variance: 346
+Regular PCA explained variance: 0.9541944911981152
+prose
+111
+95% explained variance: 367
+99% explained variance: 492
+Regular PCA explained variance: 0.8797928570343679
+deepseek_6b
+code
+111
+95% explained variance: 260
+99% explained variance: 356
+Regular PCA explained variance: 0.9470878546557182
+prose
+111
+95% explained variance: 377
+99% explained variance: 497
+Regular PCA explained variance: 0.8734142180050208
+starcoder2_3b
+code
+111
+95% explained variance: 246
+99% explained variance: 348
+Regular PCA explained variance: 0.9551382340193052
+prose
+111
+95% explained variance: 370
+99% explained variance: 495
+Regular PCA explained variance: 0.8796500534639298
+codegemma_7b
+code
+111
+95% explained variance: 151
+99% explained variance: 273
+Regular PCA explained variance: 0.9872958971092705
+prose
+111
+95% explained variance: 246
+99% explained variance: 390
+Regular PCA explained variance: 0.9560856755489389
+codegemma_2b
+code
+111
+95% explained variance: 140
+99% explained variance: 251
+Regular PCA explained variance: 0.9906529490495755
+prose
+111
+95% explained variance: 222
+99% explained variance: 340
+Regular PCA explained variance: 0.9704055272572222
