@@ -6,6 +6,24 @@ from utils import mult_diag, counter
 import random
 import itertools as itools
 
+USE_CUPY = True
+if USE_CUPY:
+    try:
+        import cupy as _cupy
+        np = _cupy
+
+        def asnumpy(x):
+            return _cupy.asnumpy(x)
+    except Exception:
+        import numpy as _np_fallback
+        np = _np_fallback
+        def asnumpy(x):
+            return x
+else:
+    def asnumpy(x):
+        return x
+
+
 zs = lambda v: (v-v.mean(0))/v.std(0) ## z-score function
 
 
@@ -61,6 +79,8 @@ def ridge_corr(Rstim, Pstim, Rresp, Presp, alphas, normalpha=False, dtype=np.sin
     """
     ## Calculate SVD of stimulus matrix
     logger.info("Doing SVD...")
+    print("hullo")
+    U,S,Vh = np.linalg.svd(Rstim, full_matrices=False)
     try:
         U,S,Vh = np.linalg.svd(Rstim, full_matrices=False)
     except np.linalg.LinAlgError as e:
@@ -218,6 +238,7 @@ def bootstrap_ridge(Rstim, Rresp, Pstim, Presp, alphas, nboots, chunklen, nchunk
     valinds : array_like, shape (TH, B)
         The indices of the training data that were used as "validation" for each bootstrap sample.
     """
+    print("hello")
     nresp, nvox = Rresp.shape
     bestalphas = np.zeros((nboots, nvox))  ## Will hold the best alphas for each voxel
     valinds = [] ## Will hold the indices into the validation data for each bootstrap
@@ -244,14 +265,18 @@ def bootstrap_ridge(Rstim, Rresp, Pstim, Presp, alphas, nboots, chunklen, nchunk
         
         Rcmats.append(Rcmat)
     
+    print("hello 2")
     ## Find weights for each voxel
+    # U,S,Vh = np.linalg.svd(Rstim, full_matrices=False)
     try:
         U,S,Vh = np.linalg.svd(Rstim, full_matrices=False)
     except np.linalg.LinAlgError as e:
+        print("ISSUE")
         logger.info("NORMAL SVD FAILED, trying more robust dgesvd..")
         from text.regression.svd_dgesvd import svd_dgesvd
         U,S,Vh = svd_dgesvd(Rstim, full_matrices=False)
 
+    print("hello 3")
     ## Normalize alpha by the Frobenius norm
     #frob = np.sqrt((S**2).sum()) ## Frobenius!
     frob = S[0]
@@ -262,6 +287,7 @@ def bootstrap_ridge(Rstim, Rresp, Pstim, Presp, alphas, nboots, chunklen, nchunk
     else:
         nalphas = alphas
 
+    print("hello 4")
     allRcorrs = np.dstack(Rcmats)
     if not single_alpha:
         logger.info("Finding best alpha for each response..")
@@ -285,6 +311,7 @@ def bootstrap_ridge(Rstim, Rresp, Pstim, Presp, alphas, nboots, chunklen, nchunk
         valphas = np.array([bestalpha]*nvox)
         logger.info("Best alpha = %0.3f"%bestalpha)
 
+    print("hello 5")
     logger.info("Computing weights for each response using entire training set..")
     UR = np.dot(U.T, np.nan_to_num(Rresp))
     pred = np.zeros(Presp.shape)

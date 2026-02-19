@@ -37,14 +37,21 @@ def make_delayed(stim, delays, circpad=False):
         dstims.append(dstim)
     return np.hstack(dstims)
 
-def reduce_dimensionality(X):
+def reduce_dimensionality(X, task):
     
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     # pca = PCA(n_components=256)
     pca = PCA(n_components=0.99) # adjusted to 99% variance on 2/16/2026
-    X_reduced = pca.fit_transform(X_scaled)
-    
+    try:
+        X_reduced = pca.fit_transform(X_scaled)
+    except Exception as e:
+        print("Issue with standard PCA, selecting fixed number of components")
+        n_components = 256 if task == "code" else 512 # Based on the amount of explained variance when testing PCA components
+        pca = PCA(n_components=n_components)
+        X_reduced = pca.fit_transform(X_scaled)
+        with open("preparing_embedding_error_log.txt", '+a') as f:
+            f.write(f"Issue with PCA: {e}\n")
     return X_reduced
 
 
@@ -54,7 +61,6 @@ def prepare_regressor(participant, task, vols_to_skip):
     with open(num_keys_regressor_path, 'rb') as f:
         num_keys_regressor = pickle.load(f)
         
-    
     mean = np.mean(num_keys_regressor) 
     std = np.std(num_keys_regressor)
 
@@ -149,8 +155,14 @@ def run_participants(model_path, model, task):
                 regressor = prepare_regressor(p, task, vols_to_skip)
                 
                 for l,sig in signal.items():
-
-                    sig_pca = reduce_dimensionality(sig)
+                    outputdir = f"/data/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
+                    outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}.pkl"
+                    
+                    if os.path.exists(outputfile):
+                        continue
+                    
+                    # print(f"{d}, {p}, {t}, {l}, {emb_datapath}")
+                    sig_pca = reduce_dimensionality(sig, task)
 
                     # TODO - try with and without nuisance regressor
                     sig = np.hstack((regressor, sig_pca))
@@ -161,12 +173,11 @@ def run_participants(model_path, model, task):
                     # delayed_sig = make_delayed(sig, delays)
                     delayed_sig = make_delayed(sig_pca, delays) if d > 0 else sig_pca
  
-                    outputdir = f"/data/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
                     
                     if not os.path.exists(outputdir):
                         os.mkdir(outputdir)
                     
-                    with open(f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}.pkl", 'wb') as f:
+                    with open(outputfile, 'wb') as f:
                         pickle.dump(delayed_sig, f)
                     #break
                 
