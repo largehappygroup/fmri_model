@@ -4,8 +4,10 @@ import gc
 import math
 import json
 import pickle
+# import logging
 import warnings
 import numpy as np
+import argparse
 import nibabel as nib
 from npp import zscore
 import matplotlib.pyplot as plt
@@ -16,7 +18,15 @@ from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ALLOWED_CORES = list(range(0,40))
-ALLOWED_CORES = list(range(0,30))
+ALLOWED_CORES = list(range(0,36))
+
+parser = argparse.ArgumentParser(description="Toggling GPU usage")
+parser.add_argument("--gpu", required=False, default=False, help="Set to True if using the GPU.")
+# logger = logging.getLogger(__name__)
+
+args = parser.parse_args()
+using_gpu = int(args.gpu)
+# print(using_gpu, type(using_gpu))
 
 #############################################################################
 ############## Loading Atlases ##############################################
@@ -160,9 +170,9 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     
     # base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_models/{participant}"
     # base_outpath = f"/s1/fmri_model_data/test/{participant}"
-    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-correlations-no_regressor.pkl"
-    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-cosine_similarities-no_regressor.pkl"
-    # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights-no_regressor.pkl"
+    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-correlations.pkl"
+    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-cosine_similarities.pkl"
+    # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
     # keys_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-test_keystrokes.pkl"
     # std_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-stds.pkl"
     
@@ -199,7 +209,13 @@ def load_and_split_embeddings(embedding_path, split_point):
     
     with open(embedding_path, 'rb') as f:
         embedding = pickle.load(f)
-        
+
+        if using_gpu == 1:
+            import cupy as cp
+            embedding = cp.array(embedding)
+            # print("embedding should be converted")
+
+    # print("embedding type: ", type(embedding))
     delRstim = embedding[:split_point, :] # delRstim from pickle files
     delPstim = embedding[split_point:, :] # delPstim is prediction
     
@@ -230,7 +246,13 @@ def load_and_reshape_fmri_data(fmripath, vols_to_skip):
     scan = fmri_data.get_fdata()
 
     scan_2d = (np.reshape(scan, [scan.shape[0]*scan.shape[1]*scan.shape[2], scan.shape[3]]))
-
+    
+    if using_gpu == 1:
+        import cupy as cp
+        scan_2d = cp.asarray(scan_2d)
+        # print("scan should be converted")
+    
+    # print("scan type", type(scan_2d))
     means = scan_2d.mean(axis=1, keepdims=True)
     stds = scan_2d.std(axis=1, keepdims=True)
 
@@ -291,7 +313,7 @@ def main():
         
         if os.path.isdir(base_outpath):
             print(f"Participant output already exists. Skipping")
-            # continue
+            continue
         
         try:
             code_fmri_train, code_fmri_test, code_keys_train, code_keys_test, code_split_point = load_task_specific_data(p, 'code')
@@ -345,4 +367,6 @@ def main():
         # break
 
 if __name__ == "__main__":
+    import multiprocessing as mp
+    mp.set_start_method("spawn", force=True)
     main()
