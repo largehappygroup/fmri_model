@@ -26,7 +26,7 @@ def load_atlases():
 def find_overlapping_regions(x_range,y_range,z_range, schaefer, ho):
     
     parcel_maps = dict()
-
+    voxel_counts = dict()
     # iterating through x,y,z coordinates of schaefer atlas
     # then finding corresponding Harvard Oxford region numbers
     # sorting by the HO regions with the higest number of overlapping voxels
@@ -40,14 +40,19 @@ def find_overlapping_regions(x_range,y_range,z_range, schaefer, ho):
                     
                     if val not in parcel_maps.keys():
                         parcel_maps[val] = dict()
+                        voxel_counts[val] = 1
+                    else:
+                        voxel_counts[val] += 1
                     
                     if ho_equivalent not in parcel_maps[val].keys():
                         parcel_maps[val][ho_equivalent] = 1
                     else:
                         parcel_maps[val][ho_equivalent] += 1
+    
+    voxel_counts = dict(sorted(voxel_counts.items(), key=lambda x: x[0]))
+    with open("schaefer_parcel_counts.pkl", 'wb') as f:
+        pickle.dump(voxel_counts, f)
 
-    # Don't think it needs to be sorted
-    # sorted_parcel_maps = dict(sorted(parcel_maps.items(), key=lambda x: x[0]))
     return parcel_maps
 
 
