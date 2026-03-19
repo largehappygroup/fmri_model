@@ -10,7 +10,7 @@ import pandas as pd
 # argument that changes path names if I'm using my local computer
 parser = argparse.ArgumentParser(description="Script to concatenate keystrokes into discrete chunks that are more interpretable.")
 parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
-parser.add_argument("--look_ahead", required=False, default=5, help="When preparing keystrokes, this argument indicates fow how many volumes to include as 'future keystrokes' that participant may be thinking about.")
+parser.add_argument("--look_ahead", required=False, default=0, help="When preparing keystrokes, this argument indicates fow how many volumes to include as 'future keystrokes' that participant may be thinking about.")
 
 args = parser.parse_args()
 look_ahead_time = args.look_ahead
@@ -18,16 +18,19 @@ look_ahead_time = args.look_ahead
 if args.computer == 'mymac':
     bass_path = "/Users/zacharykaras/Desktop"
 elif args.computer == 'cumberland':
-    bass_path = "/home/zachkaras/fmri"
+    bass_path = "/home/zachkaras" # behemoth
+    # bass_path = "/home/zachkaras/fmri"
 
 # shifted alternatives of characters (s --> S, = --> +)
 with open(f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl", 'rb') as f:
     shift_chars = pickle.load(f)
     
-code_questions = "/home/zachkaras/fmri/fmri_model/midprocessing/code_writing_prompts.csv"
+# code_questions = "/home/zachkaras/fmri/fmri_model/midprocessing/code_writing_prompts.csv"
+code_questions = "/home/zachkaras/fmri_model/midprocessing/code_writing_prompts.csv"
 code_question_df = pd.read_csv(code_questions)
 
-prose_question = "/home/zachkaras/fmri/fmri_model/midprocessing/prose_writing_prompts.csv"
+# prose_question = "/home/zachkaras/fmri/fmri_model/midprocessing/prose_writing_prompts.csv"
+prose_question = "/home/zachkaras/fmri_model/midprocessing/prose_writing_prompts.csv"
 prose_question_df = pd.read_csv(prose_question)
 
 separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';', '=', '<=', '>=', '==', '']
@@ -297,7 +300,7 @@ def find_next_sequence(i, keystroke_df):
         for ch in row_text:
 
             # Commented out on 12/29/2025
-            # If we're parameterizing this, it's a bit disingenuous to cut the look ahead short
+            # If we're parameterizing this, it's a bit counterproductive to cut the look ahead short
             
             # if ch in separators:
             #     return sequence
@@ -406,21 +409,22 @@ def process_keystrokes(vol_keystroke_df, task, person):
             
         formatted_text = fill_in_the_middle(''.join(shift_combined), prefix, next_text)
         output[i] = formatted_text
-        only_new_keystrokes[i] = f"{''.join(shift_combined)}{next_text}" 
+        only_new_keystrokes[i] = f"{''.join(shift_combined)}" # {next_text} - commented out the next text 3/18/2026. Not sure why it's included here 
         
         # print(formatted_text)
         update_text_and_cursor_position(shift_combined, answer)
     
         # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
     output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-formatted_keystrokes.pkl"
-    new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-new_keystrokes.pkl"
+    # new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-new_keystrokes.pkl"
+    new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-new_keystrokes.pkl"
     num_keystrokes_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-num_keystrokes_regressor.pkl"
     num_keystrokes = np.array(list(num_keystrokes.values()))
     
-    with open(num_keystrokes_outpath, 'wb') as f:
-        pickle.dump(num_keystrokes, f)
-    with open(output_path, 'wb') as f:
-        pickle.dump(output, f)
+    # with open(num_keystrokes_outpath, 'wb') as f:
+    #     pickle.dump(num_keystrokes, f)
+    # with open(output_path, 'wb') as f:
+    #     pickle.dump(output, f)
     with open(new_keystroke_outpath, 'wb') as f:
         pickle.dump(only_new_keystrokes, f)
 
