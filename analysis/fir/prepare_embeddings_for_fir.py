@@ -155,30 +155,37 @@ def run_participants(model_path, model, task):
                 regressor = prepare_regressor(p, task, vols_to_skip)
                 
                 for l,sig in signal.items():
-                    outputdir = f"/data/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
-                    outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}.pkl"
+                    outputdir = f"/data2/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
+                    reg_feat_outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-regressor+features.pkl"
+                    reg_outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-only_regressor.pkl"
                     
-                    if os.path.exists(outputfile):
-                        continue
+                    # if os.path.exists(outputfile):
+                    #     continue
                     
-                    # print(f"{d}, {p}, {t}, {l}, {emb_datapath}")
+                    # 3/23/2026 - looks like I didn't actually save the embeddings with the regressor
+                    # so the current embeddings are just the feature vectors.
+                    # now I need to save the regressor and the combined feature + regressor 
                     sig_pca = reduce_dimensionality(sig, task)
 
-                    # TODO - try with and without nuisance regressor
-                    sig = np.hstack((regressor, sig_pca))
-                    # print("After PCA", sig_pca.shape)
+                    sig_with_regressor = np.hstack((regressor, sig_pca))
+                    
+                    
+                    print("After PCA and with regressor: ", sig_pca.shape, sig_with_regressor.shape)
                     # with open("test_regressor.pkl", 'wb') as f:
                     #     pickle.dump(sig, f)
                     
                     # delayed_sig = make_delayed(sig, delays)
-                    delayed_sig = make_delayed(sig_pca, delays) if d > 0 else sig_pca
- 
+                    delayed_sig = make_delayed(sig_with_regressor, delays) if d > 0 else sig_with_regressor
+                    delayed_regressor = make_delayed(regressor, delays) if d > 0 else regressor
                     
                     if not os.path.exists(outputdir):
                         os.mkdir(outputdir)
                     
-                    with open(outputfile, 'wb') as f:
+                    with open(reg_feat_outputfile, 'wb') as f:
                         pickle.dump(delayed_sig, f)
+                    
+                    with open(reg_outputfile, 'wb') as f:
+                        pickle.dump(delayed_regressor, f)
                     #break
                 
                 #break
