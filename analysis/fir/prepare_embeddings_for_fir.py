@@ -153,15 +153,16 @@ def run_participants(model_path, model, task):
                     pickle.dump(vols_to_skip, f)
                 
                 regressor = prepare_regressor(p, task, vols_to_skip)
-                
+                loop_run = False
                 for l,sig in signal.items():
                     outputdir = f"/data2/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
                     reg_feat_outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-regressor+features.pkl"
                     reg_outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-only_regressor.pkl"
                     
-                    # if os.path.exists(outputfile):
-                    #     continue
+                    if os.path.exists(reg_outputfile) and os.path.exists(reg_feat_outputfile):
+                        continue
                     
+                    loop_run = True
                     # 3/23/2026 - looks like I didn't actually save the embeddings with the regressor
                     # so the current embeddings are just the feature vectors.
                     # now I need to save the regressor and the combined feature + regressor 
@@ -170,7 +171,6 @@ def run_participants(model_path, model, task):
                     sig_with_regressor = np.hstack((regressor, sig_pca))
                     
                     
-                    print("After PCA and with regressor: ", sig_pca.shape, sig_with_regressor.shape)
                     # with open("test_regressor.pkl", 'wb') as f:
                     #     pickle.dump(sig, f)
                     
@@ -186,8 +186,9 @@ def run_participants(model_path, model, task):
                     
                     with open(reg_outputfile, 'wb') as f:
                         pickle.dump(delayed_regressor, f)
+                if loop_run:
+                    print("After PCA, regressor, delays: ", sig_pca.shape, sig_with_regressor.shape, delayed_sig.shape, delayed_regressor.shape)
                     #break
-                
                 #break
 
 

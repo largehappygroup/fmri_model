@@ -301,7 +301,7 @@ def init_worker():
 def main():
     # participant_path = f"/s1/fmri_model_data/fir_vectors_pca"
     # participant_path = f"/s1/fmri_model_data/fir_vectors_pca_params"
-    base = "/data/zachkaras"
+    base = "/data2/zachkaras"
     participant_path = f"{base}/fmri_model_data/fir_vectors_pca_params" # behemoth path
 
     participants = os.listdir(participant_path)
