@@ -18,7 +18,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ALLOWED_CORES = list(range(0,40))
-ALLOWED_CORES = list(range(0,10))
+ALLOWED_CORES = list(range(0,32))
 
 parser = argparse.ArgumentParser(description="Toggling GPU usage")
 parser.add_argument("--gpu", required=False, default=False, help="Set to True if using the GPU.")
@@ -145,11 +145,8 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     task = meta_data[1]
     look = meta_data[2]
     delays = meta_data[3]
-    layer = (meta_data[5])[:-4]
-    # task = meta_data[1]
-    # layer = (meta_data[3])[:-4]
-    # look_ahead = meta_data[2]
-    # ndelays = meta_data[3]
+    layer = meta_data[5]
+    regressor = meta_data[6]
 
     # Splitting the data based on the task
     split_point = code_split_point if task == 'code' else prose_split_point
@@ -170,9 +167,9 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     
     # base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_models/{participant}"
     # base_outpath = f"/s1/fmri_model_data/test/{participant}"
-    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-correlations.pkl"
-    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-cosine_similarities.pkl"
-    weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
+    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-correlations.pkl"
+    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-cosine_similarities.pkl"
+    # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
     keys_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-test_keystrokes.pkl"
     # std_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-stds.pkl"
     
@@ -184,8 +181,8 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     
     ### Not saving model weights for now because each file as float64 takes up 18GB
     ###   Each participant has 60 embedding files to test and there are 25 participants
-    with open(weights_outfile, 'wb') as f:
-        pickle.dump(weights, f)
+    # with open(weights_outfile, 'wb') as f:
+    #     pickle.dump(weights, f)
 
     with open(corr_outfile, 'wb') as f:
         pickle.dump(corrs, f)
@@ -305,38 +302,11 @@ def main():
     participant_path = f"{base}/fmri_model_data/fir_vectors_pca_params" # behemoth path
 
     participants = os.listdir(participant_path)
-
-    # def filter_embeddings(emb):                                                                                                                                                                                                                                                 
-    #     models = [                                                                                                                                                                                                                                                                 
-    #       ('code',  'codegemma_7b', 'ndelays_4',  'look_ahead_by_10'),                                                                                                                                                                                                           
-    #       ('prose', 'codegemma_7b', 'ndelays_10', 'look_ahead_by_5'),                                                                                                                                                                                                            
-    #     ]           
-    #     layer_map = {                                                                                                                                                                                                                                                              
-    #       'codegemma_7b': ['layer_4', 'layer_16'],                                                                                                                                                                                                                               
-    #       'deepseek_6b':  ['layer_4', 'layer_16'],                                                                                                                                                                                                                               
-    #     }                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                 
-    #     for task, model, delays, look_ahead in models:                                                                                                                                                                                                                             
-    #         for layer in layer_map.get(model, []):
-    #             if re.search(f"{model}-{task}-{look_ahead}-{delays}-{layer}", emb):                                                                                                                                                                                                
-    #                 return emb
-    #     return None
-
-        # # filtering to only two layers for each model
-        # # starcoder2_7b_layers = ['layer_4',  'layer_16']
-        # # deepseek_2b_layers   = ['layer_3',  'layer_12']
-        # deepseek_6b_layers   = ['layer_4',  'layer_16']
-        # # codegemma_2b_layers  = ['layer_2',   'layer_8']
-        # # starcoder2_3b_layers = ['layer_4',  'layer_16']
-        # codegemma_7b_layers  = ['layer_4',  'layer_16']
-
-
-        
     
     num_participants = len(participants)
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
-        base_outpath = f"{base}/fmri_model_data/ridge_regression_pca_params/{p}"
+        base_outpath = f"/data/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
         
         # if os.path.isdir(base_outpath):
         #     print(f"Participant output already exists. Skipping")
@@ -345,11 +315,13 @@ def main():
         try:
             code_fmri_train, code_fmri_test, code_keys_train, code_keys_test, code_split_point = load_task_specific_data(p, 'code')
         except:
+            code_fmri_train,code_fmri_test,code_keys_test, code_split_point = None, None, None, None
             print(f"Could not find data for participant {p} on code")
         
         try:
             prose_fmri_train, prose_fmri_test, prose_keys_train, prose_keys_test, prose_split_point = load_task_specific_data(p, 'prose')
         except:
+            prose_fmri_train, prose_fmri_test, prose_keys_test, prose_split_point = None, None, None, None
             print(f"Could not find date for participant {p} on prose")
             
         participant_embedding_base_path = f"{base}/fmri_model_data/fir_vectors_pca_params/{p}"
@@ -362,7 +334,7 @@ def main():
         
         num_embeddings = len(embeddings)
 
-        base_outpath = f"{base}/fmri_model_data/ridge_regression_pca_params/{p}"
+        base_outpath = f"/data/fmri_model_data/ridge_regression_pca_params/{p}"
 
         # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
 
