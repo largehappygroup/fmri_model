@@ -5,14 +5,17 @@ from collections import defaultdict
 from statsmodels.stats.multitest import fdrcorrection
 
 best_models = ['code-deepseek_6b-ndelays_4-look_ahead_by_10', 
-               'code-codegemma_7b-ndelays_4-look_ahead_by_10',
-               'code-codegemma_7b-ndelays_16-look_ahead_by_0', 
-               'prose-codegemma_7b-ndelays_10-look_ahead_by_5', 
-               'prose-deepseek_6b-ndelays_20-look_ahead_by_10']
+            #    'code-codegemma_7b-ndelays_4-look_ahead_by_10',
+            #    'code-codegemma_7b-ndelays_16-look_ahead_by_0', 
+                'prose-deepseek_6b-ndelays_4-look_ahead_by_10'
+            #    'prose-codegemma_7b-ndelays_10-look_ahead_by_5', 
+            #    'prose-deepseek_6b-ndelays_20-look_ahead_by_10'
+            ]
 
+def nested_dict():
+    return defaultdict(nested_dict)
 
-
-with open("schaefer_parcel_counts.pkl", 'rb') as f:
+with open("results/no_regressor-top_parcels_per_participant.pkl", 'rb') as f:
     parcel_voxel_counts = pickle.load(f)
 
 def run_hypergeometric(top_parcel_list, parcel_voxel_counts, n_top=10_000):
@@ -70,13 +73,6 @@ def run_hypergeometric(top_parcel_list, parcel_voxel_counts, n_top=10_000):
     return results
 
 
-# --- Example call (replace with your loop variables) ---
-# top_parcel_list = parcel_collection[participant][task][model][delays][look_ahead][layer]
-# results = run_hypergeometric(top_parcel_list, parcel_voxel_counts)
-# sig = [r for r in results if r['significant']]
-# print(f"{len(sig)} / 400 parcels significantly enriched")
-
-
 def filter_results(results):
     total = 0
     filtered_parcels = []
@@ -88,6 +84,9 @@ def filter_results(results):
             fold_changes.append(r['fold_change'])
     
     return {'num_sig_parcels' : total, 'enriched_parcels' : filtered_parcels}
+
+
+
 
 
 participants = os.listdir(filepath)
@@ -126,3 +125,34 @@ for m,l_p in participant_result_dictionary.items():
 
 with open('results/participant_parcel_enrichment_results.pkl', 'wb') as f:
     pickle.dump(participant_result_dictionary, f)
+
+
+with open('results/participant_parcel_enrichment_results.pkl', 'rb') as f:
+    result_dict = pickle.load(f)
+
+
+schaefer_labels = "schaefer_parcel_labels.pkl"
+with open(schaefer_labels, 'rb') as f:
+    region_labels = pickle.load(f)
+
+def translate_to_region_name(parcel_num):
+    parcel_num = int(parcel_num)
+    if parcel_num < 200:
+        region = schaefer_labels['left'][parcel_num]
+    else:
+        region = schaefer_labels['right'][parcel_num]
+    return region
+
+from collections import Counter                                                                                                                                                                                                                                                                                  
+   
+# counts = Counter(my_list)  
+
+for m,l_p in result_dict.items():
+    for l,p_results in l_p.items():
+        for p, results in p_results.items():
+            enriched = results['enriched_parcels']
+            enriched_regions = [translate_to_region_name(parcel_num) for parcel_num in enriched]
+            print(p, enriched_regions)
+            # print(p, m, l, results)
+            # for parcel in enriched parcels
+            # translate 

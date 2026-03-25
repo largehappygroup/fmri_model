@@ -1,0 +1,12 @@
+To organize my code, I need files for the following:
+Maybe I can make scripts for generating midprocess files, then make jupyter notebooks for making plots
+
+I should save intermediate files so I need scripts to generate those
+
+1. generating heatmaps, layer performance, and participant performance
+
+2. parcel bar plots for each participant
+
+3. LMER
+
+4. Correlations with variables of interest
