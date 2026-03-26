@@ -1,0 +1,1 @@
+# find . -maxdepth 2 -name "*regressor*" -type f | while read f; do mv $f ${f//-no_regressor/}; done

@@ -67,7 +67,6 @@ def calculate_voxelwise_cosine_similarity(recorded, predicted):
     return similarities
     
 # For plotting purposes, finding the voxels with the highest performance
-# TODO - do this for cosine similarity too
 def find_top_voxels(corrs):
     max_corrs = corrs.copy()
     max_corrs.sort()
@@ -133,6 +132,13 @@ def run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test):
 
     return wt, corr, bscorrs
 
+def calculate_R2(predicted_signal, actual_signal):
+    SS_res = np.sum((actual_signal - predicted_signal) ** 2, axis=0)
+    SS_tot = np.sum((actual_signal - actual_signal.mean(axis=0)) ** 2, axis=0)
+    R2 = 1 - (SS_res / SS_tot)
+    return R2
+    
+
 # For parallel processing, does all the setup for ridge regression, though the parameter list is grossly long
 def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, base_outpath,
                              code_split_point, prose_split_point, 
@@ -146,7 +152,10 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     look = meta_data[2]
     delays = meta_data[3]
     layer = meta_data[5]
-    regressor = meta_data[6]
+    regressor = (meta_data[6])[:-4]
+
+    if re.match("only_regressor", regressor):
+        return
 
     # Splitting the data based on the task
     split_point = code_split_point if task == 'code' else prose_split_point
@@ -159,11 +168,23 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
 
     # Running ridge regression here
     print(f"Participant {participant} Ridge Regression for {model_name}, {task}, {layer}, {look}, {delays}")
+
+    # I need ridge regression run for full model (regressor+features) and also for the base model (just features)
+    # I have the ridge regression models trained for the base model, but I need the full model for all participants
+    # because I previously ran just the base model. I'll use the full model to show all the stats
+    # and I need to rerun the base model for certain models and parameter configurations to recalculate R^2
+
+    # So right now, I need to run the full model for all participants
+    # I'll rerun the base model afterwards for the best model configurations to calculate R^2 values for that
+
+    # on a subset of the data
+
     weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
     predicted_signal = np.dot(emb_test, weights)
-    
     # calculating cosine similarity as a performance metric
     cos_similarities = calculate_voxelwise_cosine_similarity(fmri_test, predicted_signal)
+
+    R2 = calculate_R2(predicted_signal, fmri_test)
     
     # base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_models/{participant}"
     # base_outpath = f"/s1/fmri_model_data/test/{participant}"
@@ -171,8 +192,7 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-cosine_similarities.pkl"
     # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
     keys_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-test_keystrokes.pkl"
-    # std_outfile = f"{base_outpath}/{model_name}-{layer}-{task}-stds.pkl"
-    
+    R2_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-R2.pkl"
     
     # Saving model weights and correlation values between predicted and actual timecourses as output
     # UPDATE - not saving model weights for now because the files are huge
@@ -192,6 +212,9 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
         
     with open(keys_outfile, 'wb') as f:
         pickle.dump(keys_test, f)
+        
+    with open(R2_outfile, 'wb') as f:
+        pickle.dump(R2, f)
         
     # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test, 'correlation')
     # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, cos_similarities, predicted_signal, emb_test, keys_test, 'cosine_similarity')
@@ -234,7 +257,7 @@ def fmri_train_test_split(reshaped_scan):
     
     split_point = math.floor((reshaped_scan.shape)[0]*0.9)
     zRresp = reshaped_scan[:split_point,:] # zRresp is fMRI data
-    zPresp = reshaped_scan[split_point:, :] # zPresp is fMRI data from prediction
+    zPresp = reshaped_scan[split_point:, :] # zPresp is fMRI data for prediction
     
     return zRresp, zPresp, split_point
     
@@ -326,6 +349,7 @@ def main():
             
         participant_embedding_base_path = f"{base}/fmri_model_data/fir_vectors_pca_params/{p}"
         embeddings = os.listdir(participant_embedding_base_path)
+        embeddings = [e for e in embeddings if re.search(r'regressor\+features', e)]
 
         # filtered to best models by only copying the relevant ones over
         # this was after I moved the data to cumberland since it's so huge

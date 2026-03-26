@@ -3,6 +3,7 @@ import re
 import json
 import pickle
 import numpy as np
+import pandas as pd
 import nibabel as nib
 from collections import defaultdict
 
@@ -14,8 +15,8 @@ from collections import defaultdict
 
 
 # read in atlases
-atlas_base_path = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases"
-# atlas_base_path = "/home/zachkaras/fmri_model/analysis/pipeline/atlases"
+# atlas_base_path = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases"
+atlas_base_path = "/home/zachkaras/fmri_model/analysis/pipeline/atlases"
 
 # read in 2d mni mask
 mask = nib.load(f"{atlas_base_path}/MNI152_T1_2mm_brain_mask.nii.gz")
@@ -93,12 +94,6 @@ def find_cutoff(vec, threshold = 10**4):
 def iterate_through_participants(filepath, stat):
     participants = os.listdir(filepath)
     
-    # stat_collection = nested_dict()
-    # parcel_collection = nested_dict()
-    # participant_means = nested_dict()
-    # stat_collection   = []
-    # parcel_collection = []
-    # participant_means = []
     records = []
     # iterating through participants
     
@@ -106,8 +101,8 @@ def iterate_through_participants(filepath, stat):
         print(p)
         datapath = f"{filepath}/{p}"
         files = os.listdir(datapath)
-        stat_files = [f for f in files if re.search(stat, f) and not re.search(r'only_regressor|\+', f)] # TODO - will need to update this to look at only regressor and feature+regressor
-
+        stat_files = [f for f in files if re.search(stat, f) and not re.search(r'only_regressor|\+', f)]
+        
         # iterating through the stat files
         # these are vectors of correlation coefficients between predicted and recorded signal
         # Different parameters were adjusted, so the folder contains all the possibilities
@@ -125,7 +120,6 @@ def iterate_through_participants(filepath, stat):
             
             
             # filter to top 10k, 10k is default parameter but can be changed with threshold argument
-            # print("stat vec ", len(stat_vec), stat_vec)
             cutoff = find_cutoff(stat_vec)
             top_voxel_idx = (np.where(stat_vec > cutoff))[0]
             top_voxel_vals = stat_vec[top_voxel_idx]
@@ -134,10 +128,7 @@ def iterate_through_participants(filepath, stat):
             z = np.arctanh(stat_vec)
             cutoff = find_cutoff(z)
             top_vals = z[np.where(z > cutoff)[0]]
-            # participant_means[info.model_name][info.layer][int(p)] = float(np.mean(top_vals))
             participant_means = float(np.mean(top_vals))
-            
-
             
             top_parcels = parcel_nums[top_voxel_idx]
             top_parcels = np.array([int(parcel) for parcel in top_parcels])
@@ -155,52 +146,26 @@ def iterate_through_participants(filepath, stat):
             }
             records.append(new_record)
             
-            # Should I keep one thing consistent, like only look at the best layer for a given model
-            # and only the best performing participants?
-            # It should depend on the research questions...
-            # No I'd like to see across a range of participants
-            # I feel like layer 
-            # parcel_collection[p][info.task][info.model_name][info.n_delays][info.look_ahead][info.layer] = top_parcels
-            
-            # if info.look_ahead not in stat_collection[p][info.task][info.model_name][info.n_delays][info.layer].keys():
-            #     stat_collection[p][info.task][info.model_name][info.n_delays][info.look_ahead][info.layer]  = top_voxel_vals
-            # else:
-            #     np.append(stat_collection[p][info.task][info.model_name][info.n_delays][info.look_ahead][info.layer], top_voxel_vals)
-        #     break
-        # break
-    
-    # print(stat_collection)
-    # test = json.loads(json.dumps(parcel_collection))
-    # print(test)
+    records = pd.DataFrame(records)
     return records
-# convert_back_to_dict(participant_means), convert_back_to_dict(stat_collection), convert_back_to_dict(parcel_collection)
 
 
 def main():
     # iterate through directories, parse the file names, and accumulate stats
-
     # parsing file names [model_name, task, look_ahead, n_delays, layer, stat]
 
+    filepath = "/data2/zachkaras/ridge_regression_pca_params_remote"
     # filepath = "/data/zachkaras/fmri_model_data/ridge_regression_pca_params" # behemoth
-    filepath = "/s1/fmri_model_data/ridge_regression_pca_params" # cumberland
+    # filepath = "/s1/fmri_model_data/ridge_regression_pca_params" # cumberland
     
     # participant_means, stat_collection, parcel_collection 
     records = iterate_through_participants(filepath, 'correlations')
 
-    outpath = "/s1/fmri_model_data/intermediate_results"
-    with open(f"{outpath}/all_results.pkl", 'wb') as f:
+    # outpath = "/s1/fmri_model_data/intermediate_results"
+    outpath = "/data/zachkaras/fmri_model_data/intermediate_results"
+    
+    with open(f"{outpath}/all_results_old.pkl", 'wb') as f:
         pickle.dump(records, f)
-
-    # TODO - adjust for the +regressor, no regressor, only regressor results
-    # with open("/data/zachkaras/fmri_model_data/intermediate_results/no_regressor-top_parcels_per_participant.pkl", 'wb') as f:
-    #     pickle.dump(parcel_collection, f)
-
-    # with open("/data/zachkaras/fmri_model_data/intermediate_results/no_regressor-top_correlation_vals_per_participant.pkl", 'wb') as f:
-    #     pickle.dump(stat_collection, f)
-
-    # with open("/data/zachkaras/fmri_model_data/intermediate_results/no_regressor-participant_mean_z_correlations.pkl", 'wb') as f:
-    #     pickle.dump(participant_means, f)
-
 
 if __name__ == "__main__":
     main()
