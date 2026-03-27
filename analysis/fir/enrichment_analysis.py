@@ -1,16 +1,9 @@
-import os
 import pickle
 import numpy as np
+from collections import Counter 
 from scipy.stats import hypergeom
 from collections import defaultdict
 from statsmodels.stats.multitest import fdrcorrection
-
-# def nested_dict():
-#     return defaultdict(nested_dict)
-
-    
-# with open("results/no_regressor-top_parcels_per_participant.pkl", 'rb') as f:
-#     parcel_voxel_counts = pickle.load(f)
 
 def run_hypergeometric(top_parcel_list, parcel_voxel_counts, n_top=10_000):
     """
@@ -42,7 +35,6 @@ def run_hypergeometric(top_parcel_list, parcel_voxel_counts, n_top=10_000):
     for parcel in parcels:
         K = parcel_voxel_counts[parcel]   # total voxels in this parcel
         k = observed_counts.get(parcel, 0)  # observed in top n
-        # print(f"K: {K} | k: {k} | N: {N} | n: {n}")
         p = hypergeom.sf(k - 1, N, K, n)   # P(X >= k)
         p_raw.append(p)
 
@@ -79,6 +71,13 @@ def filter_results(results):
     
     return {'num_sig_parcels' : total, 'enriched_parcels' : filtered_parcels}
 
+def translate_to_region_name(parcel_num, schaefer_labels):
+        parcel_num = int(parcel_num)
+        if parcel_num <= 200:
+            region = schaefer_labels['left'][parcel_num]
+        else:
+            region = schaefer_labels['right'][parcel_num]
+        return region
 
 
 def main():
@@ -89,87 +88,55 @@ def main():
             #    'prose-codegemma_7b-ndelays_10-look_ahead_by_5', 
             #    'prose-deepseek_6b-ndelays_20-look_ahead_by_10'
             ]
+    
     with open("/data/zachkaras/fmri_model_data/intermediate_results/all_results.pkl", 'rb') as f:
         records = pickle.load(f)
+    
+    with open("schaefer_parcel_counts.pkl", 'rb') as f:
+        parcel_voxel_counts = pickle.load(f)
+        
+    
+    schaefer_labels = "schaefer_parcel_labels.pkl"
+    with open(schaefer_labels, 'rb') as f:
+        region_labels = pickle.load(f)
 
+    results = []
     for m in best_models:
         print(m)
         parts = m.split('-')
         task,model,delays,look_ahead = parts[0],parts[1],parts[2],parts[3]
         
-        filtered_records = records[(records['task'] == task) & (records['model'] == model) & (records['ndelays'] == delays) & (records['look_ahead'] == look_ahead)]
-        
-        # participants = set(filtered_records['participant']) 
+        filtered_records = records[(records['task'] == task) & (records['model'] == model) & (records['ndelays'] == delays) & (records['look_ahead'] == look_ahead)] 
         
         for (p,layer), df in filtered_records.groupby(['participant','layer']):
-            print(p, layer)
-            print(df.head)
             
+            # Running enrichment analysis
+            parcel_list = list(df['top_parcels'])[0]
+            enrichment_results = run_hypergeometric(parcel_list, parcel_voxel_counts)
+            significant_results = filter_results(enrichment_results)
             
-            # break
-        break
-        
-        
-    #     for p in participants:
-    #         # print(p)
-    #         top_parcels = parcel_collection[p][task][model][delays][look_ahead]
+            # translated enriched parcel numbers to region names from the Harvard-Oxford Atlas
+            enriched_regions = [translate_to_region_name(parcel_num, region_labels) for parcel_num in significant_results['enriched_parcels']]
+            enriched_regions = dict(Counter(enriched_regions))
+            enriched_regions = dict(sorted(enriched_regions.items(), key=lambda x: x[1], reverse=True))
+
+            # Concatenating results
+            significant_results = {
+                'model' : m,
+                'task'  : task,
+                'layer' : layer,
+                'participant' : p,
+                **significant_results,
+                'enriched_region_names' : enriched_regions
+            }
             
-    #         if not top_parcels:
-    #             print(f"Skipping {vip} {m}: no data")
-    #             continue
-            
-    #         # can iterate through different layers here
-    #         for layer,parcel_list in top_parcels.items():
-    #             # print(layer, p)
-    #             enrichment_results = run_hypergeometric(parcel_list, parcel_voxel_counts)
-    #             significant_results = filter_results(enrichment_results)
-    #             # print(enrichment_results)
-    #             participant_result_dictionary[m][layer][p] = significant_results
-    #             # participant_result_dictionary[m][layer][p] = enrichment_results
-    #     #         break
-    #     #     break
-    #     # break
-    #         # plot_top_parcels(top_parcels, vip, m)
-
-
-    # for m,l_p in participant_result_dictionary.items():
-    #     for l,p_results in l_p.items():
-    #         for p, results in p_results.items():
-    #             print(p, m, l, results)
-
-    # with open('results/participant_parcel_enrichment_results.pkl', 'wb') as f:
-    #     pickle.dump(participant_result_dictionary, f)
-
-
-    # with open('results/participant_parcel_enrichment_results.pkl', 'rb') as f:
-    #     result_dict = pickle.load(f)
-
-
-    # schaefer_labels = "schaefer_parcel_labels.pkl"
-    # with open(schaefer_labels, 'rb') as f:
-    #     region_labels = pickle.load(f)
-
-    # def translate_to_region_name(parcel_num):
-    #     parcel_num = int(parcel_num)
-    #     if parcel_num < 200:
-    #         region = schaefer_labels['left'][parcel_num]
-    #     else:
-    #         region = schaefer_labels['right'][parcel_num]
-    #     return region
-
-    # from collections import Counter                                                                                                                                                                                                                                                                                  
+            results.append(significant_results)
+        #     break
+        # break
     
-    # # counts = Counter(my_list)  
-
-    # for m,l_p in result_dict.items():
-    #     for l,p_results in l_p.items():
-    #         for p, results in p_results.items():
-    #             enriched = results['enriched_parcels']
-    #             enriched_regions = [translate_to_region_name(parcel_num) for parcel_num in enriched]
-    #             print(p, enriched_regions)
-    #             # print(p, m, l, results)
-    #             # for parcel in enriched parcels
-    #             # translate 
+    outpath = '/data/zachkaras/fmri_model_data/intermediate_results' 
+    with open(f"{outpath}/enrichment_analysis_results.pkl", 'wb') as f:
+        pickle.dump(results, f)
 
 if __name__ == "__main__":
     main()

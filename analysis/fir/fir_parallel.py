@@ -177,15 +177,6 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     # So right now, I need to run the full model for all participants
     # I'll rerun the base model afterwards for the best model configurations to calculate R^2 values for that
 
-    # on a subset of the data
-
-    weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
-    predicted_signal = np.dot(emb_test, weights)
-    # calculating cosine similarity as a performance metric
-    cos_similarities = calculate_voxelwise_cosine_similarity(fmri_test, predicted_signal)
-
-    R2 = calculate_R2(predicted_signal, fmri_test)
-    
     # base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_models/{participant}"
     # base_outpath = f"/s1/fmri_model_data/test/{participant}"
     corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-correlations.pkl"
@@ -193,6 +184,17 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
     keys_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-test_keystrokes.pkl"
     R2_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-R2.pkl"
+
+    if os.path.isfile(corr_outfile) and os.path.isfile(sim_outfile) and os.path.isfile(keys_outfile) and os.path.isfile(R2_outfile):
+        return
+    
+    weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
+    predicted_signal = np.dot(emb_test, weights)
+    # calculating cosine similarity as a performance metric
+    cos_similarities = calculate_voxelwise_cosine_similarity(fmri_test, predicted_signal)
+
+    R2 = calculate_R2(predicted_signal, fmri_test)
+    
     
     # Saving model weights and correlation values between predicted and actual timecourses as output
     # UPDATE - not saving model weights for now because the files are huge
