@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+import pandas as pd
 from collections import Counter 
 from scipy.stats import hypergeom
 from collections import defaultdict
@@ -84,9 +85,10 @@ def main():
     best_models = ['code-deepseek_6b-ndelays_4-look_ahead_by_10', 
             #    'code-codegemma_7b-ndelays_4-look_ahead_by_10',
             #    'code-codegemma_7b-ndelays_16-look_ahead_by_0', 
-                'prose-deepseek_6b-ndelays_4-look_ahead_by_10'
+                # 'prose-deepseek_6b-ndelays_4-look_ahead_by_10',
             #    'prose-codegemma_7b-ndelays_10-look_ahead_by_5', 
             #    'prose-deepseek_6b-ndelays_20-look_ahead_by_10'
+                'prose-starcoder2_7b-ndelays_16-look_ahead_by_3'
             ]
     
     with open("/data/zachkaras/fmri_model_data/intermediate_results/all_results.pkl", 'rb') as f:
@@ -133,7 +135,8 @@ def main():
             results.append(significant_results)
         #     break
         # break
-    
+    results = pd.DataFrame(results)
+
     outpath = '/data/zachkaras/fmri_model_data/intermediate_results' 
     with open(f"{outpath}/enrichment_analysis_results.pkl", 'wb') as f:
         pickle.dump(results, f)
