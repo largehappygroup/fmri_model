@@ -360,7 +360,7 @@ def main():
         
         num_embeddings = len(embeddings)
 
-        base_outpath = f"/data/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
+        base_outpath = f"/data2/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
 
         # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
 

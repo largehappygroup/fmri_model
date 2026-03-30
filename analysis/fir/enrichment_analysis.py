@@ -82,14 +82,9 @@ def translate_to_region_name(parcel_num, schaefer_labels):
 
 
 def main():
-    best_models = ['code-deepseek_6b-ndelays_4-look_ahead_by_10', 
-            #    'code-codegemma_7b-ndelays_4-look_ahead_by_10',
-            #    'code-codegemma_7b-ndelays_16-look_ahead_by_0', 
-                # 'prose-deepseek_6b-ndelays_4-look_ahead_by_10',
-            #    'prose-codegemma_7b-ndelays_10-look_ahead_by_5', 
-            #    'prose-deepseek_6b-ndelays_20-look_ahead_by_10'
-                'prose-starcoder2_7b-ndelays_16-look_ahead_by_3'
-            ]
+    best_models = ['code-deepseek_6b-ndelays_10-look_ahead_by_0',
+                   'prose-starcoder2_7b-ndelays_16-look_ahead_by_3'
+                   ]
     
     with open("/data/zachkaras/fmri_model_data/intermediate_results/all_results.pkl", 'rb') as f:
         records = pickle.load(f)
