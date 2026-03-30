@@ -4,9 +4,11 @@ import pickle
 import numpy as np
 import pandas as pd
 import nibabel as nib
-# from scipy import stats
-# from collections import defaultdict
 
+best_models = ['code-deepseek_6b-ndelays_10-look_ahead_by_0',
+               'prose-starcoder2_7b-ndelays_16-look_ahead_by_3']
+
+important_parcels = [9,133,172]
 
 # read in atlases
 # atlas_base_path = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases"
@@ -27,11 +29,6 @@ parcel_nums = atlas_only_brain[cortex_vx]
 # Making empty templates to save output
 empty_schaefer = np.zeros(atlas_only_brain.shape)
 empty_mni = np.zeros(atlas_vec.shape)
-
-best_models = ['code-deepseek_6b-ndelays_10-look_ahead_by_0',
-               'prose-starcoder2_7b-ndelays_16-look_ahead_by_3']
-
-parcels_of_interest = [9,133,172]
 
 '''
 parcels_of_interest = {
@@ -55,26 +52,6 @@ class Regression_Info(object):
     def __str__(self):
         return f"{self.model_name}, {self.task}, {self.look_ahead}, {self.n_delays}, {self.layer}, {self.stat}"
 
-# def nested_dict():
-#         return defaultdict(nested_dict)
-
-# def convert_back_to_dict(d):
-#     if isinstance(d, defaultdict):
-#         return {k: convert_back_to_dict(v) for k, v in d.items()}
-#     return d
-
-# def convert_to_nifti(values):
-#     # working backwards to save correlation values as voxels in MNI space
-#     empty_schaefer[cortex_vx] = values
-#     empty_mni[brain_idx] = empty_schaefer
-#     result_brain = np.reshape(empty_mni, og_shape)
-
-#     # Saving results
-#     nifti_result = nib.Nifti1Image(result_brain, affine=atlas.affine, header=atlas.header)
-#     nib.save(nifti_result, "test_plotting.nii.gz")
-#     return result_brain, nifti_result
-
-
 def parse_regression_info(path):
     
     parts = path.split('-') 
@@ -89,17 +66,7 @@ def parse_regression_info(path):
     
     return info
 
-
-# def find_cutoff(vec, threshold = 10**4):
-    
-#     # I can find the threshold point based on sorting, then keep everything in the same place
-#     copy = vec.copy()
-#     copy.sort()
-#     cutoff = copy[-threshold-1]
-#     return cutoff
-
-
-def iterate_through_participants(filepath, stat):
+def iterate_through_participants(filepath, model_params, stat):
     participants = os.listdir(filepath)
     
     records = []
@@ -110,6 +77,9 @@ def iterate_through_participants(filepath, stat):
         datapath = f"{filepath}/{p}"
         files = os.listdir(datapath)
         stat_files = [f for f in files if re.search(stat, f) and not re.search(r'only_regressor|\+', f)]
+        parts = model_params.split('-')
+        stat_files = [f for f in stat_files if all(part in f for part in parts)]
+        # break
         
         # iterating through the stat files
         # these are vectors of correlation coefficients between predicted and recorded signal
@@ -126,21 +96,12 @@ def iterate_through_participants(filepath, stat):
                 except:
                     print(f"issue with {p}: {sf}")
             
-            # for the stat vec, I need to 
-            
-            # # filter to top 10k, 10k is default parameter but can be changed with threshold argument
-            # cutoff = find_cutoff(stat_vec)
-            # top_voxel_idx = (np.where(stat_vec > cutoff))[0]
-            # top_voxel_vals = stat_vec[top_voxel_idx]
-            
-            # Using z-scored correlation coefficients for downstream correlation tests
-            # z = np.arctanh(stat_vec)
-            # cutoff = find_cutoff(z)
-            # top_vals = z[np.where(z > cutoff)[0]]
-            # participant_means = float(np.mean(top_vals))
-            
-            # top_parcels = parcel_nums[top_voxel_idx]
-            # top_parcels = np.array([int(parcel) for parcel in top_parcels])
+            # for the stat vec, I need to align it with indices of important schafer parcels
+            parcel_correlations = {}
+            for parcel in important_parcels:
+                parcel_idx = np.where(parcel_nums == parcel)
+                parcel_corrs = stat_vec[parcel_idx]
+                parcel_correlations[parcel] = parcel_corrs
             
             new_record = {
                 'participant' : p,
@@ -149,8 +110,11 @@ def iterate_through_participants(filepath, stat):
                 'ndelays' : info.n_delays,
                 'look_ahead' : info.look_ahead,
                 'layer' : info.layer,
+                **parcel_correlations
             }
             records.append(new_record)
+        #     break
+        # break
             
     records = pd.DataFrame(records)
     return records
@@ -161,13 +125,16 @@ def main():
     # parsing file names [model_name, task, look_ahead, n_delays, layer, stat]
 
     filepath = "/data2/zachkaras/fmri_model_data/ridge_regression_pca_params"
-    
-    records = iterate_through_participants(filepath, 'correlations')
+    all_records = []
+    for m in best_models:
+        records = iterate_through_participants(filepath, m, 'correlations')
+        all_records.append(records)
+    all_records = pd.concat(all_records, ignore_index=True)
 
     outpath = "/data/zachkaras/fmri_model_data/intermediate_results"
     
-    with open(f"{outpath}/parcels_of_interest.pkl", 'wb') as f:
-        pickle.dump(records, f)
+    with open(f"{outpath}/parcels_of_interest-correlations.pkl", 'wb') as f:
+        pickle.dump(all_records, f)
 
 if __name__ == "__main__":
     main()
