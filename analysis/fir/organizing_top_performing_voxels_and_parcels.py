@@ -102,7 +102,6 @@ def iterate_through_participants(filepath, stat):
         datapath = f"{filepath}/{p}"
         files = os.listdir(datapath)
         stat_files = [f for f in files if re.search(stat, f) and not re.search(r'only_regressor|\+', f)]
-        
         # iterating through the stat files
         # these are vectors of correlation coefficients between predicted and recorded signal
         # Different parameters were adjusted, so the folder contains all the possibilities
@@ -121,7 +120,12 @@ def iterate_through_participants(filepath, stat):
             
             # filter to top 10k, 10k is default parameter but can be changed with threshold argument
             cutoff = find_cutoff(stat_vec)
-            top_voxel_idx = (np.where(stat_vec > cutoff))[0]
+            # print(cutoff, type(stat_vec), stat_vec[0:10])
+            try:
+                top_voxel_idx = (np.where(stat_vec > cutoff))[0]
+            except:
+                stat_vec = np.array(stat_vec)
+                top_voxel_idx = (np.where(stat_vec > cutoff))[0]
             top_voxel_vals = stat_vec[top_voxel_idx]
             
             # Using z-scored correlation coefficients for downstream correlation tests
@@ -154,17 +158,18 @@ def main():
     # iterate through directories, parse the file names, and accumulate stats
     # parsing file names [model_name, task, look_ahead, n_delays, layer, stat]
 
-    filepath = "/data2/zachkaras/ridge_regression_pca_params_remote"
-    # filepath = "/data/zachkaras/fmri_model_data/ridge_regression_pca_params" # behemoth
+    # filepath = "/data2/zachkaras/ridge_regression_pca_params_remote"
+    filepath = "/data2/zachkaras/fmri_model_data/ridge_regression_pca_params" # behemoth
     # filepath = "/s1/fmri_model_data/ridge_regression_pca_params" # cumberland
     
     # participant_means, stat_collection, parcel_collection 
-    records = iterate_through_participants(filepath, 'correlations')
+    # records = iterate_through_participants(filepath, 'correlations')
+    records = iterate_through_participants(filepath, 'cosine')
 
     # outpath = "/s1/fmri_model_data/intermediate_results"
     outpath = "/data/zachkaras/fmri_model_data/intermediate_results"
     
-    with open(f"{outpath}/all_results_old.pkl", 'wb') as f:
+    with open(f"{outpath}/all_results_cosine.pkl", 'wb') as f:
         pickle.dump(records, f)
 
 if __name__ == "__main__":
