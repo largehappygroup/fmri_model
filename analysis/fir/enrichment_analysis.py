@@ -75,15 +75,16 @@ def filter_results(results):
 def translate_to_region_name(parcel_num, schaefer_labels):
         parcel_num = int(parcel_num)
         if parcel_num <= 200:
-            region = schaefer_labels['left'][parcel_num]
+            region = f"Left {schaefer_labels['left'][parcel_num]}"
         else:
-            region = schaefer_labels['right'][parcel_num]
+            region = f"Right {schaefer_labels['right'][parcel_num]}"
         return region
 
 
 def main():
     best_models = ['code-deepseek_6b-ndelays_10-look_ahead_by_0',
-                   'prose-starcoder2_7b-ndelays_16-look_ahead_by_3'
+                   'prose-deepseek_6b-ndelays_10-look_ahead_by_0',
+                #    'prose-starcoder2_7b-ndelays_16-look_ahead_by_3'
                    ]
     
     with open("/data/zachkaras/fmri_model_data/intermediate_results/all_results.pkl", 'rb') as f:
