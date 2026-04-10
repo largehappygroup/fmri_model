@@ -125,7 +125,13 @@ def run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test):
     nboots = 5 #1 # Number of cross-validation runs.
     chunklen = 40 # 
     nchunks = 20
-
+    '''
+    To select the ridge parameter independently for each voxel, we used 50 iterations
+    of cross-validation. Since fMRI data is auto-correlated, for
+    each cross-validation run we randomly sampled 40 different
+    chunks of the training data, each totaling over 4 minutes.
+    The training set comprised 26 stories, totaling 5.4 hours.
+    '''
     wt, corr, alphas, bscorrs, valinds = bootstrap_ridge(emb_train, fmri_train, emb_test, fmri_test,
                                                         alphas, nboots, chunklen, nchunks,
                                                         singcutoff=1e-10, single_alpha=True)
@@ -332,7 +338,7 @@ def main():
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
         base_outpath = f"/data/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
-        
+        continue    
         # if os.path.isdir(base_outpath):
         #     print(f"Participant output already exists. Skipping")
         #     continue
@@ -360,7 +366,7 @@ def main():
         
         num_embeddings = len(embeddings)
 
-        base_outpath = f"/data/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
+        base_outpath = f"/data2/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
 
         # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
 

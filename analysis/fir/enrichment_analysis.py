@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+import pandas as pd
 from collections import Counter 
 from scipy.stats import hypergeom
 from collections import defaultdict
@@ -74,20 +75,17 @@ def filter_results(results):
 def translate_to_region_name(parcel_num, schaefer_labels):
         parcel_num = int(parcel_num)
         if parcel_num <= 200:
-            region = schaefer_labels['left'][parcel_num]
+            region = f"Left {schaefer_labels['left'][parcel_num]}"
         else:
-            region = schaefer_labels['right'][parcel_num]
+            region = f"Right {schaefer_labels['right'][parcel_num]}"
         return region
 
 
 def main():
-    best_models = ['code-deepseek_6b-ndelays_4-look_ahead_by_10', 
-            #    'code-codegemma_7b-ndelays_4-look_ahead_by_10',
-            #    'code-codegemma_7b-ndelays_16-look_ahead_by_0', 
-                'prose-deepseek_6b-ndelays_4-look_ahead_by_10'
-            #    'prose-codegemma_7b-ndelays_10-look_ahead_by_5', 
-            #    'prose-deepseek_6b-ndelays_20-look_ahead_by_10'
-            ]
+    best_models = ['code-deepseek_6b-ndelays_10-look_ahead_by_0',
+                   'prose-deepseek_6b-ndelays_10-look_ahead_by_0',
+                #    'prose-starcoder2_7b-ndelays_16-look_ahead_by_3'
+                   ]
     
     with open("/data/zachkaras/fmri_model_data/intermediate_results/all_results.pkl", 'rb') as f:
         records = pickle.load(f)
@@ -133,7 +131,8 @@ def main():
             results.append(significant_results)
         #     break
         # break
-    
+    results = pd.DataFrame(results)
+
     outpath = '/data/zachkaras/fmri_model_data/intermediate_results' 
     with open(f"{outpath}/enrichment_analysis_results.pkl", 'wb') as f:
         pickle.dump(results, f)
