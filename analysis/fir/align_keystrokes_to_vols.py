@@ -161,7 +161,7 @@ def align_timestamps(task_info, num_vols, tr):
         # then it looks like I need to add the result of multiplying the TR by 2,
         # which corresponds to the final two volumes recorded after the end of the last stimulus.
         # I calculated 2 volumes using the following process:
-        # each trial was 60 seconds and I  the volumes of the fMRI scan that correspond to a given trial
+        # each trial was 60 seconds and I checked that the volumes of the fMRI scan that correspond to a given trial
         # It's consistent that the final two volumes aren't associated with a task
         final_idx = len(task_info)-1
         final_question_time = task_info.loc[final_idx, 'timestamp']

@@ -1,3 +1,2 @@
-This repo contains analysis code and deep learning models for fMRI data. The purpose of the project is to examine how coding activities might be specialized in the brain.
-
+This repo contains code for training voxelwise encoding models of fMRI data using participants' keystrokes during a code/prose writing experiment.
 
