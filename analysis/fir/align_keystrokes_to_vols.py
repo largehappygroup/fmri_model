@@ -19,6 +19,8 @@ if args.computer == 'mymac':
     bass_path = "/Users/zacharykaras/Desktop"
 elif args.computer == 'cumberland':
     bass_path = "/home/zachkaras/fmri"
+elif args.computer == 'behemoth':
+    bass_path = "/home/zachkaras"
 
 character_path = f"{bass_path}/fmri_model/midprocessing/special_character_symbols.pkl"
 with open(character_path, 'rb') as f:
@@ -33,6 +35,7 @@ def concat_duplicates(key_list):
         '<K:S>', # shift
         '<K:BS>', # backspace
         '<K:CTRL>', # ctrl
+        '<K:CTRLT>', # new tab shortcut
         '<K:ESC>', # escape
         '<K:L>', # left arrow
         '<K:R>', # right arrow
@@ -113,7 +116,7 @@ def find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_tim
     for v in range(num_vols-1, -1,-1):
         # 
         start_window = end_window - timestep
-
+        print("start ", start_window, "end ", end_window)
         # dense code that finds keystrokes with timestamps for current volume
         # Last steps involve converting the ascii codes into keystrokes
         idx_keystrokes_in_window = (np.where((keystroke_df['end_timestamp'] >= start_window) & (keystroke_df['end_timestamp'] < end_window)))[0]
@@ -163,10 +166,20 @@ def align_timestamps(task_info, num_vols, tr):
         # I calculated 2 volumes using the following process:
         # each trial was 60 seconds and I checked that the volumes of the fMRI scan that correspond to a given trial
         # It's consistent that the final two volumes aren't associated with a task
-        final_idx = len(task_info)-1
-        final_question_time = task_info.loc[final_idx, 'timestamp']
+        participant = task_info.loc[0, 'participant-id']
         tr_in_ms = tr*1000
-        final_vol_time = final_question_time + (2*tr_in_ms)
+
+        # participant 141 has a short functional file, but all the keystroke data
+        # for that participant, the last complete answer is question 6, and there are 13 volumes collected after that
+        if participant == 141:
+            final_idx = np.where(task_info['stimulus-id'] == 6)[0][0]
+            print(final_idx, type(final_idx))
+            final_question_time = task_info.loc[final_idx, 'timestamp']
+            final_vol_time = final_question_time +  (13 * tr_in_ms)
+        else:
+            final_idx = len(task_info)-1
+            final_question_time = task_info.loc[final_idx, 'timestamp']
+            final_vol_time = final_question_time + (2*tr_in_ms)
 
         # Performing calculations to make the timestamp iterable by the number of volumes
         remainder = round(final_vol_time)%num_vols
@@ -223,8 +236,8 @@ def process_task(task, keydir, keyfiles):
         task_num = 1
 
     # Iterate through each participant's data
+    keyfiles = [141, 109] # 141 doesn't have the full scan, only 592 volumes
     for person in keyfiles:
-        person = 119
         print(person)
 
         # different filepaths
@@ -233,10 +246,12 @@ def process_task(task, keydir, keyfiles):
         
         if task == 'code':
             # fmri_file = f"{bass_path}/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
-            fmri_file = f"/storage1/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+            # fmri_file = f"/storage1/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
+            fmri_file = f"/data/zachkaras/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz" # behemoth
         elif task == 'prose':
             # fmri_file = f"{bass_path}/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
-            fmri_file = f"/storage1/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
+            # fmri_file = f"/storage1/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
+            fmri_file = f"/data/zachkaras/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz" # behemoth
         tr = 0.8 # in seconds
 
         keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-{task_num}.txt"
@@ -258,7 +273,7 @@ def process_task(task, keydir, keyfiles):
 
         # adding information about question number
         keystroke_df = create_keystroke_dataframe(keystrokes_file, onset_df)
-        keystroke_df.to_csv("test_df.csv")
+        # keystroke_df.to_csv("test_df.csv")
         
         if keystroke_df.empty:
             print("keytroke file doesn't exist")
@@ -278,7 +293,7 @@ def process_task(task, keydir, keyfiles):
             print(f"Cannot find fMRI data for {person}")
             continue
 
-        num_vols = fmri_data.header['dim'][4]
+        num_vols = int(fmri_data.header['dim'][4])
 
         # Aligning fMRI volumes to timestamps used for keystroke files
         aligned_timestamp = align_timestamps(task_info, num_vols, tr)
@@ -291,8 +306,8 @@ def process_task(task, keydir, keyfiles):
 
         df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
         # cleaned_keystrokes_df.to_csv(df_outpath, index=False)
-        # break
-        return
+        break
+        
 
 # The purpose of the main function is to iterate through each participants' keystroke files
 # and figure out what keys were pressed during what volumes of the fMRI scan

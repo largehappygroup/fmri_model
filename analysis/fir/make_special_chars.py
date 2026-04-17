@@ -94,12 +94,13 @@ special_characters = {
     '\x08'  : '<K:BS>', # backspace
     '\x11'  : '<K:CTRL>', # ctrl
     '\x1b'  : '<K:ESC>', # escape
+    '\x14'  : '<K:CTRLT>', # new tab shortcut, some random participant pressed this
     '%'     : '<K:L>', # left arrow
     "'"     : '<K:R>', # right arrow
     '&'     : '<K:U>', # up arrow
     '('     : '<K:D>' # down arrow
 }
-with open("/home/zachkaras/fmri/fmri_model/midprocessing/special_character_symbols.pkl", 'wb') as f:
+with open("/home/zachkaras/fmri_model/midprocessing/special_character_symbols.pkl", 'wb') as f:
 # with open("/Users/zacharykaras/Desktop/fmri_model/midprocessing/special_character_symbols.pkl", 'wb') as f:
     pickle.dump(special_characters, f)
     
@@ -157,7 +158,7 @@ shift_chars = {
     '/': '?',
 }
 
-with open("/home/zachkaras/fmri/fmri_model/midprocessing/shift_chars.pkl", 'wb') as f:
+with open("/home/zachkaras/fmri_model/midprocessing/shift_chars.pkl", 'wb') as f:
 # with open("/Users/zacharykaras/Desktop/fmri_model/midprocessing/shift_chars.pkl", 'wb') as f:
     pickle.dump(shift_chars, f)
     

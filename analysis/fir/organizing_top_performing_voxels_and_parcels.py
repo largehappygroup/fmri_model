@@ -101,7 +101,9 @@ def iterate_through_participants(filepath, stat):
         print(p)
         datapath = f"{filepath}/{p}"
         files = os.listdir(datapath)
-        stat_files = [f for f in files if re.search(stat, f) and not re.search(r'only_regressor|\+', f)]
+        # stat_files = [f for f in files if re.search(stat, f) and not re.search(r'only_regressor|\+', f)]
+        stat_files = [f for f in files if re.search(stat, f) and re.search('\+', f)]
+    
         # iterating through the stat files
         # these are vectors of correlation coefficients between predicted and recorded signal
         # Different parameters were adjusted, so the folder contains all the possibilities
@@ -163,13 +165,13 @@ def main():
     # filepath = "/s1/fmri_model_data/ridge_regression_pca_params" # cumberland
     
     # participant_means, stat_collection, parcel_collection 
-    # records = iterate_through_participants(filepath, 'correlations')
-    records = iterate_through_participants(filepath, 'cosine')
+    records = iterate_through_participants(filepath, 'correlations')
+    # records = iterate_through_participants(filepath, 'cosine')
 
     # outpath = "/s1/fmri_model_data/intermediate_results"
     outpath = "/data/zachkaras/fmri_model_data/intermediate_results"
     
-    with open(f"{outpath}/all_results_cosine.pkl", 'wb') as f:
+    with open(f"{outpath}/all_results_regressor+features.pkl", 'wb') as f:
         pickle.dump(records, f)
 
 if __name__ == "__main__":
