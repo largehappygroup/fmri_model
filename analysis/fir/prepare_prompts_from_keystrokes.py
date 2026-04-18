@@ -421,10 +421,10 @@ def process_keystrokes(vol_keystroke_df, task, person):
     num_keystrokes_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-num_keystrokes_regressor.pkl"
     num_keystrokes = np.array(list(num_keystrokes.values()))
     
-    # with open(num_keystrokes_outpath, 'wb') as f:
-    #     pickle.dump(num_keystrokes, f)
-    # with open(output_path, 'wb') as f:
-    #     pickle.dump(output, f)
+    with open(num_keystrokes_outpath, 'wb') as f:
+        pickle.dump(num_keystrokes, f)
+    with open(output_path, 'wb') as f:
+        pickle.dump(output, f)
     with open(new_keystroke_outpath, 'wb') as f:
         pickle.dump(only_new_keystrokes, f)
 

@@ -1,0 +1,51 @@
+import os
+import re
+import ast
+import pickle
+import numpy as np
+import pandas as pd
+
+
+participants = os.listdir("midprocess")
+
+def identify_outliers(keys, characters):
+    extreme_val = np.std(keys) * 5
+    outlier_loc = list(np.where(keys > extreme_val)[0])
+
+    filtered_outliers = []
+    for idx in outlier_loc:
+        keys_pressed = ast.literal_eval(characters.loc[idx, 'keystrokes'])
+        if len(keys_pressed) <= 2:
+            continue
+        elif extreme_val - len(keys_pressed) > 0:
+            continue
+        else:
+            filtered_outliers.append(idx)
+    return filtered_outliers
+
+
+outlier_vols = {
+    'code' : {},
+    'prose': {}
+}
+for task in ['code', 'prose']:
+    for p in participants:
+        try:
+            with open(f"midprocess/{p}/{task}_num_keystrokes_regressor.pkl", 'rb') as f:
+                keys = pickle.load(f)
+        except:
+            continue
+
+        # cross reference with keystrokes file
+        characters_file = f"midprocess/{p}/{task}_keystrokes_by_volume.csv"
+        characters = pd.read_csv(characters_file)
+
+        filtered_outliers = identify_outliers(keys, characters)
+        if filtered_outliers:
+            outlier_vols[task][p] = filtered_outliers
+
+
+outpath = "/home/zachkaras/fmri_model/analysis/fir/outlier_volumes.pkl"
+
+with open(outpath, 'wb') as f:
+    pickle.dump(outlier_vols, f)
