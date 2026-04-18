@@ -10,8 +10,6 @@ from sklearn.preprocessing import StandardScaler
 # parser.add_argument("--ndelays", required=False, default=4, help="This indicates how many delayed copies of the embedding to include (i.e., for how long the keystrokes will influence neural activity)")
 # args = parser.parse_args()
 
-# TODO - check 
-
 def make_delayed(stim, delays, circpad=False):
     """Creates non-interpolated concatenated delayed versions of [stim] with the given [delays] 
     (in samples).
@@ -76,6 +74,8 @@ def prepare_regressor(participant, task, vols_to_skip):
 # UPDATE - I tried this but it gets rid of a lot of data and performance seems to drop a lot
 def organize_individual_layers(layers, keystroke_dict, embedding_dict):
 
+    # TODO - load in outlier volumes
+    # TODO - check to see if I'm skipping too much
     signal = { l : [] for l in layers }
     vols_without_keystrokes = set()
     for vol,keys in keystroke_dict.items():
