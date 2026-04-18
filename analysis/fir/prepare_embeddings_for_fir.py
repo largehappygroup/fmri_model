@@ -10,6 +10,9 @@ from sklearn.preprocessing import StandardScaler
 # parser.add_argument("--ndelays", required=False, default=4, help="This indicates how many delayed copies of the embedding to include (i.e., for how long the keystrokes will influence neural activity)")
 # args = parser.parse_args()
 
+with open("outlier_volumes.pkl", 'rb') as f:
+    outlier_vols = pickle.load(f)
+
 def make_delayed(stim, delays, circpad=False):
     """Creates non-interpolated concatenated delayed versions of [stim] with the given [delays] 
     (in samples).
@@ -72,15 +75,20 @@ def prepare_regressor(participant, task, vols_to_skip):
 # keep track of duplicated layers and condense that into one 
 # save volume numbers to get rid of that data in fMRI files
 # UPDATE - I tried this but it gets rid of a lot of data and performance seems to drop a lot
-def organize_individual_layers(layers, keystroke_dict, embedding_dict):
-
-    # TODO - load in outlier volumes
-    # TODO - check to see if I'm skipping too much
+def organize_individual_layers(participant, task, layers, keystroke_dict, embedding_dict):
+    
     signal = { l : [] for l in layers }
-    vols_without_keystrokes = set()
+    vols_without_keystrokes = set() # This catches all volumes that aren't during questions
+
+    # indices of keystroke_dict are 0-indexed
+    # check to see if participant has outlier volumes {'task': {'participant' : [vols]}}
+    if participant in list(outlier_vols[task].keys()):
+        int_list = [int(n) for n in outlier_vols[task][participant]]
+        vols_without_keystrokes.update(int_list)
+
     for vol,keys in keystroke_dict.items():
         
-        if keys == '':
+        if keys == '': # only the rest periods won't have any text
             vols_without_keystrokes.add(vol)
             continue
             
@@ -119,7 +127,8 @@ def run_participants(model_path, model, task):
     for d in ndelays:
         delays = range(1,d+1)
         for p in participants:
-            
+            task = 'prose'
+            p = 105
             print(p)
             look_ahead_by = [0, 1, 3, 5, 10]
             
@@ -147,7 +156,7 @@ def run_participants(model_path, model, task):
 
                 # make a stack for each layer
                 # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
-                signal, vols_to_skip = organize_individual_layers(layers, keystroke_dict, embedding_dict)
+                signal, vols_to_skip = organize_individual_layers(str(p), task, layers, keystroke_dict, embedding_dict)
                 
                 with open(f"/data/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
                     pickle.dump(vols_to_skip, f)
@@ -170,7 +179,6 @@ def run_participants(model_path, model, task):
 
                     sig_with_regressor = np.hstack((regressor, sig_pca))
                     
-                    
                     # with open("test_regressor.pkl", 'wb') as f:
                     #     pickle.dump(sig, f)
                     
@@ -188,8 +196,10 @@ def run_participants(model_path, model, task):
                         pickle.dump(delayed_regressor, f)
                 if loop_run:
                     print("After PCA, regressor, delays: ", sig_pca.shape, sig_with_regressor.shape, delayed_sig.shape, delayed_regressor.shape)
-                    #break
-                #break
+                    break
+                break
+            break
+        break
 
 
 def main():
