@@ -182,7 +182,9 @@ def align_timestamps(task_info, num_vols, tr):
             final_vol_time = final_question_time + (2*tr_in_ms)
 
         # Performing calculations to make the timestamp iterable by the number of volumes
+        # num_vols = 503 if participant == 109 else num_vols # for participant 109, based on onset times
         remainder = round(final_vol_time)%num_vols
+
         divisible_time = round(final_vol_time)-remainder
 
         return divisible_time
@@ -236,8 +238,16 @@ def process_task(task, keydir, keyfiles):
         task_num = 1
 
     # Iterate through each participant's data
-    keyfiles = [141, 109] # 141 doesn't have the full scan, only 592 volumes
+    # 141 doesn't have the full scan, only 592 volumes
+    
+    # 109 had issues with the interface during prose, and the scan for code got cut short
+    # For 109 code, I don't think there's any information I can use to suggest I should 
+    # process the data any differently. The final timestamp in the keystrokes-3 file happens before
+    # the final timestamp of the processed-answers-3 file, suggesting it was recorded. I'm guessing
+    # the scan ended while the participant kept typing, so we should remove some of the final keystrokes, but I 
+    # dont' have a way of saying how many volumes to offset by. 
     for person in keyfiles:
+        person = 109
         print(person)
 
         # different filepaths
@@ -293,7 +303,11 @@ def process_task(task, keydir, keyfiles):
             print(f"Cannot find fMRI data for {person}")
             continue
 
-        num_vols = int(fmri_data.header['dim'][4])
+        actual_num_vols = int(fmri_data.header['dim'][4])
+        num_vols = actual_num_vols
+
+        if person == 109:
+            num_vols = 505
 
         # Aligning fMRI volumes to timestamps used for keystroke files
         aligned_timestamp = align_timestamps(task_info, num_vols, tr)
@@ -304,8 +318,15 @@ def process_task(task, keydir, keyfiles):
         # processing the raw ascii codes into something that can be interpreted by a model... probably after some more preprocessing
         cleaned_keystrokes_df = find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_timestamp, num_vols, tr)
 
+        if actual_num_vols > num_vols:
+            extra_rows = pd.DataFrame(
+                [[v, np.array([]), []] for v in range(num_vols, actual_num_vols)],
+                columns=['vol_num', 'question_num', 'keystrokes']
+            )
+            cleaned_keystrokes_df = pd.concat([cleaned_keystrokes_df, extra_rows], ignore_index=True)
+
         df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
-        # cleaned_keystrokes_df.to_csv(df_outpath, index=False)
+        cleaned_keystrokes_df.to_csv(df_outpath, index=False)
         break
         
 
