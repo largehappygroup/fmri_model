@@ -61,11 +61,13 @@ def prepare_regressor(participant, task, vols_to_skip):
         
     with open(num_keys_regressor_path, 'rb') as f:
         num_keys_regressor = pickle.load(f)
-        
+    
+    # print(num_keys_regressor.shape)
     mean = np.mean(num_keys_regressor) 
     std = np.std(num_keys_regressor)
 
     num_keys_regressor = [(n - mean)/std for n in num_keys_regressor]
+
     num_keys_regressor = [n for i,n in enumerate(num_keys_regressor) if i not in vols_to_skip]
     num_keys_regressor = np.expand_dims(np.array(num_keys_regressor), axis=1)
     
@@ -86,10 +88,13 @@ def organize_individual_layers(participant, task, layers, keystroke_dict, embedd
         int_list = [int(n) for n in outlier_vols[task][participant]]
         vols_without_keystrokes.update(int_list)
 
-    for vol,keys in keystroke_dict.items():
+    for i,(vol,keys )in enumerate(keystroke_dict.items()):
         
         if keys == '': # only the rest periods won't have any text
             vols_without_keystrokes.add(vol)
+            continue
+        # participant has outlier volume that should be skipped
+        elif i in vols_without_keystrokes: 
             continue
             
         layers = embedding_dict[keys]
@@ -127,8 +132,6 @@ def run_participants(model_path, model, task):
     for d in ndelays:
         delays = range(1,d+1)
         for p in participants:
-            task = 'prose'
-            p = 105
             print(p)
             look_ahead_by = [0, 1, 3, 5, 10]
             
@@ -176,6 +179,7 @@ def run_participants(model_path, model, task):
                     # so the current embeddings are just the feature vectors.
                     # now I need to save the regressor and the combined feature + regressor 
                     sig_pca = reduce_dimensionality(sig, task)
+                    # print("SHAPES: ", sig.shape, sig_pca.shape, regressor.shape)
 
                     sig_with_regressor = np.hstack((regressor, sig_pca))
                     
@@ -196,10 +200,10 @@ def run_participants(model_path, model, task):
                         pickle.dump(delayed_regressor, f)
                 if loop_run:
                     print("After PCA, regressor, delays: ", sig_pca.shape, sig_with_regressor.shape, delayed_sig.shape, delayed_regressor.shape)
-                    break
-                break
-            break
-        break
+        #             break
+        #         break
+        #     break
+        # break
 
 
 def main():
