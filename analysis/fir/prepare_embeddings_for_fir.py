@@ -5,10 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
-# parser = argparse.ArgumentParser(description="Script to conduct FIR with embeddings from LLMs.")
-# parser.add_argument("--ndelays", required=False, default=4, help="This indicates how many delayed copies of the embedding to include (i.e., for how long the keystrokes will influence neural activity)")
-# args = parser.parse_args()
+ALLOWED_CORES = list(range(0, 25))
 
 with open("outlier_volumes.pkl", 'rb') as f:
     outlier_vols = pickle.load(f)
@@ -120,90 +119,91 @@ def find_layer_labels(keystroke_dict, embedding_dict):
             layer_labels = list((embedding_dict[v]).keys())
             return layer_labels
 
+def process_participant_lookahead(p, task, model_path, model, ndelays, t):
+    """Worker: load embeddings once for (participant, look_ahead_by) and process all delay values."""
+    emb_datapath = f"{model_path}/{p}/{task}_look_ahead_by_{t}-keystroke_embeddings.pkl"
+    try:
+        with open(emb_datapath, 'rb') as f:
+            embedding_dict = pickle.load(f)
+    except Exception as e:
+        print(f"can't open embedding for {p}, t={t}: {e}")
+        return
+
+    keystroke_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{p}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
+    try:
+        with open(keystroke_path, 'rb') as f:
+            keystroke_dict = pickle.load(f)
+    except Exception as e:
+        print(f"can't open keystrokes for {p}, t={t}: {e}")
+        return
+
+    layers = find_layer_labels(keystroke_dict, embedding_dict)
+    signal, vols_to_skip = organize_individual_layers(str(p), task, layers, keystroke_dict, embedding_dict)
+
+    with open(f"/data/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
+        pickle.dump(vols_to_skip, f)
+
+    regressor = prepare_regressor(p, task, vols_to_skip)
+
+    outputdir = f"/data2/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
+    if not os.path.exists(outputdir):
+        os.makedirs(outputdir, exist_ok=True)
+
+    # Compute PCA once per layer, then apply each delay set
+    for l, sig in signal.items():
+        all_done = all(
+            os.path.exists(f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-regressor+features.pkl")
+            and os.path.exists(f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-only_regressor.pkl")
+            for d in ndelays
+        )
+        if all_done:
+            continue
+
+        sig_pca = reduce_dimensionality(sig, task)
+        sig_with_regressor = np.hstack((regressor, sig_pca))
+
+        for d in ndelays:
+            delays = range(1, d + 1)
+            reg_feat_outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-regressor+features.pkl"
+            reg_outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-only_regressor.pkl"
+
+            if os.path.exists(reg_outputfile) and os.path.exists(reg_feat_outputfile):
+                continue
+
+            delayed_sig = make_delayed(sig_with_regressor, delays) if d > 0 else sig_with_regressor
+            delayed_regressor = make_delayed(regressor, delays) if d > 0 else regressor
+
+            with open(reg_feat_outputfile, 'wb') as f:
+                pickle.dump(delayed_sig, f)
+            with open(reg_outputfile, 'wb') as f:
+                pickle.dump(delayed_regressor, f)
+
+
+def init_worker():
+    os.sched_setaffinity(0, ALLOWED_CORES)
+
+
 def run_participants(model_path, model, task):
-    
     participants = os.listdir(model_path)
-    
-    # need codegemma 7b, code, 4 delays, look ahead by 10
-    # codegemma 7b, code, 16 delays, look ahead by 0
-    # codegemma 7b, prose, 10 delays, look ahead by 5
     ndelays = [0, 4, 10, 16, 20]
-    
-    for d in ndelays:
-        delays = range(1,d+1)
-        for p in participants:
-            print(p)
-            look_ahead_by = [0, 1, 3, 5, 10]
-            
-            for t in look_ahead_by:
-                emb_datapath = f"{model_path}/{p}/{task}_look_ahead_by_{t}-keystroke_embeddings.pkl"
-                try:
-                    with open(emb_datapath, 'rb') as f:
-                        embedding_dict = pickle.load(f)
-                except Exception as e:
-                    print(f"can't open embedding: {e}")
-                    continue    
-                    
-                keystroke_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{p}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
-                try:
-                    with open(keystroke_path, 'rb') as f:
-                        keystroke_dict = pickle.load(f)
-                except:
-                    continue    
-                
-                # For PCA, can use vector sizes of 985 from semantic tiling, 768 from continuous language, 50 from intracranial EEG
-                # I found that the feature vectors need to be smaller than the other dimensions, so 768 and 985 are too big
-                # 50 feels too small, so I'm trying 256 for now 10/14/2025
-                # print(f"Embedding length for {model}: {len((embedding_dict[list(embedding_dict.keys())[0]])['layer_0'])}")
-                layers = find_layer_labels(keystroke_dict, embedding_dict)
+    look_ahead_by = [0, 1, 3, 5, 10]
 
-                # make a stack for each layer
-                # signal has the structure of {'layer_0' : <ndarray of embeddings>, 'layer_5' : <ndarray of embeddings>}
-                signal, vols_to_skip = organize_individual_layers(str(p), task, layers, keystroke_dict, embedding_dict)
-                
-                with open(f"/data/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
-                    pickle.dump(vols_to_skip, f)
-                
-                regressor = prepare_regressor(p, task, vols_to_skip)
-                loop_run = False
-                for l,sig in signal.items():
-                    outputdir = f"/data2/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
-                    reg_feat_outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-regressor+features.pkl"
-                    reg_outputfile = f"{outputdir}/{model}-{task}-look_ahead_by_{t}-ndelays_{d}-fir_embedding-{l}-only_regressor.pkl"
-                    
-                    if os.path.exists(reg_outputfile) and os.path.exists(reg_feat_outputfile):
-                        continue
-                    
-                    loop_run = True
-                    # 3/23/2026 - looks like I didn't actually save the embeddings with the regressor
-                    # so the current embeddings are just the feature vectors.
-                    # now I need to save the regressor and the combined feature + regressor 
-                    sig_pca = reduce_dimensionality(sig, task)
-                    # print("SHAPES: ", sig.shape, sig_pca.shape, regressor.shape)
+    jobs = [(p, t) for p in participants for t in look_ahead_by]
+    num_jobs = len(jobs)
+    print(f"{model} {task}: {num_jobs} jobs across {len(ALLOWED_CORES)} workers")
 
-                    sig_with_regressor = np.hstack((regressor, sig_pca))
-                    
-                    # with open("test_regressor.pkl", 'wb') as f:
-                    #     pickle.dump(sig, f)
-                    
-                    # delayed_sig = make_delayed(sig, delays)
-                    delayed_sig = make_delayed(sig_with_regressor, delays) if d > 0 else sig_with_regressor
-                    delayed_regressor = make_delayed(regressor, delays) if d > 0 else regressor
-                    
-                    if not os.path.exists(outputdir):
-                        os.mkdir(outputdir)
-                    
-                    with open(reg_feat_outputfile, 'wb') as f:
-                        pickle.dump(delayed_sig, f)
-                    
-                    with open(reg_outputfile, 'wb') as f:
-                        pickle.dump(delayed_regressor, f)
-                if loop_run:
-                    print("After PCA, regressor, delays: ", sig_pca.shape, sig_with_regressor.shape, delayed_sig.shape, delayed_regressor.shape)
-        #             break
-        #         break
-        #     break
-        # break
+    with ProcessPoolExecutor(max_workers=len(ALLOWED_CORES), initializer=init_worker) as ex:
+        futures = {
+            ex.submit(process_participant_lookahead, p, task, model_path, model, ndelays, t): (p, t)
+            for p, t in jobs
+        }
+        for i, fut in enumerate(as_completed(futures), start=1):
+            p, t = futures[fut]
+            try:
+                fut.result()
+                print(f"  [{i}/{num_jobs}] done: {p} t={t}")
+            except Exception as e:
+                print(f"  [{i}/{num_jobs}] error: {p} t={t}: {e}")
 
 
 def main():
@@ -218,5 +218,7 @@ def main():
         run_participants(model_path, m, 'prose')
     
 
-if __name__=="__main__":
+if __name__ == "__main__":
+    import multiprocessing as mp
+    mp.set_start_method("spawn", force=True)
     main()
