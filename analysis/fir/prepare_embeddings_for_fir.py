@@ -140,7 +140,8 @@ def process_participant_lookahead(p, task, model_path, model, ndelays, t):
     layers = find_layer_labels(keystroke_dict, embedding_dict)
     signal, vols_to_skip = organize_individual_layers(str(p), task, layers, keystroke_dict, embedding_dict)
 
-    with open(f"/data/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
+    # with open(f"/data/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
+    with open(f"/tank/home/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
         pickle.dump(vols_to_skip, f)
 
     regressor = prepare_regressor(p, task, vols_to_skip)
@@ -208,7 +209,8 @@ def run_participants(model_path, model, task):
 
 def main():
     # iterate through models
-    all_models = f"/data/zachkaras/fmri_model_data/fir_embeddings_params"
+    # all_models = f"/data/zachkaras/fmri_model_data/fir_embeddings_params"
+    all_models = f"/tank/home/zachkaras/fmri_model_data/fir_embeddings_params"
     models = os.listdir(all_models)
     
     for m in models:
