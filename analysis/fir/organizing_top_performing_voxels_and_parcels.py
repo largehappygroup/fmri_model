@@ -47,26 +47,6 @@ class Regression_Info(object):
     def __str__(self):
         return f"{self.model_name}, {self.task}, {self.look_ahead}, {self.n_delays}, {self.layer}, {self.stat}"
 
-def nested_dict():
-        return defaultdict(nested_dict)
-
-def convert_back_to_dict(d):
-    if isinstance(d, defaultdict):
-        return {k: convert_back_to_dict(v) for k, v in d.items()}
-    return d
-
-# def convert_to_nifti(values):
-#     # working backwards to save correlation values as voxels in MNI space
-#     empty_schaefer[cortex_vx] = values
-#     empty_mni[brain_idx] = empty_schaefer
-#     result_brain = np.reshape(empty_mni, og_shape)
-
-#     # Saving results
-#     nifti_result = nib.Nifti1Image(result_brain, affine=atlas.affine, header=atlas.header)
-#     nib.save(nifti_result, "test_plotting.nii.gz")
-#     return result_brain, nifti_result
-
-
 def parse_regression_info(path):
     
     parts = path.split('-') 
@@ -119,21 +99,21 @@ def iterate_through_participants(filepath, stat):
                 except:
                     print(f"issue with {p}: {sf}")
             
-            
             # filter to top 10k, 10k is default parameter but can be changed with threshold argument
-            cutoff = find_cutoff(stat_vec)
+            z_vec = np.arctanh(stat_vec)
+            cutoff = find_cutoff(z_vec)
+
             # print(cutoff, type(stat_vec), stat_vec[0:10])
             try:
-                top_voxel_idx = (np.where(stat_vec > cutoff))[0]
+                top_voxel_idx = (np.where(z_vec > cutoff))[0]
             except:
-                stat_vec = np.array(stat_vec)
-                top_voxel_idx = (np.where(stat_vec > cutoff))[0]
-            top_voxel_vals = stat_vec[top_voxel_idx]
+                stat_vec = np.array(z_vec)
+                top_voxel_idx = (np.where(z_vec > cutoff))[0]
+            
+            top_voxel_vals = z_vec[top_voxel_idx]
             
             # Using z-scored correlation coefficients for downstream correlation tests
-            z = np.arctanh(stat_vec)
-            cutoff = find_cutoff(z)
-            top_vals = z[np.where(z > cutoff)[0]]
+            top_vals = z_vec[np.where(z_vec > cutoff)[0]]
             participant_means = float(np.mean(top_vals))
             
             top_parcels = parcel_nums[top_voxel_idx]
@@ -161,7 +141,7 @@ def main():
     # parsing file names [model_name, task, look_ahead, n_delays, layer, stat]
 
     # filepath = "/data2/zachkaras/ridge_regression_pca_params_remote"
-    filepath = "/data2/zachkaras/fmri_model_data/ridge_regression_pca_params" # behemoth
+    filepath = "/data2/zachkaras/fmri_model_data/ridge_regression_pca_params_old" # behemoth
     # filepath = "/s1/fmri_model_data/ridge_regression_pca_params" # cumberland
     
     # participant_means, stat_collection, parcel_collection 
@@ -169,7 +149,8 @@ def main():
     # records = iterate_through_participants(filepath, 'cosine')
 
     # outpath = "/s1/fmri_model_data/intermediate_results"
-    outpath = "/data/zachkaras/fmri_model_data/intermediate_results"
+    # outpath = "/data/zachkaras/fmri_model_data/intermediate_results"
+    outpath = "/tank/home/zachkaras/fmri_model_data/intermediate_results"
     
     with open(f"{outpath}/all_results_regressor+features.pkl", 'wb') as f:
         pickle.dump(records, f)
