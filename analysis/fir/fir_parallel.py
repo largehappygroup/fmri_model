@@ -18,7 +18,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ALLOWED_CORES = list(range(0,40))
-ALLOWED_CORES = list(range(0,32))
+ALLOWED_CORES = list(range(0,30))
 
 parser = argparse.ArgumentParser(description="Toggling GPU usage")
 parser.add_argument("--gpu", required=False, default=False, help="Set to True if using the GPU.")
@@ -32,7 +32,7 @@ using_gpu = int(args.gpu)
 ############## Loading Atlases ##############################################
 #############################################################################
 
-# make sure things svae, load, and plot properly
+# make sure things save, load, and plot properly
 
 # atlas_base_path = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases"
 atlas_base_path = "/home/zachkaras/fmri_model/analysis/pipeline/atlases"
@@ -301,7 +301,8 @@ def load_and_reshape_fmri_data(fmripath, vols_to_skip):
     return scan_2d_schaefer_filtered, vol_nums
 
 def load_task_specific_data(p, task):
-    base = "/data/zachkaras"
+    # base = "/data/zachkaras"
+    base = "/tank/home/zachkaras"
     participant_fmri_path = f"{base}/fmri_model_data/clean_{task}/{p}.nii.gz"
     # participant_keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_new_keystrokes.pkl" # cumberland path
     participant_keystroke_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{p}/{task}_new_keystrokes.pkl" # behemoth path
@@ -337,8 +338,9 @@ def main():
     num_participants = len(participants)
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
-        base_outpath = f"/data/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
-        continue    
+        # base_outpath = f"/data/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
+        base_outpath = f"/tank/home/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
+        # continue    
         # if os.path.isdir(base_outpath):
         #     print(f"Participant output already exists. Skipping")
         #     continue
