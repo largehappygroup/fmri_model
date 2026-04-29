@@ -1,4 +1,8 @@
 import os
+os.environ.setdefault('OMP_NUM_THREADS', '1')
+os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
+os.environ.setdefault('MKL_NUM_THREADS', '1')
+os.environ.setdefault('NUMEXPR_NUM_THREADS', '1')
 import re
 import gc
 import math
@@ -160,7 +164,18 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     layer = meta_data[5]
     regressor = (meta_data[6])[:-4]
 
+    # base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_models/{participant}"
+    # base_outpath = f"/s1/fmri_model_data/test/{participant}"
+    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-correlations.pkl"
+    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-cosine_similarities.pkl"
+    # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
+    keys_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-test_keystrokes.pkl"
+    R2_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-R2.pkl"
+
     if re.match("only_regressor", regressor):
+        return
+
+    if os.path.isfile(corr_outfile) and os.path.isfile(sim_outfile) and os.path.isfile(keys_outfile) and os.path.isfile(R2_outfile):
         return
 
     # Splitting the data based on the task
@@ -183,17 +198,6 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     # So right now, I need to run the full model for all participants
     # I'll rerun the base model afterwards for the best model configurations to calculate R^2 values for that
 
-    # base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_models/{participant}"
-    # base_outpath = f"/s1/fmri_model_data/test/{participant}"
-    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-correlations.pkl"
-    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-cosine_similarities.pkl"
-    # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
-    keys_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-test_keystrokes.pkl"
-    R2_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-R2.pkl"
-
-    if os.path.isfile(corr_outfile) and os.path.isfile(sim_outfile) and os.path.isfile(keys_outfile) and os.path.isfile(R2_outfile):
-        return
-    
     weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
     predicted_signal = np.dot(emb_test, weights)
     # calculating cosine similarity as a performance metric
@@ -369,8 +373,6 @@ def main():
         num_embeddings = len(embeddings)
 
         base_outpath = f"/data2/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
-
-        # os.cpu_count() - 1 if os.cpu_count() and os.cpu_count() > 1 else 1
 
         print(f"Participant {p} ({i+1}/{num_participants}): "
             f"processing {num_embeddings} embeddings with {len(ALLOWED_CORES)} workers")
