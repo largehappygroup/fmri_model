@@ -141,7 +141,7 @@ def main():
     # parsing file names [model_name, task, look_ahead, n_delays, layer, stat]
 
     # filepath = "/data2/zachkaras/ridge_regression_pca_params_remote"
-    filepath = "/data2/zachkaras/fmri_model_data/ridge_regression_pca_params_old" # behemoth
+    filepath = "/data2/zachkaras/fmri_model_data/ridge_regression_pca_params" # behemoth
     # filepath = "/s1/fmri_model_data/ridge_regression_pca_params" # cumberland
     
     # participant_means, stat_collection, parcel_collection 
