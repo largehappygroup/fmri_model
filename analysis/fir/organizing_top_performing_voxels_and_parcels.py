@@ -131,10 +131,11 @@ def iterate_through_participants(filepath, stat):
             top_parcels = parcel_nums[top_voxel_idx]
             top_parcels = np.array([int(parcel) for parcel in top_parcels])
 
-            top_hox_idx = [int(idx) for idx in top_voxel_idx if hox_nums[idx] != 0]
+            top_hox_idx = [int(idx) for idx in top_voxel_idx if hox_nums[idx] != 0] 
             top_regions = hox_nums[top_hox_idx]
             top_regions = np.array([int(roi) for roi in top_regions])
-            top_regions = [f"{hemis[i]} {hox_labels[roi-1]}" for i,roi in enumerate(top_regions)]
+
+            top_regions = [f"{hemis[top_hox_idx[i]]} {hox_labels[roi-1]}" for i,roi in enumerate(top_regions)]
             
             new_record = {
                 'participant' : p,
@@ -151,6 +152,8 @@ def iterate_through_participants(filepath, stat):
 
             }
             records.append(new_record)
+        #     break
+        # break
             
     records = pd.DataFrame(records)
     return records
