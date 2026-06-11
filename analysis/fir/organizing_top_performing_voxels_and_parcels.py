@@ -5,14 +5,15 @@ import pickle
 import numpy as np
 import pandas as pd
 import nibabel as nib
+from nilearn import datasets
 from collections import defaultdict
+import xml.etree.ElementTree as ET
 
 # THIS SCRIPT READS IN ALL THE RESULTS, FORMATTED AS NIFTI FILES WHERE THE VALUE OF EACH VOXEL
 # CORRESPONDS TO THE CORRELATION COEFFICIENT BETWEEN THE PREDICTED AND ACTUAL SIGNAL.
 # THOSE RESULTS ARE ORGANIZED IN TWO HEAVILY NESTED (ARGUABLY TOO MUCH SO) DICTIONARIES WHERE VALUES
 # ARE THE TOP 10,000 CORRELATION COEFFICIENTS, AND SEPARATELY, THE SCHAEFER PARCEL NUMBERS ASSOCIATED WITH 
 # THOSE CORRELATION COEFFICIENTS. 
-
 
 # read in atlases
 # atlas_base_path = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases"
@@ -29,6 +30,17 @@ atlas_vec = atlas.get_fdata().flatten()
 atlas_only_brain = atlas_vec[brain_idx] # contains the schaefer parcel numbers
 cortex_vx = np.where(atlas_only_brain != 0)[0]
 parcel_nums = atlas_only_brain[cortex_vx]
+hemis = ['Left' if ((parcel <= 200) & (parcel > 0)) else 'Right' for parcel in parcel_nums]
+
+# Loading in atlas and labels for harvard-oxford atlas regions
+hox_data = datasets.fetch_atlas_harvard_oxford('cort-maxprob-thr25-2mm')
+hox = nib.load(hox_data['filename']).get_fdata()
+hox_vec = hox.flatten()
+hox_only_brain = hox_vec[brain_idx]
+hox_nums = hox_only_brain[cortex_vx] 
+
+hox_label_path = "/home/zachkaras/atlases/HarvardOxford-Cortical.xml"
+hox_labels = [label.text for label in ET.parse(hox_label_path).getroot().iter('label')] # indices are the region numbers - need to add one though
 
 # Making empty templates to save output
 empty_schaefer = np.zeros(atlas_only_brain.shape)
@@ -115,9 +127,14 @@ def iterate_through_participants(filepath, stat):
             # Using z-scored correlation coefficients for downstream correlation tests
             top_vals = z_vec[np.where(z_vec > cutoff)[0]]
             participant_means = float(np.mean(top_vals))
-            
+        
             top_parcels = parcel_nums[top_voxel_idx]
             top_parcels = np.array([int(parcel) for parcel in top_parcels])
+
+            top_hox_idx = [int(idx) for idx in top_voxel_idx if hox_nums[idx] != 0]
+            top_regions = hox_nums[top_hox_idx]
+            top_regions = np.array([int(roi) for roi in top_regions])
+            top_regions = [f"{hemis[i]} {hox_labels[roi-1]}" for i,roi in enumerate(top_regions)]
             
             new_record = {
                 'participant' : p,
@@ -126,9 +143,12 @@ def iterate_through_participants(filepath, stat):
                 'ndelays' : info.n_delays,
                 'look_ahead' : info.look_ahead,
                 'layer' : info.layer,
+                'top_voxel_idx' : top_voxel_idx,
                 'top_voxel_vals' : top_voxel_vals,
                 'participant_means' : participant_means,
-                'top_parcels' : top_parcels
+                'top_parcels' : top_parcels,
+                'top_regions' : top_regions
+
             }
             records.append(new_record)
             
