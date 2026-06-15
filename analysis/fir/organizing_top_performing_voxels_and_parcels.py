@@ -37,7 +37,8 @@ hox_data = datasets.fetch_atlas_harvard_oxford('cort-maxprob-thr25-2mm')
 hox = nib.load(hox_data['filename']).get_fdata()
 hox_vec = hox.flatten()
 hox_only_brain = hox_vec[brain_idx]
-hox_nums = hox_only_brain[cortex_vx] 
+hox_nums = hox_only_brain[cortex_vx] # Obtaining voxels in Harvard Oxford atlas that are in the schaefer atlas.
+                                     #      The voxels in the Schaefer atlas that correspond to empty space in HarvOx atlas (values of 0) will get filtered out when we match to region names.
 
 hox_label_path = "/home/zachkaras/atlases/HarvardOxford-Cortical.xml"
 hox_labels = [label.text for label in ET.parse(hox_label_path).getroot().iter('label')] # indices are the region numbers - need to add one though
@@ -128,13 +129,18 @@ def iterate_through_participants(filepath, stat):
             top_vals = z_vec[np.where(z_vec > cutoff)[0]]
             participant_means = float(np.mean(top_vals))
         
+            # parcel nums contains schaefer parcel numbers for each voxel location
+            # so this finds the corresponding parcels for the top voxels
             top_parcels = parcel_nums[top_voxel_idx]
             top_parcels = np.array([int(parcel) for parcel in top_parcels])
 
-            top_hox_idx = [int(idx) for idx in top_voxel_idx if hox_nums[idx] != 0] 
-            top_regions = hox_nums[top_hox_idx]
+            # Mapping directly from voxel indices to HarvOx regions
+            top_hox_idx = [int(idx) for idx in top_voxel_idx if hox_nums[idx] != 0] # finding locations for top 10k voxels 
+            top_regions = hox_nums[top_hox_idx] # mapping to HarvOx region numbers
             top_regions = np.array([int(roi) for roi in top_regions])
 
+            # finding corresponding hemispheres for voxel locations. Need to index by top_hox_idx to properly map to
+            # correct locations in hemis list
             top_regions = [f"{hemis[top_hox_idx[i]]} {hox_labels[roi-1]}" for i,roi in enumerate(top_regions)]
             
             new_record = {
