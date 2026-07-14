@@ -1,3 +1,0 @@
-FIX Training classifier with output training file: /home/zachkaras/fmri/fmri_model/analysis/Loop_ML_Model_LOO/2/Loop_ML_Model_LOO and Melodic outputs list: /home/zachkaras/fmri/fmri_model_data/midprocess/101 /home/zachkaras/fmri/fmri_model_data/midprocess/109 /home/zachkaras/fmri/fmri_model_data/midprocess/112 /home/zachkaras/fmri/fmri_model_data/midprocess/118 /home/zachkaras/fmri/fmri_model_data/midprocess/121 /home/zachkaras/fmri/fmri_model_data/midprocess/125 /home/zachkaras/fmri/fmri_model_data/midprocess/134
- copy true labels and features into training directory
- running classifier training

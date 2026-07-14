@@ -1,1 +1,0 @@
-# computing RSA between fMRI beta values and LLM embeddings
