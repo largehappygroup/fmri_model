@@ -10,19 +10,19 @@ import nibabel as nib
 ############# VARIABLES ##################################################################
 ##########################################################################################
 
-parser = argparse.ArgumentParser(description="Script to align timestamps of keystrokes with the fMRI file")
-parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
+# parser = argparse.ArgumentParser(description="Script to align timestamps of keystrokes with the fMRI file")
+# parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
 
-args = parser.parse_args()
+# args = parser.parse_args()
 
-if args.computer == 'mymac':
-    bass_path = "/Users/zacharykaras/Desktop"
-elif args.computer == 'cumberland':
-    bass_path = "/home/zachkaras/fmri"
-elif args.computer == 'behemoth':
-    bass_path = "/home/zachkaras"
+# if args.computer == 'mymac':
+#     bass_path = "/Users/zacharykaras/Desktop"
+# elif args.computer == 'cumberland':
+#     bass_path = "/home/zachkaras/fmri"
+# elif args.computer == 'behemoth':
+#     bass_path = "/home/zachkaras"
 
-character_path = f"{bass_path}/fmri_model/midprocessing/special_character_symbols.pkl"
+character_path = f"helpers/special_character_symbols.pkl"
 with open(character_path, 'rb') as f:
     special_characters = pickle.load(f)
     
@@ -136,7 +136,7 @@ def find_volume_keystrokes(keystroke_df, question_nums_by_volume_df, aligned_tim
     return clean_keystrokes_df
 
 def find_question_nums_by_volume(person, task):
-    regressor_base_path = f"{bass_path}/fmri_model/midprocessing/regressors/questions/{task}"
+    regressor_base_path = f"helpers/design_matrices/{task}"
     questions = [q for q in range(9)]
     
     participant_df = pd.DataFrame(columns=[i for i in range(9)])
@@ -247,8 +247,6 @@ def process_task(task, keydir, keyfiles):
     # the scan ended while the participant kept typing, so we should remove some of the final keystrokes, but I 
     # dont' have a way of saying how many volumes to offset by. 
     for person in keyfiles:
-        person = 109
-        print(person)
 
         # different filepaths
         onset_file = f"{keydir}/{person}/relative-onsets-{person}-{task_num}.txt"
@@ -336,7 +334,7 @@ def process_task(task, keydir, keyfiles):
 # maybe a dictionary where keys are volume numbers, and keystrokes are the accumulated answer at that points
 def main():
     
-    keydir = f"{bass_path}/fmri_model/data"
+    keydir = "data"
     keyfiles = os.listdir(keydir)
 
     process_task('code', keydir, keyfiles)
