@@ -1,7 +1,6 @@
 import os
 import re
 import pickle
-import argparse
 import numpy as np
 import pandas as pd
 import nibabel as nib
@@ -9,18 +8,6 @@ import nibabel as nib
 ##########################################################################################
 ############# VARIABLES ##################################################################
 ##########################################################################################
-
-# parser = argparse.ArgumentParser(description="Script to align timestamps of keystrokes with the fMRI file")
-# parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
-
-# args = parser.parse_args()
-
-# if args.computer == 'mymac':
-#     bass_path = "/Users/zacharykaras/Desktop"
-# elif args.computer == 'cumberland':
-#     bass_path = "/home/zachkaras/fmri"
-# elif args.computer == 'behemoth':
-#     bass_path = "/home/zachkaras"
 
 character_path = f"helpers/special_character_symbols.pkl"
 with open(character_path, 'rb') as f:
@@ -169,8 +156,8 @@ def align_timestamps(task_info, num_vols, tr):
         participant = task_info.loc[0, 'participant-id']
         tr_in_ms = tr*1000
 
-        # participant 141 has a short functional file, but all the keystroke data
-        # for that participant, the last complete answer is question 6, and there are 13 volumes collected after that
+        # participant 141 has a short functional file, but all the keystroke data.
+        # For that participant, the last complete answer is question 6, and there are 13 volumes collected after that
         if participant == 141:
             final_idx = np.where(task_info['stimulus-id'] == 6)[0][0]
             print(final_idx, type(final_idx))
@@ -253,18 +240,14 @@ def process_task(task, keydir, keyfiles):
         info_file = f"{keydir}/{person}/processed-answers-{person}-{task_num}.txt"
         
         if task == 'code':
-            # fmri_file = f"{bass_path}/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
-            # fmri_file = f"/storage1/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz"
-            fmri_file = f"/data/zachkaras/fmri_model_data/midprocess/{person}/filtered_func_data_clean.nii.gz" # behemoth
+            fmri_file = f"data/{person}/filtered_func_data_clean.nii.gz"
         elif task == 'prose':
-            # fmri_file = f"{bass_path}/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
-            # fmri_file = f"/storage1/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz"
-            fmri_file = f"/data/zachkaras/fmri_model_data/midprocess_prose/{person}/filtered_func_data_clean.nii.gz" # behemoth
+            fmri_file = f"data/{person}/filtered_func_data_clean.nii.gz"
         tr = 0.8 # in seconds
 
         keystrokes_file = f"{keydir}/{person}/keystrokes-{person}-{task_num}.txt"
 
-        person_output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}"
+        person_output_path = f"output/{person}"
         if not os.path.isdir(person_output_path):
             os.system(f"mkdir {person_output_path}")
         
@@ -281,7 +264,6 @@ def process_task(task, keydir, keyfiles):
 
         # adding information about question number
         keystroke_df = create_keystroke_dataframe(keystrokes_file, onset_df)
-        # keystroke_df.to_csv("test_df.csv")
         
         if keystroke_df.empty:
             print("keytroke file doesn't exist")
@@ -325,7 +307,6 @@ def process_task(task, keydir, keyfiles):
 
         df_outpath = f"{person_output_path}/{task}_keystrokes_by_volume.csv"
         cleaned_keystrokes_df.to_csv(df_outpath, index=False)
-        break
         
 
 # The purpose of the main function is to iterate through each participants' keystroke files

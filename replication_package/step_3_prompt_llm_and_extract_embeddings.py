@@ -3,24 +3,24 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = str(get_least_used_gpu())
 os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
-import csv
-import math
+# import csv
+# import math
 import torch
 import pynvml
 import pickle
 # import argparse
 import numpy as np
-import pandas as pd 
+# import pandas as pd 
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
     AutoModel
 )
-from tqdm.auto import tqdm
-from datasets import load_dataset
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
+# from tqdm.auto import tqdm
+# from datasets import load_dataset
+# import torch.nn.functional as F
+# from torch.utils.data import DataLoader
 
 ############################################################################
 ####### Setting Environment Variables & Input/Output Paths #################
@@ -37,67 +37,54 @@ bnb_config = BitsAndBytesConfig(
     bnb_4bit_quant_type="nf4"
 )
 
+# Commenting most of the models out for demonstration purposes
 model_names = {
-    "starcoder2_3b": "bigcode/starcoder2-3b",
-    "starcoder2_7b": "bigcode/starcoder2-7b",
-    "codegemma_2b" : "google/codegemma-2b",
-    "codegemma_7b" : "google/codegemma-7b",
-    "deepseek_2b"  : "deepseek-ai/deepseek-coder-1.3b-base",
+    # "starcoder2_3b": "bigcode/starcoder2-3b",
+    # "starcoder2_7b": "bigcode/starcoder2-7b",
+    # "codegemma_2b" : "google/codegemma-2b",
+    # "codegemma_7b" : "google/codegemma-7b",
+    # "deepseek_2b"  : "deepseek-ai/deepseek-coder-1.3b-base",
     "deepseek_6b"  : "deepseek-ai/deepseek-coder-6.7b-base"
-    
 }
-
-# parser = argparse.ArgumentParser(description="Script to conduct FIR with embeddings from LLMs.")
-# parser.add_argument("--look_ahead", required=False, default=5, help="When preparing keystrokes, this argument indicates fow how many volumes to include as 'future keystrokes' that participant may be thinking about.")
-# args = parser.parse_args()
-# look_ahead_time = args.look_ahead
 
 ###########################################################################
 ##################### Functions ###########################################
 ###########################################################################
 
-def tokenize_for_generation(examples):
-        # Assuming the text to embed is in the 'text' column
-        return tokenizer(
-            examples["text"],
-            truncation=True,
-            padding="max_length", # Or 'longest' or 'do_not_pad' depending on your needs
-            max_length=64, # Adjust max_length as appropriate for your data and model
-            return_tensors="pt" # Return PyTorch tensors
-        )
-        # return inputs
+# def tokenize_for_generation(examples):
+#         # Assuming the text to embed is in the 'text' column
+#         return tokenizer(
+#             examples["text"],
+#             truncation=True,
+#             padding="max_length", # Or 'longest' or 'do_not_pad' depending on your needs
+#             max_length=64, # Adjust max_length as appropriate for your data and model
+#             return_tensors="pt" # Return PyTorch tensors
+#         )
+#         # return inputs
 
 def decide_model(model_name):
     print(model_name)
-    # if "codet5" in model_name or "codebert" in model_name:
-    #     return AutoModel.from_pretrained(model_name, trust_remote_code=True)
-    # elif "starcoder2" in model_name or "codegemma" in model_name:
     try:
         return AutoModelForCausalLM.from_pretrained(model_name, 
                                                     trust_remote_code=True, 
                                                     quantization_config=bnb_config,
                                                     attn_implementation='eager')
-    # elif "openai" in model_name:
-    #     return AutoModel.from_pretrained(model_name, trust_remote_code=True)
     except:
         print(f"Model {model_name} not recognized for embeddings extraction.")
         return None
-        # raise ValueError(f"Model {model_name} not recognized or not supported for embeddings extraction.")
 
-def get_least_used_gpu():
-    pynvml.nvmlInit()
-    min_mem = float('inf')
-    best_gpu = 0
-    for i in range(torch.cuda.device_count()):
-        handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-        mem = pynvml.nvmlDeviceGetMemoryInfo(handle)
-        # print(f"GPU /{i}: {mem.used / (1024 ** 2):.2f} MB used")
-        if mem.used < min_mem:
-            min_mem = mem.used
-            best_gpu = i
-    pynvml.nvmlShutdown()
-    # return best_gpu
-    return 1      
+# def get_least_used_gpu():
+#     pynvml.nvmlInit()
+#     min_mem = float('inf')
+#     best_gpu = 0
+#     for i in range(torch.cuda.device_count()):
+#         handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+#         mem = pynvml.nvmlDeviceGetMemoryInfo(handle)
+#         if mem.used < min_mem:
+#             min_mem = mem.used
+#             best_gpu = i
+#     pynvml.nvmlShutdown()
+#     return 1      
         
 def generate_embeddings(keystrokes, model, tokenizer):
 
@@ -132,9 +119,7 @@ def pluck_intermediate_layers(embeddings, num_samples=8):
     all_layers = list(embeddings.keys())
     num_layers = len(all_layers)
     indices = np.linspace(0, num_layers - 1, num_samples, dtype=int)
-    # step = math.floor(num_layers/num_samples)
     
-    # intermediate_layer_idx = [n for n in range(0, num_layers, step)]
     intermediate_layer_labels = [all_layers[i] for i in indices]
     return intermediate_layer_labels
 
@@ -146,10 +131,10 @@ def z_score_embedding_dictionary(embeddings):
 
         
 def process_participants(model_name, model, tokenizer, task):
-    participant_path = "/home/zachkaras/fmri/model/fir/data"
+    participant_path = "data"
     participants = os.listdir(participant_path)
-    model_outpath = f"/home/zachkaras/fmri/model/fir/midprocess/{model_name}"
-    look_ahead_times = [0, 1, 3, 5, 10]
+    model_outpath = f"model_output/{model_name}"
+    look_ahead_times = [0, 5, 10] # [0, 1, 3, 5, 10]
     
     if not os.path.exists(model_outpath):
         os.mkdir(model_outpath)
@@ -157,16 +142,13 @@ def process_participants(model_name, model, tokenizer, task):
     for person in participants:
         for t in look_ahead_times:
             print(f"{person}")
-            # if look_ahead_time == '5':
-            #     keystroke_path = f"{participant_path}/{person}/{task}_formatted_keystrokes.pkl"
-            # else:
+
             keystroke_path = f"{participant_path}/{person}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
                 
             try:
                 with open(keystroke_path, 'rb') as f:
                     keystroke_dict = pickle.load(f)
             except:
-                #print(f"No file for {person} on {task}")
                 continue
             
             participant_outpath = f"{model_outpath}/{person}"
@@ -181,7 +163,8 @@ def process_participants(model_name, model, tokenizer, task):
                 embeddings = generate_embeddings(keystrokes, model, tokenizer)
                 zscored_emb = z_score_embedding_dictionary(embeddings)
 
-                layer_samples = pluck_intermediate_layers(zscored_emb)
+                # Extracting just 3 layers here for demonstration purposes
+                layer_samples = pluck_intermediate_layers(zscored_emb, num_samples=3)
 
                 # pull out embeddings layers at these keys
                 # then I just want the summary token embeddings
@@ -200,9 +183,6 @@ def process_participants(model_name, model, tokenizer, task):
 #############################################################################
 
 def main():
-    # args = parse_args()
-    # temperature = args.temp # Could be none
-    # num_samples = args.num_samples if args.num_samples != None else 5
 
     for model_name, model_path in model_names.items():
         print(f"Loading tokenizer and model: {model_name}")

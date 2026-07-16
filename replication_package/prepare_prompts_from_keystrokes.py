@@ -9,28 +9,19 @@ import pandas as pd
 
 # argument that changes path names if I'm using my local computer
 parser = argparse.ArgumentParser(description="Script to concatenate keystrokes into discrete chunks that are more interpretable.")
-parser.add_argument("--computer", required=False, default='cumberland', help="This argument changes directory paths depending on whether I'm working on cumberland or my local computer")
 parser.add_argument("--look_ahead", required=False, default=0, help="When preparing keystrokes, this argument indicates fow how many volumes to include as 'future keystrokes' that participant may be thinking about.")
 
 args = parser.parse_args()
 look_ahead_time = args.look_ahead
 
-if args.computer == 'mymac':
-    bass_path = "/Users/zacharykaras/Desktop"
-elif args.computer == 'cumberland':
-    bass_path = "/home/zachkaras" # behemoth
-    # bass_path = "/home/zachkaras/fmri"
-
 # shifted alternatives of characters (s --> S, = --> +)
-with open(f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl", 'rb') as f:
+with open("helpers/shift_chars.pkl", 'rb') as f:
     shift_chars = pickle.load(f)
     
-# code_questions = "/home/zachkaras/fmri/fmri_model/midprocessing/code_writing_prompts.csv"
-code_questions = "/home/zachkaras/fmri_model/midprocessing/code_writing_prompts.csv"
+code_questions = "helpers/code_writing_prompts.csv"
 code_question_df = pd.read_csv(code_questions)
 
-# prose_question = "/home/zachkaras/fmri/fmri_model/midprocessing/prose_writing_prompts.csv"
-prose_question = "/home/zachkaras/fmri_model/midprocessing/prose_writing_prompts.csv"
+prose_question = "helpers/prose_writing_prompts.csv"
 prose_question_df = pd.read_csv(prose_question)
 
 separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';', '=', '<=', '>=', '==', '']
@@ -288,7 +279,7 @@ def find_next_sequence(i, keystroke_df):
     separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';', '=', '<=', '>=', '==', '']
     
     tr = 0.8
-    # time_limit = 4 # 4 seconds
+
     time_limit = int(look_ahead_time) # Updated to be adjustable parameter on 12/26/2025
     volumes_ahead_limit = math.floor(time_limit/tr)
     vol_i = 0
@@ -323,7 +314,6 @@ def count_keystrokes(keys_list):
             sum += int(num_presses)
         else:
             sum += 1
-    # print(sum, keys_list)
     return sum
 
 def combine_shift_sequences(vol_text):
@@ -340,7 +330,6 @@ def combine_shift_sequences(vol_text):
                 try:
                     shifted_char = shift_chars[next_key]
                 except:
-                    # print(f"No entry for {next_key}, {ascii(next_key)}")
                     continue
                 combined_text.append(shifted_char)
                 shifted = True
@@ -377,7 +366,6 @@ def process_keystrokes(vol_keystroke_df, task, person):
             question_num = curr_question[0]
             
             # creating new text object to contain participant's response to current question
-            # TODO - no question text
             answer = Text()
             answer.question_text = get_question_text(task, question_num)
         
@@ -398,7 +386,6 @@ def process_keystrokes(vol_keystroke_df, task, person):
         num_keys_pressed = count_keystrokes(shift_combined)
         num_keystrokes[i] = num_keys_pressed
         # print(f"{num_keystrokes} {shift_combined}")
-        # print(f"")
         
         if shift_combined[-1] in separators:    
             next_text = ''
@@ -409,17 +396,15 @@ def process_keystrokes(vol_keystroke_df, task, person):
             
         formatted_text = fill_in_the_middle(''.join(shift_combined), prefix, next_text)
         output[i] = formatted_text
-        only_new_keystrokes[i] = f"{''.join(shift_combined)}" # {next_text} - commented out the next text 3/18/2026. Not sure why it's included here 
+        only_new_keystrokes[i] = f"{''.join(shift_combined)}"
         
-        # print(formatted_text)
         update_text_and_cursor_position(shift_combined, answer)
     
         # print(f"UPDATE Total - lines: {answer.total_lines}, row: {answer.line}, col: {answer.col}, bool: {answer.shifted}, text: {answer.text}, {shift_combined}")
-    output_path = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-formatted_keystrokes.pkl"
-    # new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-new_keystrokes.pkl"
-    new_keystroke_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-new_keystrokes.pkl"
-    num_keystrokes_outpath = f"{bass_path}/fmri_model/analysis/fir/midprocess/{person}/{task}-look_ahead_by_{look_ahead_time}-num_keystrokes_regressor.pkl"
-    num_keystrokes = np.array(list(num_keystrokes.values()))
+    num_keystrokes         = np.array(list(num_keystrokes.values()))
+    output_path            = f"output/{person}/{task}-look_ahead_by_{look_ahead_time}-formatted_keystrokes.pkl"
+    new_keystroke_outpath  = f"output/{person}/{task}-new_keystrokes.pkl"
+    num_keystrokes_outpath = f"output/{person}/{task}-look_ahead_by_{look_ahead_time}-num_keystrokes_regressor.pkl"
     
     with open(num_keystrokes_outpath, 'wb') as f:
         pickle.dump(num_keystrokes, f)
@@ -441,7 +426,7 @@ def process_participant(task, person, participant_path):
 
 def main():
 
-    datapath = f"{bass_path}/fmri_model/analysis/fir/midprocess"
+    datapath = f"data"
     participants = os.listdir(datapath)
 
     for person in participants:

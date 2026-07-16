@@ -16,8 +16,7 @@ import xml.etree.ElementTree as ET
 # THOSE CORRELATION COEFFICIENTS. 
 
 # read in atlases
-# atlas_base_path = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases"
-atlas_base_path = "/home/zachkaras/fmri_model/analysis/pipeline/atlases"
+atlas_base_path = "atlases"
 
 # read in 2d mni mask
 mask = nib.load(f"{atlas_base_path}/MNI152_T1_2mm_brain_mask.nii.gz")

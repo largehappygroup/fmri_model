@@ -56,7 +56,7 @@ def reduce_dimensionality(X, task):
 
 
 def prepare_regressor(participant, task, vols_to_skip):
-    num_keys_regressor_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{participant}/{task}_num_keystrokes_regressor.pkl"
+    num_keys_regressor_path = f"output/{participant}/{task}_num_keystrokes_regressor.pkl"
         
     with open(num_keys_regressor_path, 'rb') as f:
         num_keys_regressor = pickle.load(f)
@@ -129,7 +129,7 @@ def process_participant_lookahead(p, task, model_path, model, ndelays, t):
         print(f"can't open embedding for {p}, t={t}: {e}")
         return
 
-    keystroke_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{p}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
+    keystroke_path = f"output/{p}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
     try:
         with open(keystroke_path, 'rb') as f:
             keystroke_dict = pickle.load(f)
@@ -140,13 +140,12 @@ def process_participant_lookahead(p, task, model_path, model, ndelays, t):
     layers = find_layer_labels(keystroke_dict, embedding_dict)
     signal, vols_to_skip = organize_individual_layers(str(p), task, layers, keystroke_dict, embedding_dict)
 
-    # with open(f"/data/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
-    with open(f"/tank/home/zachkaras/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
+    with open(f"helpers/vols_to_skip/{p}_{task}_vols_to_skip.pkl", 'wb') as f:
         pickle.dump(vols_to_skip, f)
 
     regressor = prepare_regressor(p, task, vols_to_skip)
 
-    outputdir = f"/data2/zachkaras/fmri_model_data/fir_vectors_pca_params/{p}"
+    outputdir = f"output/{p}"
     if not os.path.exists(outputdir):
         os.makedirs(outputdir, exist_ok=True)
 
@@ -186,8 +185,8 @@ def init_worker():
 
 def run_participants(model_path, model, task):
     participants = os.listdir(model_path)
-    ndelays = [0, 4, 10, 16, 20]
-    look_ahead_by = [0, 1, 3, 5, 10]
+    ndelays = [0, 10, 20]      # [0, 4, 10, 16, 20]
+    look_ahead_by = [0, 5, 10] # [0, 1,  3,  5, 10]
 
     jobs = [(p, t) for p in participants for t in look_ahead_by]
     num_jobs = len(jobs)
@@ -209,8 +208,7 @@ def run_participants(model_path, model, task):
 
 def main():
     # iterate through models
-    # all_models = f"/data/zachkaras/fmri_model_data/fir_embeddings_params"
-    all_models = f"/tank/home/zachkaras/fmri_model_data/fir_embeddings_params"
+    all_models = f"model_output/fir_embeddings_params"
     models = os.listdir(all_models)
     
     for m in models:
