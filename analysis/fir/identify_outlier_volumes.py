@@ -26,7 +26,6 @@ def identify_outliers(task, p, keys, characters):
                 filtered_outliers.append(idx)
     return filtered_outliers
 
-
 outlier_vols = {
     'code' : {},
     'prose': {}

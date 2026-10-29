@@ -14,11 +14,11 @@ parser.add_argument("--look_ahead", required=False, default=0, help="When prepar
 
 args = parser.parse_args()
 look_ahead_time = args.look_ahead
-
-if args.computer == 'mymac':
-    bass_path = "/Users/zacharykaras/Desktop"
-elif args.computer == 'cumberland':
-    bass_path = "/home/zachkaras" # behemoth
+bass_path = "/tank/home/zachkaras"
+# if args.computer == 'mymac':
+#     bass_path = "/Users/zacharykaras/Desktop"
+# elif args.computer == 'cumberland':
+#     bass_path = "/home/zachkaras" # behemoth
     # bass_path = "/home/zachkaras/fmri"
 
 # shifted alternatives of characters (s --> S, = --> +)
@@ -26,11 +26,11 @@ with open(f"{bass_path}/fmri_model/midprocessing/shift_chars.pkl", 'rb') as f:
     shift_chars = pickle.load(f)
     
 # code_questions = "/home/zachkaras/fmri/fmri_model/midprocessing/code_writing_prompts.csv"
-code_questions = "/home/zachkaras/fmri_model/midprocessing/code_writing_prompts.csv"
+code_questions = "/tank/home/zachkaras/fmri_model/midprocessing/code_writing_prompts.csv"
 code_question_df = pd.read_csv(code_questions)
 
 # prose_question = "/home/zachkaras/fmri/fmri_model/midprocessing/prose_writing_prompts.csv"
-prose_question = "/home/zachkaras/fmri_model/midprocessing/prose_writing_prompts.csv"
+prose_question = "/tank/home/zachkaras/fmri_model/midprocessing/prose_writing_prompts.csv"
 prose_question_df = pd.read_csv(prose_question)
 
 separators = [' ', '\r', '\t', '{', '}', ',', '[', ']', '(', ')', '+', '-', ';', '=', '<=', '>=', '==', '']
@@ -274,13 +274,19 @@ def update_text_and_cursor_position(new_text, answer):
         else:
             answer.append_token(token)
 
-def fill_in_the_middle(text, prefix, suffix):
+def format_for_tokenization(text, prefix, suffix):
     
     # prefix should be the question text and the keystrokes so far
     # wrap in <PRE><SUF><MID>
     # each model has their own conventions, but I'll replace those at the time of prompting
     # suffix should be the remainder of current token ('ate' for isDuplic(ate) )
-    formatted_text = f"<PRE>{prefix}<SUF>{suffix}<MID>{text}"
+    # formatted_text = f"<PRE>{prefix}<SUF>{suffix}<MID>{text}"
+
+    # adjusting to allow flexibility for different tokenization strategies
+    formatted_text = {'prefix' : prefix,
+                      'suffix' : suffix,
+                      'middle' : text}
+
     return formatted_text
 
 def find_next_sequence(i, keystroke_df):
@@ -389,7 +395,7 @@ def process_keystrokes(vol_keystroke_df, task, person):
                 next_text = find_next_sequence(i, vol_keystroke_df)
                 if not next_text:
                     next_text = ''
-                formatted_text = fill_in_the_middle('', prefix, next_text)
+                formatted_text = format_for_tokenization('', prefix, next_text)
                 output[i] = formatted_text
             continue
         
@@ -407,7 +413,7 @@ def process_keystrokes(vol_keystroke_df, task, person):
             if not next_text:
                 next_text = ''
             
-        formatted_text = fill_in_the_middle(''.join(shift_combined), prefix, next_text)
+        formatted_text = format_for_tokenization(''.join(shift_combined), prefix, next_text)
         output[i] = formatted_text
         only_new_keystrokes[i] = f"{''.join(shift_combined)}" # {next_text} - commented out the next text 3/18/2026. Not sure why it's included here 
         

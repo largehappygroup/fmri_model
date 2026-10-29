@@ -3,24 +3,15 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = str(get_least_used_gpu())
 os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
-import csv
-import math
 import torch
 import pynvml
 import pickle
-# import argparse
 import numpy as np
-import pandas as pd 
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    BitsAndBytesConfig,
     AutoModel
 )
-from tqdm.auto import tqdm
-from datasets import load_dataset
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
 
 ############################################################################
 ####### Setting Environment Variables & Input/Output Paths #################
@@ -28,14 +19,6 @@ from torch.utils.data import DataLoader
 
 # --- Checking if GPU is available ---
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-      
-# Load in 4-bit using bitsandbytes
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_use_double_quant=True,
-    bnb_4bit_compute_dtype=torch.bfloat16,
-    bnb_4bit_quant_type="nf4"
-)
 
 model_names = {
     "starcoder2_3b": "bigcode/starcoder2-3b",
@@ -43,42 +26,42 @@ model_names = {
     "codegemma_2b" : "google/codegemma-2b",
     "codegemma_7b" : "google/codegemma-7b",
     "deepseek_2b"  : "deepseek-ai/deepseek-coder-1.3b-base",
-    "deepseek_6b"  : "deepseek-ai/deepseek-coder-6.7b-base"
-    
+    "deepseek_6b"  : "deepseek-ai/deepseek-coder-6.7b-base",
+
+    # General-purpose Decoder Only
+    "gpt2"         : "openai-community/gpt2",
+    "gpt2_xl"      : "openai-community/gpt2-xl",
+
+    # Encoder Only
+    "bert_base"    : "google-bert/bert-base-cased",
+    "bert_large"   : "google-bert/bert-large-cased",
+    "codebert"     : "microsoft/codebert-base",
 }
 
-# parser = argparse.ArgumentParser(description="Script to conduct FIR with embeddings from LLMs.")
-# parser.add_argument("--look_ahead", required=False, default=5, help="When preparing keystrokes, this argument indicates fow how many volumes to include as 'future keystrokes' that participant may be thinking about.")
-# args = parser.parse_args()
-# look_ahead_time = args.look_ahead
+# Encoder models are loaded with AutoModel and summarized by their [CLS]/<s> token
+encoder_models = {"bert_base", "bert_large", "codebert"}
+
+# Fill-in-the-middle tags (prefix, suffix, middle) for each code model family, taken from each tokenizer's special tokens
+# DeepSeek's tags use full-width bars (U+FF5C) and U+2581 separators, not ASCII '|' and '_'
+fim_tags = {
+    "starcoder2": ("<fim_prefix>", "<fim_suffix>", "<fim_middle>"),
+    "codegemma" : ("<|fim_prefix|>", "<|fim_suffix|>", "<|fim_middle|>"),
+    "deepseek"  : ("<｜fim▁begin｜>", "<｜fim▁hole｜>", "<｜fim▁end｜>"),
+}
 
 ###########################################################################
 ##################### Functions ###########################################
 ###########################################################################
 
-def tokenize_for_generation(examples):
-        # Assuming the text to embed is in the 'text' column
-        return tokenizer(
-            examples["text"],
-            truncation=True,
-            padding="max_length", # Or 'longest' or 'do_not_pad' depending on your needs
-            max_length=64, # Adjust max_length as appropriate for your data and model
-            return_tensors="pt" # Return PyTorch tensors
-        )
-        # return inputs
-
-def decide_model(model_name):
-    print(model_name)
-    # if "codet5" in model_name or "codebert" in model_name:
-    #     return AutoModel.from_pretrained(model_name, trust_remote_code=True)
-    # elif "starcoder2" in model_name or "codegemma" in model_name:
+def decide_model(model_name, model_path):
+    print(model_path)
+    model_class = AutoModel if model_name in encoder_models else AutoModelForCausalLM
     try:
-        return AutoModelForCausalLM.from_pretrained(model_name, 
-                                                    trust_remote_code=True, 
-                                                    quantization_config=bnb_config,
-                                                    attn_implementation='eager')
-    # elif "openai" in model_name:
-    #     return AutoModel.from_pretrained(model_name, trust_remote_code=True)
+        return model_class.from_pretrained(model_path, 
+                                           trust_remote_code=True, 
+                                           torch_dtype=torch.bfloat16,
+                                        #    quantization_config=quant_config,
+                                           attn_implementation='eager')
     except:
         print(f"Model {model_name} not recognized for embeddings extraction.")
         return None
@@ -99,14 +82,28 @@ def get_least_used_gpu():
     # return best_gpu
     return 1      
         
+def format_keystrokes(keystrokes, model_name):
+    # keystrokes is {'prefix', 'suffix', 'middle'} from prepare_prompts_from_keystrokes.py
+    prefix, suffix, middle = keystrokes['prefix'], keystrokes['suffix'], keystrokes['middle']
+    family = model_name.rsplit('_', 1)[0]  # e.g. "starcoder2_3b" -> "starcoder2"
+    if family in fim_tags:
+        pre_tag, suf_tag, mid_tag = fim_tags[family]
+        # middle goes after the middle tag, so the last token is the most recent keystroke
+        return f"{pre_tag}{prefix}{suf_tag}{suffix}{mid_tag}{middle}"
+    # gpt2 and encoders weren't trained with FIM, so give them the text in reading order
+    return f"{prefix}{middle}{suffix}"
+
 def generate_embeddings(keystrokes, model, tokenizer):
 
-    input_ids = tokenizer(keystrokes, return_tensors="pt").input_ids.to(device)
-
-    attention_mask = torch.ones_like(input_ids)
+    # truncation_side is set to "left" in main(), so the most recent keystrokes are kept
+    input_ids = tokenizer(keystrokes, 
+                          truncation=True, 
+                          max_length=tokenizer.model_max_length, 
+                          return_tensors="pt").input_ids.to(device)
+    # print(model.config._name_or_path, type(model), tokenizer.convert_ids_to_tokens(input_ids[0]))
     
+    attention_mask = torch.ones_like(input_ids)
     hidden_states = {}
-
     with torch.no_grad():
         outputs = model(
             input_ids = input_ids,
@@ -117,49 +114,50 @@ def generate_embeddings(keystrokes, model, tokenizer):
         )
     
     for i, hidden_state_layer in enumerate(outputs.hidden_states):
-        layer = hidden_state_layer.squeeze(0).cpu()
+        layer = hidden_state_layer.squeeze(0).float().cpu()
         hidden_states[f'layer_{i}'] = layer
 
     # save hidden states in directories 
     return hidden_states
 
-def extract_summary_token(embedding):
-    sm_vector = embedding[-1]
+def extract_summary_token(embedding, token_idx=-1):
+    # -1 = last token (decoders), 0 = [CLS]/<s> token (encoders)
+    sm_vector = embedding[token_idx]
     return sm_vector.numpy()
 
 def pluck_intermediate_layers(embeddings, num_samples=8):
-    num_layers = len(embeddings.keys())
     all_layers = list(embeddings.keys())
     num_layers = len(all_layers)
     indices = np.linspace(0, num_layers - 1, num_samples, dtype=int)
-    # step = math.floor(num_layers/num_samples)
     
     # intermediate_layer_idx = [n for n in range(0, num_layers, step)]
     intermediate_layer_labels = [all_layers[i] for i in indices]
     return intermediate_layer_labels
 
-def z_score_embedding_dictionary(embeddings):
-    all_data = torch.stack(list(embeddings.values()), dim=2)
-    mean = all_data.mean(dim=2)
-    std = all_data.std(dim=2)
-    return {k : (v-mean)/std for k,v in embeddings.items()}
+def z_score_embedding_dictionary(embeddings, layers):
+
+    keys = list(embeddings.keys())
+    for l in layers:
+        X = torch.stack([torch.from_numpy(embeddings[k][l]) for k in keys])
+        X = (X-X.mean(dim=0)) / X.std(dim=0).clamp_min(1e-8)
+        for k,row in zip(keys, X):
+            embeddings[k][l] = row.numpy()
+    return embeddings
 
         
 def process_participants(model_name, model, tokenizer, task):
-    participant_path = "/home/zachkaras/fmri/model/fir/data"
+    participant_path = "/tank/home/zachkaras/fmri_model/analysis/fir/midprocess"
     participants = os.listdir(participant_path)
-    model_outpath = f"/home/zachkaras/fmri/model/fir/midprocess/{model_name}"
+    model_outpath = f"/tank/home/zachkaras/fmri_model_data/fir_embeddings_params/{model_name}"
     look_ahead_times = [0, 1, 3, 5, 10]
+    summary_token_idx = 0 if model_name in encoder_models else -1
     
-    if not os.path.exists(model_outpath):
+    if not os.path.isdir(model_outpath):
         os.mkdir(model_outpath)
     
     for person in participants:
         for t in look_ahead_times:
             print(f"{person}")
-            # if look_ahead_time == '5':
-            #     keystroke_path = f"{participant_path}/{person}/{task}_formatted_keystrokes.pkl"
-            # else:
             keystroke_path = f"{participant_path}/{person}/{task}-look_ahead_by_{t}-formatted_keystrokes.pkl"
                 
             try:
@@ -172,25 +170,28 @@ def process_participants(model_name, model, tokenizer, task):
             participant_outpath = f"{model_outpath}/{person}"
             if not os.path.exists(participant_outpath):
                 os.mkdir(participant_outpath)
-            
+
             keystroke_embeddings_by_vol = {}
             for vol, keystrokes in keystroke_dict.items():
-    
-                if keystrokes == '':
+                # volumes without keystrokes are stored as an empty dict
+                if not keystrokes:
                     continue
-                embeddings = generate_embeddings(keystrokes, model, tokenizer)
-                zscored_emb = z_score_embedding_dictionary(embeddings)
 
-                layer_samples = pluck_intermediate_layers(zscored_emb)
-
-                # pull out embeddings layers at these keys
-                # then I just want the summary token embeddings
-                summary_chosen_layers = {layer : extract_summary_token(zscored_emb[layer]) for layer in layer_samples}
-                keystroke_embeddings_by_vol[keystrokes] = summary_chosen_layers
+                prompt = format_keystrokes(keystrokes, model_name)
+                embeddings = generate_embeddings(prompt, model, tokenizer)
+                layer_samples = pluck_intermediate_layers(embeddings)
+                # keyed by volume, since the keystroke dicts can't be used as keys
+                keystroke_embeddings_by_vol[prompt] = {layer : extract_summary_token(embeddings[layer], summary_token_idx) for layer in layer_samples}
+                # summary_chosen_layers
+            if not keystroke_embeddings_by_vol:
+                print(f"No keystrokes for {person} on {task}, look_ahead_by_{t}")
+                continue
+            # z-score each feature across volumes, separately per layer
+            z_scored_embeddings = z_score_embedding_dictionary(keystroke_embeddings_by_vol, layer_samples)
                 
             with open(f"{participant_outpath}/{task}_look_ahead_by_{t}-keystroke_embeddings.pkl", 'wb') as f:
-                pickle.dump(keystroke_embeddings_by_vol, f)
-        #         break
+                pickle.dump(z_scored_embeddings, f)
+                # break
         #     break
         # break
     
@@ -200,16 +201,15 @@ def process_participants(model_name, model, tokenizer, task):
 #############################################################################
 
 def main():
-    # args = parse_args()
-    # temperature = args.temp # Could be none
-    # num_samples = args.num_samples if args.num_samples != None else 5
 
     for model_name, model_path in model_names.items():
         print(f"Loading tokenizer and model: {model_name}")
         # Load tokenizer and model
         tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
-        tokenizer.pad_token = tokenizer.eos_token  # Ensure pad token is set
-        model = decide_model(model_path)
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token  # Ensure pad token is set
+        tokenizer.truncation_side = "left"
+        model = decide_model(model_name, model_path)
         
         if model is None:
             continue

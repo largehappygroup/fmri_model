@@ -21,6 +21,33 @@ from matplotlib.pyplot import figure, cm
 from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
+# TODO - himalaya for banded ridge regression (num keystrokes regressor)
+# TODO - additional models (BERT, GPT2)
+# TODO - differences between the two tasks
+# TODO - for each voxel, mean prediction accuracy over participants
+# TODO - correct correlations for multiple comparisons
+# TODO - on/off structure of the task --> with and without breaks? nuisance regressor 
+# TODO - motion as another regressor?
+# TODO - no flatmaps
+# TODO - trends across layers. variance explained?
+
+# RQs
+# How well does the approach work (compared to baselines and confounds)
+# Where does it perform well - intersections between participants? Keep as voxels? Check overlap between participants
+#   check for confounds (on/off structure of task)
+# Layer investigation
+
+# Necessities:
+# BERT and GPT-2 as baselines
+# I want to answer the question of whether modern LLMs represent different information in different layers
+# I suspect that they don't. I can compute the variance explained. 
+# I can compare against BERT and GPT-2 and prior research
+# the linguistic information encoded within - I'd also need to compute this for code somehow
+
+# check for significance with permutation testing
+
+# Confounding factors
+
 # ALLOWED_CORES = list(range(0,40))
 ALLOWED_CORES = list(range(0,30))
 

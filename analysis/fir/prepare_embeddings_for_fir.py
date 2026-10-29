@@ -77,15 +77,15 @@ def prepare_regressor(participant, task, vols_to_skip):
 # save volume numbers to get rid of that data in fMRI files
 # UPDATE - I tried this but it gets rid of a lot of data and performance seems to drop a lot
 def organize_individual_layers(participant, task, layers, keystroke_dict, embedding_dict):
-    
+    # layer label should be 'layer_8'
     signal = { l : [] for l in layers }
     vols_without_keystrokes = set() # This catches all volumes that aren't during questions
 
     # indices of keystroke_dict are 0-indexed
     # check to see if participant has outlier volumes {'task': {'participant' : [vols]}}
-    if participant in list(outlier_vols[task].keys()):
-        int_list = [int(n) for n in outlier_vols[task][participant]]
-        vols_without_keystrokes.update(int_list)
+    # if participant in list(outlier_vols[task].keys()):
+    #     int_list = [int(n) for n in outlier_vols[task][participant]]
+    #     vols_without_keystrokes.update(int_list)
 
     for i,(vol,keys )in enumerate(keystroke_dict.items()):
         
