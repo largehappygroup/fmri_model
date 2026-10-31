@@ -1,0 +1,4 @@
+1. Feature–motion correlation. For each participant, correlate your features (and keystrokes) with FD and the motion parameters. If they're nearly unrelated, motion has no path into your predictions. This is cheap and direct.
+2. Motion-only encoding model. On the data before nuisance regression, fit an encoding model using only motion predictors (Friston-24 + FD). Compare its prediction map to your feature model's map. Motion artifacts tend to show up at brain edges, near the ventricles, and across the whole brain. A pattern in language or code-relevant cortex that looks different supports your interpretation.
+3. Between-subject check. Correlate each participant's mean FD with their mean encoding performance. If high-movers don't get better scores, that argues against motion driving the results.
+4. High-motion TR censoring. Drop TRs with FD above a threshold (e.g. 0.5 mm) from training and testing, then show the results hold.

@@ -15,14 +15,18 @@ import argparse
 import nibabel as nib
 from npp import zscore
 import matplotlib.pyplot as plt
-from ridge import bootstrap_ridge
+from himalaya.backend import set_backend
+from himalaya.kernel_ridge import MultipleKernelRidgeCV, Kernelizer, ColumnKernelizer
+from himalaya.scoring import correlation_score, r2_score, r2_score_split
+# from ridge import bootstrap_ridge
 from collections import defaultdict
 from matplotlib.pyplot import figure, cm
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import KFold
 from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-# TODO - himalaya for banded ridge regression (num keystrokes regressor)
-# TODO - additional models (BERT, GPT2)
 # TODO - differences between the two tasks
 # TODO - for each voxel, mean prediction accuracy over participants
 # TODO - correct correlations for multiple comparisons
@@ -50,14 +54,18 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ALLOWED_CORES = list(range(0,40))
 ALLOWED_CORES = list(range(0,30))
+NUM_GPU_WORKERS = 4 # processes sharing the GPU; each one batches over all voxels already
 
 parser = argparse.ArgumentParser(description="Toggling GPU usage")
-parser.add_argument("--gpu", required=False, default=False, help="Set to True if using the GPU.")
+parser.add_argument("--gpu", required=False, default=0, help="Set to 1 if using the GPU.")
 # logger = logging.getLogger(__name__)
 
 args = parser.parse_args()
 using_gpu = int(args.gpu)
 # print(using_gpu, type(using_gpu))
+
+# himalaya moves arrays to the GPU itself, so the data can stay as numpy arrays
+backend = set_backend("cupy" if using_gpu == 1 else "numpy")
 
 #############################################################################
 ############## Loading Atlases ##############################################
@@ -150,31 +158,89 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, stat, predicted_
     plt.close('all')
     gc.collect()
 
-# emb_train, fmri_train, emb_test, fmri_test
-def run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test):
-    alphas = np.logspace(1, 4, 12) # Equally log-spaced alphas between 10 and 1000. The third number is the number of alphas to test.
-    nboots = 5 #1 # Number of cross-validation runs.
-    chunklen = 40 # 
-    nchunks = 20
-    '''
-    To select the ridge parameter independently for each voxel, we used 50 iterations
-    of cross-validation. Since fMRI data is auto-correlated, for
-    each cross-validation run we randomly sampled 40 different
-    chunks of the training data, each totaling over 4 minutes.
-    The training set comprised 26 stories, totaling 5.4 hours.
-    '''
-    wt, corr, alphas, bscorrs, valinds = bootstrap_ridge(emb_train, fmri_train, emb_test, fmri_test,
-                                                        alphas, nboots, chunklen, nchunks,
-                                                        singcutoff=1e-10, single_alpha=True)
+# # emb_train, fmri_train, emb_test, fmri_test
+# def run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test):
+#     alphas = np.logspace(1, 4, 12) # Equally log-spaced alphas between 10 and 1000. The third number is the number of alphas to test.
+#     nboots = 5 #1 # Number of cross-validation runs.
+#     chunklen = 40 # 
+#     nchunks = 20
+#     '''
+#     To select the ridge parameter independently for each voxel, we used 50 iterations
+#     of cross-validation. Since fMRI data is auto-correlated, for
+#     each cross-validation run we randomly sampled 40 different
+#     chunks of the training data, each totaling over 4 minutes.
+#     The training set comprised 26 stories, totaling 5.4 hours.
+#     '''
+#     wt, corr, alphas, bscorrs, valinds = bootstrap_ridge(emb_train, fmri_train, emb_test, fmri_test,
+#                                                         alphas, nboots, chunklen, nchunks,
+#                                                         singcutoff=1e-10, single_alpha=True)
 
-    return wt, corr, bscorrs
+#     return wt, corr, bscorrs
 
-def calculate_R2(predicted_signal, actual_signal):
-    SS_res = np.sum((actual_signal - predicted_signal) ** 2, axis=0)
-    SS_tot = np.sum((actual_signal - actual_signal.mean(axis=0)) ** 2, axis=0)
-    R2 = 1 - (SS_res / SS_tot)
-    return R2
-    
+# The regressor+features embeddings are make_delayed(hstack((regressor, pca_features)), delays),
+# so every delay block has the num keystrokes regressor in its first column followed by the features
+def get_band_indices(n_columns, n_delays):
+    n_blocks = max(n_delays, 1) # ndelays_0 means no delaying, i.e. a single block
+    block_width = n_columns // n_blocks
+    regressor_idx = np.arange(n_blocks) * block_width
+    features_idx = np.setdiff1d(np.arange(n_columns), regressor_idx)
+    return {"regressor": regressor_idx, "features": features_idx}
+
+# Banded ridge regression: the regressor and the LLM features each get their own regularization,
+# so the single regressor column isn't drowned out by (or forced to share an alpha with) thousands of features
+def run_banded_ridge_regression(X_train, Y_train, X_test, Y_test, band_slices):
+    # local_alpha=False picks the alpha and band weighting by CV score averaged over all voxels,
+    # so every voxel shares a single regularization per band. Scoring by correlation (as in the old
+    # bootstrap_ridge) because R^2 on noisy voxels favors shrinking predictions toward zero
+
+    # n_iter - 100, tutorial uses 20 but says you could/should use more. Another repo uses 100 
+    # alphas - np.logspace(1,20,20) - zaid zada paper
+    # local_alpha - True, default is True and repos I've found don't overwrite to False
+    # score_func - can use default of l2_neg_loss
+    # fit_intercept - False because we use centering in make_pipeline
+    # n_targets_batch
+    # n_alphas_batch
+    # n_targets_batch_refit
+    solver_params = dict(n_iter=100, alphas=np.logspace(1, 20, 20), n_targets_batch=2000, n_alphas_batch=20, n_targets_batch_refit=2000)
+
+    # fMRI data is autocorrelated, so CV folds are contiguous blocks of time rather than shuffled TRs
+    cv = KFold(n_splits=5, shuffle=False)
+
+    column_kernelizer = ColumnKernelizer([(name, Kernelizer(kernel="linear"), idx)
+                                          for name, idx in band_slices.items()])
+    model = MultipleKernelRidgeCV(kernels="precomputed", solver="random_search",
+                                  solver_params=solver_params, cv=cv)
+
+    pipeline = make_pipeline(StandardScaler(with_mean=True, with_std=False), column_kernelizer, model)
+
+    X_train = X_train.astype("float32")
+    X_test = X_test.astype("float32")
+    Y_train = Y_train.astype("float32")
+    Y_test = Y_test.astype("float32")
+
+    pipeline.fit(X_train, Y_train)
+
+    predicted_signal = pipeline.predict(X_test)
+    predicted_split = pipeline.predict(X_test, split=True) # per-band predictions, (n_bands, n_TRs, n_voxels)
+
+    corrs = backend.to_numpy(correlation_score(Y_test, predicted_signal))
+    R2 = backend.to_numpy(r2_score(Y_test, predicted_signal))
+    # How much of the R^2 is attributable to each band. r2_score_split needs zero-mean data, and the fMRI
+    # was z-scored over the whole run, so the test segment is centered first (bands sum to R^2 of centered test data)
+    R2_split = backend.to_numpy(r2_score_split(Y_test - Y_test.mean(0), predicted_split))
+    R2_split = {name: R2_split[i] for i, name in enumerate(band_slices)}
+    cv_scores = backend.to_numpy(model.cv_scores_) # (n_iter, n_voxels)
+    # deltas_ are log(band weight / alpha), so each band's effective alpha is exp(-delta) (same for every voxel)
+    deltas = backend.to_numpy(model.deltas_)
+    band_alphas = {name: float(np.exp(-deltas[i, 0])) for i, name in enumerate(band_slices)}
+
+    predicted_signal = backend.to_numpy(predicted_signal)
+    corrs = np.nan_to_num(corrs)
+
+    return predicted_signal, corrs, R2, R2_split, cv_scores, band_alphas
+
+# TODO - permutation testing
+
 
 # For parallel processing, does all the setup for ridge regression, though the parameter list is grossly long
 def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, base_outpath,
@@ -198,11 +264,13 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
     keys_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-test_keystrokes.pkl"
     R2_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-R2.pkl"
+    R2_split_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-R2_split.pkl"
+    alphas_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-band_alphas.pkl"
 
     if re.match("only_regressor", regressor):
         return
 
-    if os.path.isfile(corr_outfile) and os.path.isfile(sim_outfile) and os.path.isfile(keys_outfile) and os.path.isfile(R2_outfile):
+    if all(os.path.isfile(f) for f in [corr_outfile, sim_outfile, keys_outfile, R2_outfile, R2_split_outfile, alphas_outfile]):
         return
 
     # Splitting the data based on the task
@@ -225,13 +293,16 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     # So right now, I need to run the full model for all participants
     # I'll rerun the base model afterwards for the best model configurations to calculate R^2 values for that
 
-    weights,corrs,bscorrs = run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test)
-    predicted_signal = np.dot(emb_test, weights)
+    n_delays = int(re.search(r'ndelays_(\d+)', delays).group(1))
+
+    # TODO - block design as regressor
+
+    band_slices = get_band_indices(emb_train.shape[1], n_delays)
+
+    predicted_signal,corrs,R2,R2_split,cv_scores,band_alphas = run_banded_ridge_regression(emb_train, fmri_train, emb_test, fmri_test, band_slices)
     # calculating cosine similarity as a performance metric
     cos_similarities = calculate_voxelwise_cosine_similarity(fmri_test, predicted_signal)
 
-    R2 = calculate_R2(predicted_signal, fmri_test)
-    
     
     # Saving model weights and correlation values between predicted and actual timecourses as output
     # UPDATE - not saving model weights for now because the files are huge
@@ -254,12 +325,18 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
         
     with open(R2_outfile, 'wb') as f:
         pickle.dump(R2, f)
-        
+
+    with open(R2_split_outfile, 'wb') as f:
+        pickle.dump(R2_split, f)
+
+    with open(alphas_outfile, 'wb') as f:
+        pickle.dump(band_alphas, f)
+
     # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test, 'correlation')
     # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, cos_similarities, predicted_signal, emb_test, keys_test, 'cosine_similarity')
-    
+
     # Trying to free up space
-    del weights, corrs, bscorrs, emb_train, emb_test, fmri_train, fmri_test
+    del predicted_signal, corrs, cv_scores, emb_train, emb_test, fmri_train, fmri_test
     gc.collect()
     
     return
@@ -268,11 +345,6 @@ def load_and_split_embeddings(embedding_path, split_point):
     
     with open(embedding_path, 'rb') as f:
         embedding = pickle.load(f)
-
-        if using_gpu == 1:
-            import cupy as cp
-            embedding = cp.array(embedding)
-            # print("embedding should be converted")
 
     # print("embedding type: ", type(embedding))
     delRstim = embedding[:split_point, :] # delRstim from pickle files
@@ -302,26 +374,19 @@ def fmri_train_test_split(reshaped_scan):
     
 def load_and_reshape_fmri_data(fmripath, vols_to_skip):
     fmri_data = nib.load(fmripath)
-    scan = fmri_data.get_fdata()
+    scan = fmri_data.get_fdata(dtype=np.float32, caching='unchanged') # don't keep a cached copy of the full volume
 
     scan_2d = (np.reshape(scan, [scan.shape[0]*scan.shape[1]*scan.shape[2], scan.shape[3]]))
-    
-    if using_gpu == 1:
-        import cupy as cp
-        scan_2d = cp.asarray(scan_2d)
-        # print("scan should be converted")
-    
-    # print("scan type", type(scan_2d))
-    means = scan_2d.mean(axis=1, keepdims=True)
-    stds = scan_2d.std(axis=1, keepdims=True)
 
-    z_scored_2d_scan = (scan_2d - means) / np.where(stds==0, 1, stds)
+    # Only looking at voxels in the MNI brain that are labeled in the Schaefer Atlas.
+    # Selecting these before z-scoring avoids making full-volume copies (z-scoring is per voxel, so results are the same)
+    scan_2d_schaefer = scan_2d[brain_idx[cortex], :]
+    del scan, scan_2d
 
-    # Only looking at voxels in the MNI brain
-    scan_2d_brain = z_scored_2d_scan[brain_idx, :]
+    means = scan_2d_schaefer.mean(axis=1, keepdims=True)
+    stds = scan_2d_schaefer.std(axis=1, keepdims=True)
 
-    # Only looking at voxels labeled in the Schaefer Atlas
-    scan_2d_schaefer = scan_2d_brain[cortex,:]
+    scan_2d_schaefer = (scan_2d_schaefer - means) / np.where(stds==0, 1, stds)
     scan_2d_schaefer = scan_2d_schaefer.T
     
     vol_nums = np.ones((scan_2d_schaefer.shape)[0])
@@ -401,10 +466,11 @@ def main():
 
         base_outpath = f"/data2/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
 
+        num_workers = NUM_GPU_WORKERS if using_gpu == 1 else len(ALLOWED_CORES)
         print(f"Participant {p} ({i+1}/{num_participants}): "
-            f"processing {num_embeddings} embeddings with {len(ALLOWED_CORES)} workers")
+            f"processing {num_embeddings} embeddings with {num_workers} workers")
 
-        with ProcessPoolExecutor(max_workers=len(ALLOWED_CORES), initializer=init_worker) as ex:
+        with ProcessPoolExecutor(max_workers=num_workers, initializer=init_worker) as ex:
             futures = {
                 ex.submit(
                     ridge_regression_wrapper, 
