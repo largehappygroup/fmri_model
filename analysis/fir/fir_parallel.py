@@ -30,7 +30,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # TODO - differences between the two tasks
 # TODO - for each voxel, mean prediction accuracy over participants
 # TODO - correct correlations for multiple comparisons
-# TODO - on/off structure of the task --> with and without breaks? nuisance regressor 
 # TODO - motion as another regressor?
 # TODO - no flatmaps
 # TODO - trends across layers. variance explained?
@@ -48,12 +47,10 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # I can compare against BERT and GPT-2 and prior research
 # the linguistic information encoded within - I'd also need to compute this for code somehow
 
-# check for significance with permutation testing
-
 # Confounding factors
 
 # ALLOWED_CORES = list(range(0,40))
-ALLOWED_CORES = list(range(0,30))
+ALLOWED_CORES = list(range(0,25))
 NUM_GPU_WORKERS = 4 # processes sharing the GPU; each one batches over all voxels already
 
 parser = argparse.ArgumentParser(description="Toggling GPU usage")
@@ -158,41 +155,18 @@ def make_and_save_plots(outpath, meta_data, bscorrs, fmri_test, stat, predicted_
     plt.close('all')
     gc.collect()
 
-# # emb_train, fmri_train, emb_test, fmri_test
-# def run_ridge_regression(emb_train, fmri_train, emb_test, fmri_test):
-#     alphas = np.logspace(1, 4, 12) # Equally log-spaced alphas between 10 and 1000. The third number is the number of alphas to test.
-#     nboots = 5 #1 # Number of cross-validation runs.
-#     chunklen = 40 # 
-#     nchunks = 20
-#     '''
-#     To select the ridge parameter independently for each voxel, we used 50 iterations
-#     of cross-validation. Since fMRI data is auto-correlated, for
-#     each cross-validation run we randomly sampled 40 different
-#     chunks of the training data, each totaling over 4 minutes.
-#     The training set comprised 26 stories, totaling 5.4 hours.
-#     '''
-#     wt, corr, alphas, bscorrs, valinds = bootstrap_ridge(emb_train, fmri_train, emb_test, fmri_test,
-#                                                         alphas, nboots, chunklen, nchunks,
-#                                                         singcutoff=1e-10, single_alpha=True)
-
-#     return wt, corr, bscorrs
-
-# The regressor+features embeddings are make_delayed(hstack((regressor, pca_features)), delays),
-# so every delay block has the num keystrokes regressor in its first column followed by the features
-def get_band_indices(n_columns, n_delays):
-    n_blocks = max(n_delays, 1) # ndelays_0 means no delaying, i.e. a single block
-    block_width = n_columns // n_blocks
-    regressor_idx = np.arange(n_blocks) * block_width
-    features_idx = np.setdiff1d(np.arange(n_columns), regressor_idx)
-    return {"regressor": regressor_idx, "features": features_idx}
+def get_band_slices(features, regressors):
+    feature_names = ["regressors", "features"]
+    features_width = features.shape[1]
+    regressors_width = regressors.shape[1]
+    return {
+        "regressors": slice(0, regressors_width),
+        "features": slice(regressors_width, regressors_width+features_width)
+    }
 
 # Banded ridge regression: the regressor and the LLM features each get their own regularization,
 # so the single regressor column isn't drowned out by (or forced to share an alpha with) thousands of features
 def run_banded_ridge_regression(X_train, Y_train, X_test, Y_test, band_slices):
-    # local_alpha=False picks the alpha and band weighting by CV score averaged over all voxels,
-    # so every voxel shares a single regularization per band. Scoring by correlation (as in the old
-    # bootstrap_ridge) because R^2 on noisy voxels favors shrinking predictions toward zero
-
     # n_iter - 100, tutorial uses 20 but says you could/should use more. Another repo uses 100 
     # alphas - np.logspace(1,20,20) - zaid zada paper
     # local_alpha - True, default is True and repos I've found don't overwrite to False
@@ -230,47 +204,30 @@ def run_banded_ridge_regression(X_train, Y_train, X_test, Y_test, band_slices):
     R2_split = backend.to_numpy(r2_score_split(Y_test - Y_test.mean(0), predicted_split))
     R2_split = {name: R2_split[i] for i, name in enumerate(band_slices)}
     cv_scores = backend.to_numpy(model.cv_scores_) # (n_iter, n_voxels)
-    # deltas_ are log(band weight / alpha), so each band's effective alpha is exp(-delta) (same for every voxel)
     deltas = backend.to_numpy(model.deltas_)
-    band_alphas = {name: float(np.exp(-deltas[i, 0])) for i, name in enumerate(band_slices)}
-
-    predicted_signal = backend.to_numpy(predicted_signal)
+    band_alphas = np.exp(-deltas)  #{name: float(np.exp(-deltas[i, :])) for i, name in enumerate(band_slices)}
     corrs = np.nan_to_num(corrs)
 
-    return predicted_signal, corrs, R2, R2_split, cv_scores, band_alphas
-
-# TODO - permutation testing
+    return corrs, R2, R2_split, cv_scores, band_alphas
 
 
 # For parallel processing, does all the setup for ridge regression, though the parameter list is grossly long
-def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, base_outpath,
+def ridge_regression_wrapper(feat, participant_embedding_base_path, participant, base_outpath,
                              code_split_point, prose_split_point, 
                              code_fmri_train, code_fmri_test, 
                              prose_fmri_train, prose_fmri_test, 
                              code_keys_test, prose_keys_test):
     
-    meta_data = re.split('-', emb)
+    meta_data = re.split('-', feat)
     model_name = meta_data[0]
     task = meta_data[1]
     look = meta_data[2]
     delays = meta_data[3]
     layer = meta_data[5]
     regressor = (meta_data[6])[:-4]
-
-    # base_outpath = f"/s1/fmri_model_data/ridge_regression_pca_models/{participant}"
-    # base_outpath = f"/s1/fmri_model_data/test/{participant}"
-    corr_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-correlations.pkl"
-    sim_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-cosine_similarities.pkl"
-    # weights_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-model_weights.pkl"
-    keys_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-test_keystrokes.pkl"
-    R2_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-R2.pkl"
-    R2_split_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-R2_split.pkl"
-    alphas_outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-band_alphas.pkl"
-
-    if re.match("only_regressor", regressor):
-        return
-
-    if all(os.path.isfile(f) for f in [corr_outfile, sim_outfile, keys_outfile, R2_outfile, R2_split_outfile, alphas_outfile]):
+    
+    outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-output.npz"
+    if os.path.isfile(outfile):
         return
 
     # Splitting the data based on the task
@@ -279,78 +236,41 @@ def ridge_regression_wrapper(emb, participant_embedding_base_path, participant, 
     fmri_test = code_fmri_test if task == 'code' else prose_fmri_test
     keys_test = code_keys_test if task == 'code' else prose_keys_test
     
-    embedding_path = f"{participant_embedding_base_path}/{emb}"
-    emb_train, emb_test = load_and_split_embeddings(embedding_path, split_point)
+    feature_path = f"{participant_embedding_base_path}/{feat}"
+    regressor_path = feature_path[:-len('features.pkl')] + 'regresors.pkl'
+    # re.sub('features', 'regressors', feature_path)
 
-    # Running ridge regression here
+    X_train, X_test, band_slices = load_and_split_embeddings(feature_path, regressor_path, split_point)
+    # n_delays = int(re.search(r'ndelays_(\d+)', delays).group(1))
+
     print(f"Participant {participant} Ridge Regression for {model_name}, {task}, {layer}, {look}, {delays}")
-
-    # I need ridge regression run for full model (regressor+features) and also for the base model (just features)
-    # I have the ridge regression models trained for the base model, but I need the full model for all participants
-    # because I previously ran just the base model. I'll use the full model to show all the stats
-    # and I need to rerun the base model for certain models and parameter configurations to recalculate R^2
-
-    # So right now, I need to run the full model for all participants
-    # I'll rerun the base model afterwards for the best model configurations to calculate R^2 values for that
-
-    n_delays = int(re.search(r'ndelays_(\d+)', delays).group(1))
-
-    # TODO - block design as regressor
-
-    band_slices = get_band_indices(emb_train.shape[1], n_delays)
-
-    predicted_signal,corrs,R2,R2_split,cv_scores,band_alphas = run_banded_ridge_regression(emb_train, fmri_train, emb_test, fmri_test, band_slices)
-    # calculating cosine similarity as a performance metric
-    cos_similarities = calculate_voxelwise_cosine_similarity(fmri_test, predicted_signal)
-
-    
-    # Saving model weights and correlation values between predicted and actual timecourses as output
-    # UPDATE - not saving model weights for now because the files are huge
-    if not os.path.exists(base_outpath):
-        os.mkdir(base_outpath)
-    
-    ### Not saving model weights for now because each file as float64 takes up 18GB
-    ###   Each participant has 60 embedding files to test and there are 25 participants
-    # with open(weights_outfile, 'wb') as f:
-    #     pickle.dump(weights, f)
-
-    with open(corr_outfile, 'wb') as f:
-        pickle.dump(corrs, f)
-        
-    with open(sim_outfile, 'wb') as f:
-        pickle.dump(cos_similarities, f)
-        
-    with open(keys_outfile, 'wb') as f:
-        pickle.dump(keys_test, f)
-        
-    with open(R2_outfile, 'wb') as f:
-        pickle.dump(R2, f)
-
-    with open(R2_split_outfile, 'wb') as f:
-        pickle.dump(R2_split, f)
-
-    with open(alphas_outfile, 'wb') as f:
-        pickle.dump(band_alphas, f)
-
-    # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, corrs, predicted_signal, emb_test, keys_test, 'correlation')
-    # make_and_save_plots(base_outpath, meta_data, bscorrs, fmri_test, cos_similarities, predicted_signal, emb_test, keys_test, 'cosine_similarity')
-
-    # Trying to free up space
-    del predicted_signal, corrs, cv_scores, emb_train, emb_test, fmri_train, fmri_test
+    corrs,R2,R2_split,cv_scores,band_alphas = run_banded_ridge_regression(X_train, fmri_train, X_test, fmri_test, band_slices)
+    np.savez_compressed(outfile, 
+                        correlations=corrs, 
+                        r2=R2, 
+                        r2_split=np.stack([R2_split[n] for n in band_slices]), 
+                        band_labels=np.array(list(band_slices)), 
+                        band_alphas=band_alphas)
+    del corrs, cv_scores, X_train, X_test, fmri_train, fmri_test
     gc.collect()
     
-    return
+def load_and_split_embeddings(feature_path, regressor_path, split_point):
     
-def load_and_split_embeddings(embedding_path, split_point):
-    
-    with open(embedding_path, 'rb') as f:
-        embedding = pickle.load(f)
+    with open(feature_path, 'rb') as f:
+        features = pickle.load(f)
+    with open(regressor_path, 'rb') as f:
+        regressors = pickle.load(f)
+
+    band_slices = get_band_slices(features, regressors)
+
+    # Combining into one matrix
+    X = np.hstack((regressors, features))
 
     # print("embedding type: ", type(embedding))
-    delRstim = embedding[:split_point, :] # delRstim from pickle files
-    delPstim = embedding[split_point:, :] # delPstim is prediction
+    X_train = X[:split_point, :] # delRstim from pickle files
+    X_test = X[split_point:, :] # delPstim is prediction
     
-    return delRstim, delPstim
+    return X_train, X_test, band_slices
 
 def load_keystrokes(keystroke_path, split_point, vol_nums):
     with open(keystroke_path, 'rb') as f:
@@ -358,18 +278,15 @@ def load_keystrokes(keystroke_path, split_point, vol_nums):
     
     filtered_keystrokes = {kv[0]:kv[1] for i,kv in enumerate(keystrokes.items()) if vol_nums[i] == 1}
     
-    Rkeys = {kv[0]:kv[1] for i,kv in enumerate(filtered_keystrokes.items()) if i <= split_point}
-    Pkeys = {kv[0]:kv[1] for i,kv in enumerate(filtered_keystrokes.items()) if i > split_point}
+    Rkeys = {kv[0]:kv[1] for i,kv in enumerate(filtered_keystrokes.items()) if i < split_point}
+    Pkeys = {kv[0]:kv[1] for i,kv in enumerate(filtered_keystrokes.items()) if i >= split_point}
     
     return Rkeys,Pkeys
-    
 
 def fmri_train_test_split(reshaped_scan):
-    
     split_point = math.floor((reshaped_scan.shape)[0]*0.9)
     zRresp = reshaped_scan[:split_point,:] # zRresp is fMRI data
     zPresp = reshaped_scan[split_point:, :] # zPresp is fMRI data for prediction
-    
     return zRresp, zPresp, split_point
     
 def load_and_reshape_fmri_data(fmripath, vols_to_skip):
@@ -400,8 +317,7 @@ def load_task_specific_data(p, task):
     # base = "/data/zachkaras"
     base = "/tank/home/zachkaras"
     participant_fmri_path = f"{base}/fmri_model_data/clean_{task}/{p}.nii.gz"
-    # participant_keystroke_path = f"/home/zachkaras/fmri/fmri_model/analysis/fir/midprocess/{p}/{task}_new_keystrokes.pkl" # cumberland path
-    participant_keystroke_path = f"/home/zachkaras/fmri_model/analysis/fir/midprocess/{p}/{task}_new_keystrokes.pkl" # behemoth path
+    participant_keystroke_path = f"{base}/fmri_model/analysis/fir/midprocess/{p}/{task}_new_keystrokes.pkl" # behemoth path
     vols_to_skip_path = f"{base}/fmri_model_data/vols_to_skip/{p}_{task}_vols_to_skip.pkl"
     
     # try:
@@ -412,29 +328,22 @@ def load_task_specific_data(p, task):
     #     return
         
     atlas_voxels_2d,vol_nums = load_and_reshape_fmri_data(participant_fmri_path, vols_to_skip)
-    
     fmri_train,fmri_test,split_point = fmri_train_test_split(atlas_voxels_2d)
-    
     keys_train,keys_test = load_keystrokes(participant_keystroke_path, split_point, vol_nums)
         
     return fmri_train, fmri_test, keys_train, keys_test, split_point 
 
 def init_worker():
     os.sched_setaffinity(0,ALLOWED_CORES)
-        
     
 def main():
-    # participant_path = f"/s1/fmri_model_data/fir_vectors_pca"
-    # participant_path = f"/s1/fmri_model_data/fir_vectors_pca_params"
-    base = "/data2/zachkaras"
+    base = "/tank/home/zachkaras"
     participant_path = f"{base}/fmri_model_data/fir_vectors_pca_params" # behemoth path
-
     participants = os.listdir(participant_path)
-    
     num_participants = len(participants)
+
     for i,p in enumerate(participants):     
         print(f"Participant {p} ({i+1}/{num_participants}): Loading fMRI data")
-        # base_outpath = f"/data/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
         base_outpath = f"/tank/home/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
         # continue    
         # if os.path.isdir(base_outpath):
@@ -455,16 +364,12 @@ def main():
             
         participant_embedding_base_path = f"{base}/fmri_model_data/fir_vectors_pca_params/{p}"
         embeddings = os.listdir(participant_embedding_base_path)
-        embeddings = [e for e in embeddings if re.search(r'regressor\+features', e)]
+        features = [e for e in embeddings if re.search(r'features', e)]
+        num_embeddings = len(features)
 
-        # filtered to best models by only copying the relevant ones over
-        # this was after I moved the data to cumberland since it's so huge
-
-        # embeddings = [e for e in embeddings if re.search('no_regressor', e)] # adding to see the influence of the regressor on performance 2/15/2026
-        
-        num_embeddings = len(embeddings)
-
-        base_outpath = f"/data2/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
+        base_outpath = f"/tank/home/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
+        if not os.path.isfolder(base_outpath):
+            os.mkdir(base_outpath)
 
         num_workers = NUM_GPU_WORKERS if using_gpu == 1 else len(ALLOWED_CORES)
         print(f"Participant {p} ({i+1}/{num_participants}): "
@@ -474,13 +379,13 @@ def main():
             futures = {
                 ex.submit(
                     ridge_regression_wrapper, 
-                    emb, participant_embedding_base_path, p, base_outpath,
+                    feat, participant_embedding_base_path, p, base_outpath,
                     code_split_point, prose_split_point,
                     code_fmri_train, code_fmri_test,
                     prose_fmri_train, prose_fmri_test,
                     code_keys_test,prose_keys_test
-                ): emb
-                for emb in embeddings
+                ): feat
+                for feat in features
             }
 
             for ii, fut in enumerate(as_completed(futures), start=1):
