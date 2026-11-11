@@ -51,27 +51,39 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ALLOWED_CORES = list(range(0,40))
 ALLOWED_CORES = list(range(0,25))
-NUM_GPU_WORKERS = 4 # processes sharing the GPU; each one batches over all voxels already
+WORKERS_PER_GPU = 4 # processes sharing each GPU; each one batches over many voxels already
+# Voxels processed at once on the GPU. Larger = faster but more GPU memory per worker.
+# Lower this if you hit CUDA out-of-memory errors (e.g. when other people are using the GPU).
+GPU_TARGETS_BATCH = 20000
+CPU_TARGETS_BATCH = 2000
 
 parser = argparse.ArgumentParser(description="Toggling GPU usage")
 parser.add_argument("--gpu", required=False, default=0, help="Set to 1 if using the GPU.")
+parser.add_argument("--gpus", required=False, default=None,
+                    help="Comma-separated GPU ids to use, e.g. '0,1'. Defaults to all visible GPUs.")
+parser.add_argument("--server", required=True, help="(walla, wakka, behemoth) Splitting up participants across different servers.")
 # logger = logging.getLogger(__name__)
 
 args = parser.parse_args()
 using_gpu = int(args.gpu)
+server = args.server
 # print(using_gpu, type(using_gpu))
 
-# himalaya moves arrays to the GPU itself, so the data can stay as numpy arrays
-backend = set_backend("cupy" if using_gpu == 1 else "numpy")
+# himalaya moves arrays to the GPU itself, so the data can stay as numpy arrays.
+# torch_cuda is used rather than cupy because torch (with CUDA) is what's installed.
+backend = set_backend("torch_cuda" if using_gpu == 1 else "numpy")
+
+# fMRI arrays shared by all workers of a pool. They're loaded once per worker (memory-mapped from
+# /dev/shm) in init_worker instead of being pickled and sent along with every single job.
+FMRI = {}
+warnings.filterwarnings("ignore", message="The given NumPy array is not writable") # mmap arrays are read-only; himalaya only reads them
+warnings.filterwarnings("ignore", message=".*force_int_remainder_cols.*")
 
 #############################################################################
 ############## Loading Atlases ##############################################
 #############################################################################
 
-# make sure things save, load, and plot properly
-
-# atlas_base_path = "/home/zachkaras/fmri/fmri_model/analysis/pipeline/atlases"
-atlas_base_path = "/home/zachkaras/fmri_model/analysis/pipeline/atlases"
+atlas_base_path = "/tank/home/zachkaras/fmri_model/analysis/pipeline/atlases"
 
 # read in 2d mni mask
 mask = nib.load(f"{atlas_base_path}/MNI152_T1_2mm_brain_mask.nii.gz")
@@ -175,7 +187,8 @@ def run_banded_ridge_regression(X_train, Y_train, X_test, Y_test, band_slices):
     # n_targets_batch
     # n_alphas_batch
     # n_targets_batch_refit
-    solver_params = dict(n_iter=100, alphas=np.logspace(1, 20, 20), n_targets_batch=2000, n_alphas_batch=20, n_targets_batch_refit=2000)
+    targets_batch = GPU_TARGETS_BATCH if using_gpu == 1 else CPU_TARGETS_BATCH
+    solver_params = dict(n_iter=100, alphas=np.logspace(1, 20, 20), n_targets_batch=targets_batch, n_alphas_batch=20, n_targets_batch_refit=targets_batch, progress_bar=False)
 
     # fMRI data is autocorrelated, so CV folds are contiguous blocks of time rather than shuffled TRs
     cv = KFold(n_splits=5, shuffle=False)
@@ -189,13 +202,21 @@ def run_banded_ridge_regression(X_train, Y_train, X_test, Y_test, band_slices):
 
     X_train = X_train.astype("float32")
     X_test = X_test.astype("float32")
-    Y_train = Y_train.astype("float32")
-    Y_test = Y_test.astype("float32")
+    # Move the fMRI data to the backend (GPU) once, so the fit and every scoring call reuse the same copy
+    Y_train = backend.asarray(np.asarray(Y_train, dtype="float32"))
+    Y_test = backend.asarray(np.asarray(Y_test, dtype="float32"))
 
     pipeline.fit(X_train, Y_train)
 
     predicted_signal = pipeline.predict(X_test)
     predicted_split = pipeline.predict(X_test, split=True) # per-band predictions, (n_bands, n_TRs, n_voxels)
+
+    # Feature-specific predictions
+    band_names = list(band_slices)
+    feature_idx = band_names.index("features")
+    predicted_from_features = predicted_split[feature_idx]
+    feature_correlations = backend.to_numpy(correlation_score(Y_test, predicted_from_features))
+    feature_correlations = np.nan_to_num(feature_correlations)
 
     corrs = backend.to_numpy(correlation_score(Y_test, predicted_signal))
     R2 = backend.to_numpy(r2_score(Y_test, predicted_signal))
@@ -208,16 +229,15 @@ def run_banded_ridge_regression(X_train, Y_train, X_test, Y_test, band_slices):
     band_alphas = np.exp(-deltas)  #{name: float(np.exp(-deltas[i, :])) for i, name in enumerate(band_slices)}
     corrs = np.nan_to_num(corrs)
 
-    return corrs, R2, R2_split, cv_scores, band_alphas
+    return corrs, feature_correlations, R2, R2_split, cv_scores, band_alphas
 
 
 # For parallel processing, does all the setup for ridge regression, though the parameter list is grossly long
 def ridge_regression_wrapper(feat, participant_embedding_base_path, participant, base_outpath,
-                             code_split_point, prose_split_point, 
-                             code_fmri_train, code_fmri_test, 
-                             prose_fmri_train, prose_fmri_test, 
-                             code_keys_test, prose_keys_test):
-    
+                             code_split_point, prose_split_point):
+    code_fmri_train, code_fmri_test = FMRI.get('code_train'), FMRI.get('code_test')
+    prose_fmri_train, prose_fmri_test = FMRI.get('prose_train'), FMRI.get('prose_test')
+
     meta_data = re.split('-', feat)
     model_name = meta_data[0]
     task = meta_data[1]
@@ -226,7 +246,7 @@ def ridge_regression_wrapper(feat, participant_embedding_base_path, participant,
     layer = meta_data[5]
     regressor = (meta_data[6])[:-4]
     
-    outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-{regressor}-output.npz"
+    outfile = f"{base_outpath}/{model_name}-{task}-{look}-{delays}-{layer}-output.npz"
     if os.path.isfile(outfile):
         return
 
@@ -234,25 +254,30 @@ def ridge_regression_wrapper(feat, participant_embedding_base_path, participant,
     split_point = code_split_point if task == 'code' else prose_split_point
     fmri_train = code_fmri_train if task == 'code' else prose_fmri_train
     fmri_test = code_fmri_test if task == 'code' else prose_fmri_test
-    keys_test = code_keys_test if task == 'code' else prose_keys_test
-    
+    if fmri_train is None:
+        raise RuntimeError(f"no {task} fMRI data loaded for participant {participant}")
+
     feature_path = f"{participant_embedding_base_path}/{feat}"
-    regressor_path = feature_path[:-len('features.pkl')] + 'regresors.pkl'
+    regressor_path = feature_path[:-len('features.pkl')] + 'regressors.pkl'
     # re.sub('features', 'regressors', feature_path)
 
     X_train, X_test, band_slices = load_and_split_embeddings(feature_path, regressor_path, split_point)
     # n_delays = int(re.search(r'ndelays_(\d+)', delays).group(1))
 
     print(f"Participant {participant} Ridge Regression for {model_name}, {task}, {layer}, {look}, {delays}")
-    corrs,R2,R2_split,cv_scores,band_alphas = run_banded_ridge_regression(X_train, fmri_train, X_test, fmri_test, band_slices)
+    corrs,feature_corrs, R2,R2_split,cv_scores,band_alphas = run_banded_ridge_regression(X_train, fmri_train, X_test, fmri_test, band_slices)
     np.savez_compressed(outfile, 
                         correlations=corrs, 
+                        feature_correlations=feature_corrs,
                         r2=R2, 
                         r2_split=np.stack([R2_split[n] for n in band_slices]), 
                         band_labels=np.array(list(band_slices)), 
                         band_alphas=band_alphas)
     del corrs, cv_scores, X_train, X_test, fmri_train, fmri_test
     gc.collect()
+    if using_gpu == 1:
+        import torch
+        torch.cuda.empty_cache() # hand cached GPU memory back so the other workers on this GPU can use it
     
 def load_and_split_embeddings(feature_path, regressor_path, split_point):
     
@@ -333,13 +358,42 @@ def load_task_specific_data(p, task):
         
     return fmri_train, fmri_test, keys_train, keys_test, split_point 
 
-def init_worker():
+def init_worker(fmri_paths, gpu_ids=None, worker_counter=None):
     os.sched_setaffinity(0,ALLOWED_CORES)
-    
+
+    # Spread workers evenly over the GPUs: worker 0 -> gpu_ids[0], worker 1 -> gpu_ids[1], ...
+    if gpu_ids:
+        import torch
+        with worker_counter.get_lock():
+            idx = worker_counter.value
+            worker_counter.value += 1
+        torch.cuda.set_device(gpu_ids[idx % len(gpu_ids)])
+
+    # Memory-mapped from /dev/shm (RAM), so all workers share one copy instead of each holding their own
+    for name, path in fmri_paths.items():
+        FMRI[name] = np.load(path, mmap_mode='r')
+
+def stage_fmri_arrays(arrays, participant):
+    """Writes the fMRI arrays to /dev/shm once so workers can memory-map them. Returns {name: path}."""
+    import tempfile
+    tmpdir = tempfile.mkdtemp(prefix=f"fir_{participant}_", dir="/dev/shm")
+    paths = {}
+    for name, arr in arrays.items():
+        if arr is None:
+            continue
+        paths[name] = f"{tmpdir}/{name}.npy"
+        np.save(paths[name], np.ascontiguousarray(arr, dtype=np.float32))
+    return tmpdir, paths
+
 def main():
     base = "/tank/home/zachkaras"
     participant_path = f"{base}/fmri_model_data/fir_vectors_pca_params" # behemoth path
-    participants = os.listdir(participant_path)
+    participants = sorted(os.listdir(participant_path))
+    chunk_len = math.ceil(len(participants)/3)
+    participant_lists = [participants[i:i+chunk_len] for i in range(0,len(participants), chunk_len)]
+    participants = participant_lists[0] if server == 'wakka' else participant_lists[1] if server == 'behemoth' else participant_lists[2]
+
+
     num_participants = len(participants)
 
     for i,p in enumerate(participants):     
@@ -368,38 +422,53 @@ def main():
         num_embeddings = len(features)
 
         base_outpath = f"/tank/home/zachkaras/fmri_model_data/ridge_regression_pca_params/{p}"
-        if not os.path.isfolder(base_outpath):
+        if not os.path.isdir(base_outpath):
             os.mkdir(base_outpath)
 
-        num_workers = NUM_GPU_WORKERS if using_gpu == 1 else len(ALLOWED_CORES)
+        if using_gpu == 1:
+            import torch
+            gpu_ids = ([int(g) for g in args.gpus.split(',')] if args.gpus
+                       else list(range(torch.cuda.device_count())))
+            num_workers = WORKERS_PER_GPU * len(gpu_ids)
+        else:
+            gpu_ids = None
+            num_workers = len(ALLOWED_CORES)
         print(f"Participant {p} ({i+1}/{num_participants}): "
-            f"processing {num_embeddings} embeddings with {num_workers} workers")
+            f"processing {num_embeddings} embeddings with {num_workers} workers"
+            + (f" on GPUs {gpu_ids}" if gpu_ids else ""))
 
-        with ProcessPoolExecutor(max_workers=num_workers, initializer=init_worker) as ex:
-            futures = {
-                ex.submit(
-                    ridge_regression_wrapper, 
-                    feat, participant_embedding_base_path, p, base_outpath,
-                    code_split_point, prose_split_point,
-                    code_fmri_train, code_fmri_test,
-                    prose_fmri_train, prose_fmri_test,
-                    code_keys_test,prose_keys_test
-                ): feat
-                for feat in features
-            }
+        # Write the fMRI data to shared memory once; workers memory-map it rather than receiving a copy per job
+        shm_dir, fmri_paths = stage_fmri_arrays({'code_train': code_fmri_train, 'code_test': code_fmri_test,
+                                                 'prose_train': prose_fmri_train, 'prose_test': prose_fmri_test}, p)
+        del code_fmri_train, code_fmri_test, prose_fmri_train, prose_fmri_test
+        gc.collect()
 
-            for ii, fut in enumerate(as_completed(futures), start=1):
-                emb = futures[fut]
-                try:
-                    fut.result()
-                    meta_data = re.split('-', emb)
-                    model_name = meta_data[0]
-                    task = meta_data[1]
-                    layer = (meta_data[3])[:-4]
+        import multiprocessing as mp
+        worker_counter = mp.get_context("spawn").Value('i', 0)
+        try:
+            with ProcessPoolExecutor(max_workers=num_workers, initializer=init_worker,
+                                     initargs=(fmri_paths, gpu_ids, worker_counter)) as ex:
+                futures = {
+                    ex.submit(
+                        ridge_regression_wrapper,
+                        feat, participant_embedding_base_path, p, base_outpath,
+                        code_split_point, prose_split_point
+                    ): feat
+                    for feat in features
+                }
 
-                except Exception as e:
-                    print(f"Error for {emb} (participant {p}): {e}")
-                # break
+                for ii, fut in enumerate(as_completed(futures), start=1):
+                    emb = futures[fut]
+                    try:
+                        fut.result()
+                    except Exception as e:
+                        print(f"Error for {emb} (participant {p}): {e}")
+                    if ii % 50 == 0:
+                        print(f"Participant {p}: {ii}/{num_embeddings} done")
+                    # break
+        finally:
+            import shutil
+            shutil.rmtree(shm_dir, ignore_errors=True)
         # break
         
 
