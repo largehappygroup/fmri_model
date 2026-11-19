@@ -1,12 +1,13 @@
 import os
 # --- Setting up GPU ---
 # os.environ["CUDA_VISIBLE_DEVICES"] = str(get_least_used_gpu())
-os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 import torch
 import pynvml
 import pickle
 import numpy as np
+import torch.nn.functional as F
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
@@ -93,7 +94,7 @@ def format_keystrokes(keystrokes, model_name):
     # gpt2 and encoders weren't trained with FIM, so give them the text in reading order
     return f"{prefix}{middle}{suffix}"
 
-def generate_embeddings(keystrokes, model, tokenizer):
+def generate_embeddings(keystrokes, model, tokenizer, compute_ppl=False):
 
     # truncation_side is set to "left" in main(), so the most recent keystrokes are kept
     input_ids = tokenizer(keystrokes, 
@@ -117,8 +118,26 @@ def generate_embeddings(keystrokes, model, tokenizer):
         layer = hidden_state_layer.squeeze(0).float().cpu()
         hidden_states[f'layer_{i}'] = layer
 
-    # save hidden states in directories 
-    return hidden_states
+    # perplexity is only defined for the causal (decoder) models
+    ppl = compute_perplexity(outputs.logits, input_ids, tokenizer) if compute_ppl else None
+
+    # save hidden states in directories
+    return hidden_states, ppl
+
+def compute_perplexity(logits, input_ids, tokenizer):
+    # logits at position t predict token t+1
+    shift_logits = logits[0, :-1].float()          # upcast from bf16 for a stable loss
+    targets = input_ids[0, 1:]
+    nll = F.cross_entropy(shift_logits, targets, reduction='none')
+    # drop FIM tags / BOS / EOS so only real text is scored. FIM tags are added explicitly because
+    # some tokenizers (e.g. DeepSeek) don't list them in all_special_ids
+    fim_ids = tokenizer.convert_tokens_to_ids([tag for tags in fim_tags.values() for tag in tags])
+    mask_ids = set(tokenizer.all_special_ids) | {i for i in fim_ids if i is not None}
+    special = torch.isin(targets, torch.tensor(sorted(mask_ids), device=targets.device))
+    nll = nll[~special]
+    if nll.numel() == 0:                            # one-token prompt: nothing to predict
+        return float('nan')
+    return float(torch.exp(nll.mean()))
 
 def extract_summary_token(embedding, token_idx=-1):
     # -1 = last token (decoders), 0 = [CLS]/<s> token (encoders)
@@ -128,7 +147,7 @@ def extract_summary_token(embedding, token_idx=-1):
 def pluck_intermediate_layers(embeddings, num_samples=8):
     all_layers = list(embeddings.keys())
     num_layers = len(all_layers)
-    indices = np.linspace(0, num_layers - 1, num_samples, dtype=int)
+    indices = np.linspace(1, num_layers - 1, num_samples, dtype=int)
     
     # intermediate_layer_idx = [n for n in range(0, num_layers, step)]
     intermediate_layer_labels = [all_layers[i] for i in indices]
@@ -151,6 +170,7 @@ def process_participants(model_name, model, tokenizer, task):
     model_outpath = f"/tank/home/zachkaras/fmri_model_data/fir_embeddings_params/{model_name}"
     look_ahead_times = [0, 1, 3, 5, 10]
     summary_token_idx = 0 if model_name in encoder_models else -1
+    is_causal = model_name not in encoder_models
     
     if not os.path.isdir(model_outpath):
         os.mkdir(model_outpath)
@@ -172,13 +192,16 @@ def process_participants(model_name, model, tokenizer, task):
                 os.mkdir(participant_outpath)
 
             keystroke_embeddings_by_vol = {}
+            perplexities = {}
             for vol, keystrokes in keystroke_dict.items():
                 # volumes without keystrokes are stored as an empty dict
                 if not keystrokes:
                     continue
 
                 prompt = format_keystrokes(keystrokes, model_name)
-                embeddings = generate_embeddings(prompt, model, tokenizer)
+                embeddings, ppl = generate_embeddings(prompt, model, tokenizer, compute_ppl=is_causal)
+                if is_causal:
+                    perplexities[prompt] = ppl
                 layer_samples = pluck_intermediate_layers(embeddings)
                 # keyed by volume, since the keystroke dicts can't be used as keys
                 keystroke_embeddings_by_vol[prompt] = {layer : extract_summary_token(embeddings[layer], summary_token_idx) for layer in layer_samples}
@@ -191,6 +214,11 @@ def process_participants(model_name, model, tokenizer, task):
                 
             with open(f"{participant_outpath}/{task}_look_ahead_by_{t}-keystroke_embeddings.pkl", 'wb') as f:
                 pickle.dump(z_scored_embeddings, f)
+
+            # saved separately so downstream code doesn't treat perplexity as a layer
+            if perplexities:
+                with open(f"{participant_outpath}/{task}_look_ahead_by_{t}-perplexity.pkl", 'wb') as f:
+                    pickle.dump(perplexities, f)
                 # break
         #     break
         # break

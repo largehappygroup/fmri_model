@@ -107,7 +107,7 @@ def prepare_regressors(participant, task):
 
 def compute_embedding_size(embedding_dict):
     first_key = list(embedding_dict.keys())[0]
-    emb = embedding_dict[first_key]['layer_0']
+    emb = embedding_dict[first_key]['layer_1']
     return emb.shape
 
 # keep track of duplicated layers and condense that into one 

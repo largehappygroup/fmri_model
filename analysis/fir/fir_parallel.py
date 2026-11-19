@@ -30,9 +30,9 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # TODO - differences between the two tasks
 # TODO - for each voxel, mean prediction accuracy over participants
 # TODO - correct correlations for multiple comparisons
-# TODO - motion as another regressor?
 # TODO - no flatmaps
 # TODO - trends across layers. variance explained?
+# TODO - perplexity scores for code and prose participants wrote
 
 # RQs
 # How well does the approach work (compared to baselines and confounds)
@@ -41,20 +41,20 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # Layer investigation
 
 # Necessities:
-# BERT and GPT-2 as baselines
 # I want to answer the question of whether modern LLMs represent different information in different layers
 # I suspect that they don't. I can compute the variance explained. 
 # I can compare against BERT and GPT-2 and prior research
 # the linguistic information encoded within - I'd also need to compute this for code somehow
 
+
 # Confounding factors
 
 # ALLOWED_CORES = list(range(0,40))
 ALLOWED_CORES = list(range(0,25))
-WORKERS_PER_GPU = 4 # processes sharing each GPU; each one batches over many voxels already
+WORKERS_PER_GPU = 2 # processes sharing each GPU; each one batches over many voxels already
 # Voxels processed at once on the GPU. Larger = faster but more GPU memory per worker.
 # Lower this if you hit CUDA out-of-memory errors (e.g. when other people are using the GPU).
-GPU_TARGETS_BATCH = 20000
+GPU_TARGETS_BATCH = 10000
 CPU_TARGETS_BATCH = 2000
 
 parser = argparse.ArgumentParser(description="Toggling GPU usage")
@@ -72,6 +72,29 @@ server = args.server
 # himalaya moves arrays to the GPU itself, so the data can stay as numpy arrays.
 # torch_cuda is used rather than cupy because torch (with CUDA) is what's installed.
 backend = set_backend("torch_cuda" if using_gpu == 1 else "numpy")
+
+# float32 eigh on CUDA sometimes fails to converge on near-singular kernels (e.g. when the random search
+# weights the low-rank regressor band heavily, giving many repeated ~0 eigenvalues). Retry only those
+# decompositions in float64 with a tiny diagonal jitter, then cast back so everything else stays float32.
+_original_eigh = backend.eigh
+def _robust_eigh(K):
+    try:
+        return _original_eigh(K)
+    except Exception:
+        if using_gpu == 1:
+            import torch
+            K64 = K.double()
+            n = K64.shape[-1]
+            scale = K64.diagonal(dim1=-2, dim2=-1).abs().mean().clamp_min(1e-12)
+            K64 = K64 + 1e-8 * scale * torch.eye(n, dtype=K64.dtype, device=K64.device)
+            w, v = torch.linalg.eigh(K64)
+            return w.to(K.dtype), v.to(K.dtype)
+        K64 = np.asarray(K, dtype=np.float64)
+        n = K64.shape[-1]
+        scale = max(np.abs(np.diagonal(K64, axis1=-2, axis2=-1)).mean(), 1e-12)
+        w, v = np.linalg.eigh(K64 + 1e-8 * scale * np.eye(n))
+        return w.astype(K.dtype), v.astype(K.dtype)
+backend.eigh = _robust_eigh
 
 # fMRI arrays shared by all workers of a pool. They're loaded once per worker (memory-mapped from
 # /dev/shm) in init_worker instead of being pickled and sent along with every single job.
